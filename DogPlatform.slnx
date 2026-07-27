@@ -7,6 +7,9 @@
     <Project Path="BuildingBlocks/DogPlatform.Logging/DogPlatform.Logging.csproj" />
     <Project Path="BuildingBlocks/DogPlatform.SharedKernel/DogPlatform.SharedKernel.csproj" />
   </Folder>
+  <Folder Name="/Elementos de la solución/">
+    <File Path=".gitignore" />
+  </Folder>
   <Folder Name="/src/" />
   <Folder Name="/src/ApiGateway/">
     <Project Path="src/ApiGateway/DogPlatform.ApiGateway/DogPlatform.ApiGateway.csproj" />
