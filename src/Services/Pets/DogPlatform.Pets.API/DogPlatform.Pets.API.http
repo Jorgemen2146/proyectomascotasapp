@@ -1,0 +1,6 @@
+@DogPlatform.Pets.API_HostAddress = http://localhost:5095
+
+GET {{DogPlatform.Pets.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

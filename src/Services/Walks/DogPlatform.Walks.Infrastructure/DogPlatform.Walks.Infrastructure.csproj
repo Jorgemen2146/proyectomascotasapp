@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\DogPlatform.Walks.Application\DogPlatform.Walks.Application.csproj" />
+    <ProjectReference Include="..\DogPlatform.Walks.Domain\DogPlatform.Walks.Domain.csproj" />
+    <ProjectReference Include="..\..\..\..\BuildingBlocks\DogPlatform.EventBus\DogPlatform.EventBus.csproj" />
+    <ProjectReference Include="..\..\..\..\BuildingBlocks\DogPlatform.Logging\DogPlatform.Logging.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>

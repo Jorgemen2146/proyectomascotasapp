@@ -1,0 +1,63 @@
+<Solution>
+  <Folder Name="/BuildingBlocks/">
+    <Project Path="BuildingBlocks/DogPlatform.Authentication/DogPlatform.Authentication.csproj" />
+    <Project Path="BuildingBlocks/DogPlatform.Common/DogPlatform.Common.csproj" />
+    <Project Path="BuildingBlocks/DogPlatform.Contracts/DogPlatform.Contracts.csproj" />
+    <Project Path="BuildingBlocks/DogPlatform.EventBus/DogPlatform.EventBus.csproj" />
+    <Project Path="BuildingBlocks/DogPlatform.Logging/DogPlatform.Logging.csproj" />
+    <Project Path="BuildingBlocks/DogPlatform.SharedKernel/DogPlatform.SharedKernel.csproj" />
+  </Folder>
+  <Folder Name="/src/" />
+  <Folder Name="/src/ApiGateway/">
+    <Project Path="src/ApiGateway/DogPlatform.ApiGateway/DogPlatform.ApiGateway.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/" />
+  <Folder Name="/src/Services/Genealogy/">
+    <Project Path="src/Services/Genealogy/DogPlatform.Genealogy.API/DogPlatform.Genealogy.API.csproj" />
+    <Project Path="src/Services/Genealogy/DogPlatform.Genealogy.Application/DogPlatform.Genealogy.Application.csproj" />
+    <Project Path="src/Services/Genealogy/DogPlatform.Genealogy.Domain/DogPlatform.Genealogy.Domain.csproj" />
+    <Project Path="src/Services/Genealogy/DogPlatform.Genealogy.Infrastructure/DogPlatform.Genealogy.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/Health/">
+    <Project Path="src/Services/Health/DogPlatform.Health.API/DogPlatform.Health.API.csproj" />
+    <Project Path="src/Services/Health/DogPlatform.Health.Application/DogPlatform.Health.Application.csproj" />
+    <Project Path="src/Services/Health/DogPlatform.Health.Domain/DogPlatform.Health.Domain.csproj" />
+    <Project Path="src/Services/Health/DogPlatform.Health.Infrastructure/DogPlatform.Health.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/Identity/">
+    <Project Path="src/Services/Identity/DogPlatform.Identity.API/DogPlatform.Identity.API.csproj" />
+    <Project Path="src/Services/Identity/DogPlatform.Identity.Application/DogPlatform.Identity.Application.csproj" />
+    <Project Path="src/Services/Identity/DogPlatform.Identity.Domain/DogPlatform.Identity.Domain.csproj" />
+    <Project Path="src/Services/Identity/DogPlatform.Identity.Infrastructure/DogPlatform.Identity.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/Matching/">
+    <Project Path="src/Services/Matching/DogPlatform.Matching.API/DogPlatform.Matching.API.csproj" />
+    <Project Path="src/Services/Matching/DogPlatform.Matching.Application/DogPlatform.Matching.Application.csproj" />
+    <Project Path="src/Services/Matching/DogPlatform.Matching.Domain/DogPlatform.Matching.Domain.csproj" />
+    <Project Path="src/Services/Matching/DogPlatform.Matching.Infrastructure/DogPlatform.Matching.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/Notification/">
+    <Project Path="src/Services/Notification/DogPlatform.Notification.API/DogPlatform.Notification.API.csproj" />
+    <Project Path="src/Services/Notification/DogPlatform.Notification.Application/DogPlatform.Notification.Application.csproj" />
+    <Project Path="src/Services/Notification/DogPlatform.Notification.Domain/DogPlatform.Notification.Domain.csproj" />
+    <Project Path="src/Services/Notification/DogPlatform.Notification.Infrastructure/DogPlatform.Notification.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/Pets/">
+    <Project Path="src/Services/Pets/DogPlatform.Pets.API/DogPlatform.Pets.API.csproj" />
+    <Project Path="src/Services/Pets/DogPlatform.Pets.Application/DogPlatform.Pets.Application.csproj" />
+    <Project Path="src/Services/Pets/DogPlatform.Pets.Domain/DogPlatform.Pets.Domain.csproj" />
+    <Project Path="src/Services/Pets/DogPlatform.Pets.Infrastructure/DogPlatform.Pets.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/Veterinarian/">
+    <Project Path="src/Services/Veterinarian/DogPlatform.Veterinarian.API/DogPlatform.Veterinarian.API.csproj" />
+    <Project Path="src/Services/Veterinarian/DogPlatform.Veterinarian.Application/DogPlatform.Veterinarian.Application.csproj" />
+    <Project Path="src/Services/Veterinarian/DogPlatform.Veterinarian.Domain/DogPlatform.Veterinarian.Domain.csproj" />
+    <Project Path="src/Services/Veterinarian/DogPlatform.Veterinarian.Infrastructure/DogPlatform.Veterinarian.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/Walks/">
+    <Project Path="src/Services/Walks/DogPlatform.Walks.API/DogPlatform.Walks.API.csproj" />
+    <Project Path="src/Services/Walks/DogPlatform.Walks.Application/DogPlatform.Walks.Application.csproj" />
+    <Project Path="src/Services/Walks/DogPlatform.Walks.Domain/DogPlatform.Walks.Domain.csproj" />
+    <Project Path="src/Services/Walks/DogPlatform.Walks.Infrastructure/DogPlatform.Walks.Infrastructure.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,6 @@
+@DogPlatform.Genealogy.API_HostAddress = http://localhost:5161
+
+GET {{DogPlatform.Genealogy.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

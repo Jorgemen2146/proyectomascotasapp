@@ -1,0 +1,6 @@
+@DogPlatform.Notification.API_HostAddress = http://localhost:5023
+
+GET {{DogPlatform.Notification.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

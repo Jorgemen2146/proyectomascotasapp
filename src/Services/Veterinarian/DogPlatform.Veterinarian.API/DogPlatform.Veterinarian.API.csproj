@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <ProjectReference Include="..\DogPlatform.Veterinarian.Application\DogPlatform.Veterinarian.Application.csproj" />
+    <ProjectReference Include="..\DogPlatform.Veterinarian.Infrastructure\DogPlatform.Veterinarian.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\..\BuildingBlocks\DogPlatform.Authentication\DogPlatform.Authentication.csproj" />
+    <ProjectReference Include="..\..\..\..\BuildingBlocks\DogPlatform.Logging\DogPlatform.Logging.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+</Project>
