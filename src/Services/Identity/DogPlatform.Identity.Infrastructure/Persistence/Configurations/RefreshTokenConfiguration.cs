@@ -27,7 +27,7 @@ internal sealed class RefreshTokenConfiguration : IEntityTypeConfiguration<Refre
 
         builder.HasIndex(rt => rt.Token)
             .IsUnique()
-            .HasDatabaseName("UQ_RefreshTokens_Token");
+            .HasDatabaseName("UX_RefreshTokens_Token");
 
         builder.Property(rt => rt.ExpiresAt)
             .HasColumnName("ExpiresAt")

@@ -30,6 +30,6 @@ internal sealed class UserRoleConfiguration : IEntityTypeConfiguration<UserRole>
 
         builder.HasIndex(ur => new { ur.UserId, ur.RoleId })
             .IsUnique()
-            .HasDatabaseName("UQ_UserRoles_UserId_RoleId");
+            .HasDatabaseName("UX_UserRoles_UserId_RoleId");
     }
 }

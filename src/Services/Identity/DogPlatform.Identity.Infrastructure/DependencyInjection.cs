@@ -1,3 +1,4 @@
+using DogPlatform.Identity.Application;
 using DogPlatform.Identity.Domain.Repositories;
 using DogPlatform.Identity.Infrastructure.Persistence.Context;
 using DogPlatform.Identity.Infrastructure.Persistence.Repositories;
@@ -13,10 +14,13 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        services.AddDbContext<IdentityDbContext>(options =>
+        var dbContext = services.AddDbContext<IdentityDbContext>(options =>
             options.UseSqlServer(
                 configuration.GetConnectionString("IdentityDb"),
                 sql => sql.MigrationsHistoryTable("__EFMigrationsHistory", "auth")));
+
+        services.AddScoped<IIdentityUnitOfWork>(provider =>
+            provider.GetRequiredService<IdentityDbContext>());
 
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();

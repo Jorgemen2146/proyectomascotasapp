@@ -23,7 +23,7 @@ internal sealed class RoleConfiguration : IEntityTypeConfiguration<Role>
 
         builder.HasIndex(r => r.Name)
             .IsUnique()
-            .HasDatabaseName("UQ_Roles_Name");
+            .HasDatabaseName("UX_Roles_Name");
 
         builder.Property(r => r.Description)
             .HasColumnName("Description")

@@ -38,7 +38,7 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
 
             e.HasIndex(em => em.Value)
                 .IsUnique()
-                .HasDatabaseName("UQ_Users_Email");
+                .HasDatabaseName("UX_Users_Email");
         });
 
         builder.Property(u => u.PasswordHash)

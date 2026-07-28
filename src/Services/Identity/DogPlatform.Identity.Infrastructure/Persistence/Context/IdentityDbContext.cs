@@ -1,3 +1,4 @@
+using DogPlatform.Identity.Application;
 using DogPlatform.Identity.Domain.Aggregates.RefreshToken;
 using DogPlatform.Identity.Domain.Aggregates.Role;
 using DogPlatform.Identity.Domain.Aggregates.User;
@@ -5,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DogPlatform.Identity.Infrastructure.Persistence.Context;
 
-public sealed class IdentityDbContext : DbContext
+public sealed class IdentityDbContext : DbContext, IIdentityUnitOfWork
 {
     public IdentityDbContext(DbContextOptions<IdentityDbContext> options)
         : base(options) { }
