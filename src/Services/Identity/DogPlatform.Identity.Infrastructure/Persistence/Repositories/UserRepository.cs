@@ -33,5 +33,6 @@ internal sealed class UserRepository : IUserRepository
 
     public async Task<bool> ExistsWithEmailAsync(Email email, CancellationToken cancellationToken = default) =>
         await _context.Users
+            .AsNoTracking()
             .AnyAsync(u => u.Email.Value == email.Value, cancellationToken);
 }

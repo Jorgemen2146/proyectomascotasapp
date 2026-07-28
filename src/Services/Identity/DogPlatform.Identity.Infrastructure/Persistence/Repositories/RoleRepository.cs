@@ -12,18 +12,25 @@ internal sealed class RoleRepository : IRoleRepository
     public RoleRepository(IdentityDbContext context) => _context = context;
 
     public async Task<Role?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
-        await _context.Roles.FirstOrDefaultAsync(r => r.Id == id, cancellationToken);
+        await _context.Roles
+            .AsNoTracking()
+            .FirstOrDefaultAsync(r => r.Id == id, cancellationToken);
 
     public async Task<Role?> GetByNameAsync(string name, CancellationToken cancellationToken = default) =>
         await _context.Roles
+            .AsNoTracking()
             .FirstOrDefaultAsync(r => r.Name == name.Trim(), cancellationToken);
 
     public async Task<IReadOnlyCollection<Role>> GetAllAsync(CancellationToken cancellationToken = default) =>
-        await _context.Roles.ToListAsync(cancellationToken);
+        await _context.Roles
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
 
     public async Task AddAsync(Role role, CancellationToken cancellationToken = default) =>
         await _context.Roles.AddAsync(role, cancellationToken);
 
     public async Task<bool> ExistsWithNameAsync(string name, CancellationToken cancellationToken = default) =>
-        await _context.Roles.AnyAsync(r => r.Name == name.Trim(), cancellationToken);
+        await _context.Roles
+            .AsNoTracking()
+            .AnyAsync(r => r.Name == name.Trim(), cancellationToken);
 }

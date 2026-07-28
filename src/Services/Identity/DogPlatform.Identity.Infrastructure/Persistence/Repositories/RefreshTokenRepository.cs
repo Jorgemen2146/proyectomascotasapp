@@ -12,16 +12,21 @@ internal sealed class RefreshTokenRepository : IRefreshTokenRepository
     public RefreshTokenRepository(IdentityDbContext context) => _context = context;
 
     public async Task<RefreshToken?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
-        await _context.RefreshTokens.FirstOrDefaultAsync(rt => rt.Id == id, cancellationToken);
+        await _context.RefreshTokens
+            .AsNoTracking()
+            .FirstOrDefaultAsync(rt => rt.Id == id, cancellationToken);
 
     public async Task<RefreshToken?> GetByTokenAsync(string token, CancellationToken cancellationToken = default) =>
-        await _context.RefreshTokens.FirstOrDefaultAsync(rt => rt.Token == token, cancellationToken);
+        await _context.RefreshTokens
+            .AsNoTracking()
+            .FirstOrDefaultAsync(rt => rt.Token == token, cancellationToken);
 
     public async Task<IReadOnlyCollection<RefreshToken>> GetActiveByUserIdAsync(
         Guid userId,
         DateTime utcNow,
         CancellationToken cancellationToken = default) =>
         await _context.RefreshTokens
+            .AsNoTracking()
             .Where(rt => rt.UserId == userId && rt.RevokedAt == null && rt.ExpiresAt > utcNow)
             .ToListAsync(cancellationToken);
 

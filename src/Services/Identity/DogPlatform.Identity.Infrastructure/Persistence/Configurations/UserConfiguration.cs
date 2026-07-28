@@ -43,7 +43,6 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(u => u.PasswordHash)
             .HasColumnName("PasswordHash")
-            .HasMaxLength(500)
             .IsRequired();
 
         builder.Property(u => u.PasswordSalt)
@@ -53,7 +52,7 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(u => u.PhoneNumber)
             .HasColumnName("PhoneNumber")
-            .HasMaxLength(20);
+            .HasMaxLength(30);
 
         builder.Property(u => u.ProfilePhotoUrl)
             .HasColumnName("ProfilePhotoUrl")
