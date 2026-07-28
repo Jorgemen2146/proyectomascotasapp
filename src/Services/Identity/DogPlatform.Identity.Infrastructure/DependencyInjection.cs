@@ -1,7 +1,9 @@
 using DogPlatform.Identity.Application;
+using DogPlatform.Identity.Application.Security;
 using DogPlatform.Identity.Domain.Repositories;
 using DogPlatform.Identity.Infrastructure.Persistence.Context;
 using DogPlatform.Identity.Infrastructure.Persistence.Repositories;
+using DogPlatform.Identity.Infrastructure.Security;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,7 +16,7 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        var dbContext = services.AddDbContext<IdentityDbContext>(options =>
+        services.AddDbContext<IdentityDbContext>(options =>
             options.UseSqlServer(
                 configuration.GetConnectionString("IdentityDb"),
                 sql => sql.MigrationsHistoryTable("__EFMigrationsHistory", "auth")));
@@ -25,6 +27,8 @@ public static class DependencyInjection
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+
+        services.AddScoped<IPasswordHasher, Pbkdf2PasswordHasher>();
 
         return services;
     }

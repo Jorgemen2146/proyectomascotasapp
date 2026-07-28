@@ -1,4 +1,3 @@
-using DogPlatform.Identity.Application.Features.Authentication.Register;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,24 +8,15 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
-        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly));
+        services.AddMediatR(cfg =>
+            cfg.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly));
 
-        // Register all validators in this assembly
-        var validatorTypes = typeof(RegisterUserValidator).Assembly
-            .GetTypes()
-            .Where(t => t.IsClass && !t.IsAbstract && t.IsAssignableTo(typeof(IValidator)))
-            .ToList();
+        services.AddValidatorsFromAssembly(
+            typeof(DependencyInjection).Assembly,
+            ServiceLifetime.Scoped);
 
-        foreach (var validatorType in validatorTypes)
-        {
-            var interfaceType = validatorType
-                .GetInterfaces()
-                .First(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IValidator<>));
-
-            services.AddScoped(interfaceType, validatorType);
-        }
+        services.AddSingleton(TimeProvider.System);
 
         return services;
     }
 }
-
