@@ -2,7 +2,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\BuildingBlocks\DogPlatform.SharedKernel\DogPlatform.SharedKernel.csproj" />
-    <ProjectReference Include="..\..\..\..\BuildingBlocks\DogPlatform.Contracts\DogPlatform.Contracts.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
