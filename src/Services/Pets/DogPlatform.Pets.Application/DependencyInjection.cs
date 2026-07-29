@@ -1,0 +1,17 @@
+using DogPlatform.Pets.Application.Features.Pets.Create;
+using FluentValidation;
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace DogPlatform.Pets.Application;
+
+public static class DependencyInjection
+{
+    public static IServiceCollection AddApplication(this IServiceCollection services)
+    {
+        services.AddMediatR(typeof(CreatePetCommand));
+        services.AddValidatorsFromAssembly(typeof(CreatePetValidator).Assembly);
+
+        return services;
+    }
+}
