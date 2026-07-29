@@ -5,6 +5,11 @@
     <ProjectReference Include="..\DogPlatform.Notification.Infrastructure\DogPlatform.Notification.Infrastructure.csproj" />
     <ProjectReference Include="..\..\..\..\BuildingBlocks\DogPlatform.Authentication\DogPlatform.Authentication.csproj" />
     <ProjectReference Include="..\..\..\..\BuildingBlocks\DogPlatform.Logging\DogPlatform.Logging.csproj" />
+    <ProjectReference Include="..\..\..\..\BuildingBlocks\DogPlatform.Common\DogPlatform.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 
   <PropertyGroup>

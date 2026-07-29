@@ -5,6 +5,7 @@
     <ProjectReference Include="..\DogPlatform.Identity.Infrastructure\DogPlatform.Identity.Infrastructure.csproj" />
     <ProjectReference Include="..\..\..\..\BuildingBlocks\DogPlatform.Authentication\DogPlatform.Authentication.csproj" />
     <ProjectReference Include="..\..\..\..\BuildingBlocks\DogPlatform.Logging\DogPlatform.Logging.csproj" />
+    <ProjectReference Include="..\..\..\..\BuildingBlocks\DogPlatform.Common\DogPlatform.Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>
