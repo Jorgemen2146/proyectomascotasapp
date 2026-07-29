@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using DogPlatform.Identity.API.Requests.Authentication;
 using DogPlatform.Identity.Application.Features.Authentication.Login;
 using DogPlatform.Identity.Application.Features.Authentication.Logout;
@@ -5,6 +6,7 @@ using DogPlatform.Identity.Application.Features.Authentication.RefreshToken;
 using DogPlatform.Identity.Application.Features.Authentication.Register;
 using DogPlatform.SharedKernel.Primitives;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DogPlatform.Identity.API.Controllers;
@@ -21,6 +23,7 @@ public sealed class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
+    [AllowAnonymous]
     [ProducesResponseType(typeof(RegisterUserResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
@@ -54,6 +57,7 @@ public sealed class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
+    [AllowAnonymous]
     [ProducesResponseType(typeof(LoginResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -78,6 +82,7 @@ public sealed class AuthController : ControllerBase
     }
 
     [HttpPost("refresh")]
+    [AllowAnonymous]
     [ProducesResponseType(typeof(RefreshTokenResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -102,6 +107,7 @@ public sealed class AuthController : ControllerBase
     }
 
     [HttpPost("logout")]
+    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> Logout(
         [FromBody] LogoutRequest request,
@@ -109,5 +115,29 @@ public sealed class AuthController : ControllerBase
     {
         await _mediator.Send(new LogoutCommand(request.RefreshToken), cancellationToken);
         return NoContent();
+    }
+
+    [HttpGet("me")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public IActionResult Me()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)
+                  ?? User.FindFirstValue("sub");
+        var email = User.FindFirstValue(ClaimTypes.Email)
+                 ?? User.FindFirstValue("email");
+        var firstName = User.FindFirstValue(ClaimTypes.GivenName)
+                     ?? User.FindFirstValue("given_name");
+        var lastName = User.FindFirstValue(ClaimTypes.Surname)
+                    ?? User.FindFirstValue("family_name");
+
+        return Ok(new
+        {
+            userId,
+            email,
+            firstName,
+            lastName
+        });
     }
 }
