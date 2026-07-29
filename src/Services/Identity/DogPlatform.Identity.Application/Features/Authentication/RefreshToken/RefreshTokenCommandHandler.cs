@@ -58,14 +58,13 @@ internal sealed class RefreshTokenCommandHandler
 
         var jwtResult = _jwtTokenGenerator.GenerateAccessToken(user);
 
-        var newRawToken = _refreshTokenGenerator.Generate();
-        var newExpiresAt = utcNow.AddDays(_refreshTokenGenerator.RefreshTokenDays);
+        var refreshResult = _refreshTokenGenerator.Generate(utcNow);
 
         var newRefreshToken = Domain.Aggregates.RefreshToken.RefreshToken.Create(
             Guid.NewGuid(),
             user.Id,
-            newRawToken,
-            newExpiresAt,
+            refreshResult.Token,
+            refreshResult.ExpiresAtUtc,
             utcNow);
 
         await _refreshTokenRepository.AddAsync(newRefreshToken, cancellationToken);
@@ -75,7 +74,7 @@ internal sealed class RefreshTokenCommandHandler
         return Result.Success(new RefreshTokenResponse(
             jwtResult.AccessToken,
             jwtResult.ExpiresAtUtc,
-            newRawToken,
-            newExpiresAt));
+            refreshResult.Token,
+            refreshResult.ExpiresAtUtc));
     }
 }

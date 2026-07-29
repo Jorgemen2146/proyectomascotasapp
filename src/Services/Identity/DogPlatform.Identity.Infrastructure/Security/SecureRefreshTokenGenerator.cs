@@ -14,14 +14,14 @@ internal sealed class SecureRefreshTokenGenerator : IRefreshTokenGenerator
         _options = options.Value;
     }
 
-    public int RefreshTokenDays => _options.RefreshTokenDays;
-
-    public string Generate()
+    public RefreshTokenResult Generate(DateTime utcNow)
     {
         var bytes = RandomNumberGenerator.GetBytes(32);
-        return Convert.ToBase64String(bytes)
+        var token = Convert.ToBase64String(bytes)
             .Replace('+', '-')
             .Replace('/', '_')
             .TrimEnd('=');
+
+        return new RefreshTokenResult(token, utcNow.AddDays(_options.RefreshTokenDays));
     }
 }
