@@ -1,12 +1,16 @@
+using System.Text;
 using DogPlatform.Identity.Application;
 using DogPlatform.Identity.Application.Security;
 using DogPlatform.Identity.Domain.Repositories;
+using DogPlatform.Identity.Infrastructure.Authentication;
 using DogPlatform.Identity.Infrastructure.Persistence.Context;
 using DogPlatform.Identity.Infrastructure.Persistence.Repositories;
 using DogPlatform.Identity.Infrastructure.Security;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 
 namespace DogPlatform.Identity.Infrastructure;
 
@@ -29,7 +33,36 @@ public static class DependencyInjection
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
         services.AddScoped<IPasswordHasher, Pbkdf2PasswordHasher>();
+        services.AddScoped<IRefreshTokenGenerator, SecureRefreshTokenGenerator>();
+        services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+
+        services.Configure<JwtOptions>(
+            configuration.GetSection(JwtOptions.SectionName));
+
+        var jwtSection = configuration.GetSection(JwtOptions.SectionName);
+        var secret = jwtSection["Secret"] ?? string.Empty;
+        var issuer = jwtSection["Issuer"] ?? string.Empty;
+        var audience = jwtSection["Audience"] ?? string.Empty;
+
+        services
+            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = issuer,
+                    ValidAudience = audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(secret)),
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
 
         return services;
     }
 }
+
