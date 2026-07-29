@@ -33,11 +33,14 @@ public static class DependencyInjection
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
         services.AddScoped<IPasswordHasher, Pbkdf2PasswordHasher>();
-        services.AddScoped<IRefreshTokenGenerator, SecureRefreshTokenGenerator>();
+        services.AddSingleton<IRefreshTokenGenerator, SecureRefreshTokenGenerator>();
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 
-        services.Configure<JwtOptions>(
-            configuration.GetSection(JwtOptions.SectionName));
+        services
+            .AddOptions<JwtOptions>()
+            .Bind(configuration.GetSection(JwtOptions.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
 
         var jwtSection = configuration.GetSection(JwtOptions.SectionName);
         var secret = jwtSection["Secret"] ?? string.Empty;
@@ -62,7 +65,10 @@ public static class DependencyInjection
                 };
             });
 
+        services.AddAuthorization();
+
         return services;
     }
 }
+
 

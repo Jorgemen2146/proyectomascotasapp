@@ -59,7 +59,7 @@ internal sealed class RefreshTokenCommandHandler
         var jwtResult = _jwtTokenGenerator.GenerateAccessToken(user);
 
         var newRawToken = _refreshTokenGenerator.Generate();
-        var newExpiresAt = utcNow.AddDays(7);
+        var newExpiresAt = utcNow.AddDays(_refreshTokenGenerator.RefreshTokenDays);
 
         var newRefreshToken = Domain.Aggregates.RefreshToken.RefreshToken.Create(
             Guid.NewGuid(),

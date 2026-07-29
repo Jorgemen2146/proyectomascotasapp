@@ -69,7 +69,7 @@ internal sealed class LoginCommandHandler : IRequestHandler<LoginCommand, Result
         var jwtResult = _jwtTokenGenerator.GenerateAccessToken(user);
 
         var rawRefreshToken = _refreshTokenGenerator.Generate();
-        var refreshTokenExpiresAt = utcNow.AddDays(7);
+        var refreshTokenExpiresAt = utcNow.AddDays(_refreshTokenGenerator.RefreshTokenDays);
 
         var refreshToken = RefreshTokenAggregate.Create(
             Guid.NewGuid(),
