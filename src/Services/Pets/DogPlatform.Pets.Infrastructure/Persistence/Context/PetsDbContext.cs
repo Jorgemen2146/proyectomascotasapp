@@ -1,3 +1,4 @@
+using DogPlatform.Pets.Application;
 using DogPlatform.Pets.Domain.Aggregates.Pet;
 using DogPlatform.Pets.Domain.Catalog;
 using DogPlatform.Pets.Infrastructure.Persistence.Configurations;

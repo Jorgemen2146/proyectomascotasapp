@@ -1,3 +1,4 @@
+using DogPlatform.Pets.Application.Security;
 using DogPlatform.Pets.Domain.Repositories;
 using DogPlatform.SharedKernel.Primitives;
 using MediatR;
@@ -26,6 +27,6 @@ public sealed class GetMyPetsQueryHandler : IRequestHandler<GetMyPetsQuery, Resu
             .ToList()
             .AsReadOnly();
 
-        return Result.Success(responses);
+        return Result.Success<IReadOnlyCollection<MyPetResponse>>(responses);
     }
 }

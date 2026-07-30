@@ -1,4 +1,4 @@
-using DogPlatform.Pets.Domain.Catalog;
+using DogPlatform.Pets.Domain.Aggregates.Pet;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

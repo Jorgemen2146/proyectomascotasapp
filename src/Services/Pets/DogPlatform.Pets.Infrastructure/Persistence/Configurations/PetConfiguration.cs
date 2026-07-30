@@ -71,37 +71,9 @@ public sealed class PetConfiguration : IEntityTypeConfiguration<Pet>
             .HasForeignKey(p => p.BreedId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.OwnsMany(
-            p => p.Photos,
-            navigationBuilder =>
-            {
-                navigationBuilder.ToTable("PetPhotos", "pets");
-
-                navigationBuilder.HasKey(pp => pp.Id);
-
-                navigationBuilder.Property(pp => pp.Id)
-                    .HasColumnName("PetPhotoId");
-
-                navigationBuilder.Property(pp => pp.PetId)
-                    .HasColumnName("PetId");
-
-                navigationBuilder.Property(pp => pp.Url)
-                    .HasColumnName("Url")
-                    .IsRequired()
-                    .HasMaxLength(2000);
-
-                navigationBuilder.Property(pp => pp.IsMain)
-                    .HasColumnName("IsMain")
-                    .IsRequired()
-                    .HasDefaultValue(false);
-
-                navigationBuilder.Property(pp => pp.CreatedAt)
-                    .HasColumnName("CreatedAt")
-                    .IsRequired();
-
-                navigationBuilder.WithOwner()
-                    .HasForeignKey(pp => pp.PetId)
-                    .OnDelete(DeleteBehavior.Cascade);
-            });
+        builder.HasMany<PetPhoto>()
+            .WithOne()
+            .HasForeignKey(pp => pp.PetId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

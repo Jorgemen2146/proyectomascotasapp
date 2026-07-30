@@ -1,3 +1,4 @@
+using DogPlatform.Pets.Application.Security;
 using DogPlatform.Pets.Domain.Aggregates.Pet;
 using DogPlatform.Pets.Domain.Errors;
 using DogPlatform.Pets.Domain.Repositories;

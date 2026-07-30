@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using DogPlatform.Pets.Application.Security;
+using Microsoft.AspNetCore.Http;
 
 namespace DogPlatform.Pets.Infrastructure.Security;
 
