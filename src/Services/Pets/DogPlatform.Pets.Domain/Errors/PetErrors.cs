@@ -10,6 +10,9 @@ public static class PetErrors
     public static readonly Error Unauthorized =
         Error.Unauthorized("Pet.Unauthorized", "You do not have permission to access this pet.");
 
+    public static readonly Error AlreadyDeleted =
+        Error.NotFound("Pet.AlreadyDeleted", "The pet has already been deleted.");
+
     public static readonly Error BreedNotFound =
         Error.NotFound("Pet.BreedNotFound", "The specified breed does not exist.");
 }

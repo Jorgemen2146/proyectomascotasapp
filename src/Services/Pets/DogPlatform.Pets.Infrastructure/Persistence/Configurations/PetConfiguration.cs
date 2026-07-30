@@ -66,6 +66,16 @@ public sealed class PetConfiguration : IEntityTypeConfiguration<Pet>
         builder.Property(p => p.UpdatedAt)
             .HasColumnName("UpdatedAt");
 
+        builder.Property(p => p.IsDeleted)
+            .HasColumnName("IsDeleted")
+            .IsRequired()
+            .HasDefaultValue(false);
+
+        builder.Property(p => p.DeletedAt)
+            .HasColumnName("DeletedAt");
+
+        builder.HasQueryFilter(p => !p.IsDeleted);
+
         builder.HasOne<Breed>()
             .WithMany()
             .HasForeignKey(p => p.BreedId)

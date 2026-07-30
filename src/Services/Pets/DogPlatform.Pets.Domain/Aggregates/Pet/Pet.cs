@@ -1,3 +1,4 @@
+using DogPlatform.Pets.Domain.Errors;
 using DogPlatform.Pets.Domain.ValueObjects;
 using DogPlatform.SharedKernel.Primitives;
 
@@ -49,6 +50,8 @@ public sealed class Pet : AggregateRoot<Guid>
     public string? Description { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime? UpdatedAt { get; private set; }
+    public bool IsDeleted { get; private set; }
+    public DateTime? DeletedAt { get; private set; }
 
     public IReadOnlyCollection<PetPhoto> Photos => _photos.AsReadOnly();
 
@@ -103,6 +106,18 @@ public sealed class Pet : AggregateRoot<Guid>
         IsSterilized = isSterilized;
         Description = description;
         UpdatedAt = utcNow;
+    }
+
+    public Result Delete(DateTime utcNow)
+    {
+        if (IsDeleted)
+            return Result.Failure(PetErrors.AlreadyDeleted);
+
+        IsDeleted = true;
+        DeletedAt = utcNow;
+        UpdatedAt = utcNow;
+
+        return Result.Success();
     }
 
     public void AddPhoto(PetPhoto photo)

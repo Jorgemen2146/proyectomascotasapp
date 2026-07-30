@@ -1,4 +1,5 @@
 using DogPlatform.Pets.Application.Features.Pets.Create;
+using DogPlatform.Pets.Application.Features.Pets.Delete;
 using DogPlatform.Pets.Application.Features.Pets.GetById;
 using DogPlatform.Pets.Application.Features.Pets.GetMine;
 using DogPlatform.Pets.Application.Features.Pets.Update;
@@ -134,5 +135,34 @@ public sealed class PetsController : ControllerBase
         }
 
         return Ok(result.Value);
+    }
+
+    /// <summary>
+    /// Soft-delete a pet (if owned by the authenticated user).
+    /// </summary>
+    [HttpDelete("{id:guid}")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeletePet(
+        [FromRoute] Guid id,
+        CancellationToken cancellationToken)
+    {
+        var command = new DeletePetCommand(id);
+        var result = await _mediator.Send(command, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return result.Error.Code switch
+            {
+                "Pet.NotFound" or "Pet.AlreadyDeleted" => NotFound(),
+                "Pet.Unauthorized" => Forbid(),
+                _ => BadRequest(result.Error)
+            };
+        }
+
+        return NoContent();
     }
 }
