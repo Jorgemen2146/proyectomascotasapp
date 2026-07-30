@@ -21,4 +21,8 @@ public interface IBreedRepository
     Task<Breed?> GetByIdAsync(int breedId, CancellationToken cancellationToken = default);
 
     Task<IReadOnlyCollection<Breed>> GetAllAsync(CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<Breed>> GetBySpeciesIdAsync(
+        int speciesId,
+        CancellationToken cancellationToken = default);
 }

@@ -25,6 +25,20 @@ public sealed class BreedRepository : IBreedRepository
     {
         var breeds = await _context.Breeds
             .AsNoTracking()
+            .OrderBy(b => b.Name)
+            .ToListAsync(cancellationToken);
+
+        return breeds.AsReadOnly();
+    }
+
+    public async Task<IReadOnlyCollection<Breed>> GetBySpeciesIdAsync(
+        int speciesId,
+        CancellationToken cancellationToken = default)
+    {
+        var breeds = await _context.Breeds
+            .AsNoTracking()
+            .Where(b => b.SpeciesId == speciesId)
+            .OrderBy(b => b.Name)
             .ToListAsync(cancellationToken);
 
         return breeds.AsReadOnly();

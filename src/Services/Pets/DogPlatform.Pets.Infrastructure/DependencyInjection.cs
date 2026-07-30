@@ -24,6 +24,7 @@ public static class DependencyInjection
         services.AddScoped<IPetsUnitOfWork>(sp => sp.GetRequiredService<PetsDbContext>());
         services.AddScoped<IPetRepository, PetRepository>();
         services.AddScoped<IBreedRepository, BreedRepository>();
+        services.AddScoped<ISpeciesRepository, SpeciesRepository>();
 
         return services;
     }

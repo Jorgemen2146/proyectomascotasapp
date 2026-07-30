@@ -13,6 +13,7 @@ builder.Services.AddDogPlatformSwagger("DogPlatform Pets API");
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton(TimeProvider.System);
 
 var jwtSection = builder.Configuration.GetSection("Jwt");
