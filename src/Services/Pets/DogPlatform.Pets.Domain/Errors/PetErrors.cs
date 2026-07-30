@@ -15,4 +15,7 @@ public static class PetErrors
 
     public static readonly Error BreedNotFound =
         Error.NotFound("Pet.BreedNotFound", "The specified breed does not exist.");
+
+    public static readonly Error PhotoNotFound =
+        Error.NotFound("Pet.Photo.NotFound", "The photo was not found.");
 }

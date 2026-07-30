@@ -22,6 +22,13 @@ public sealed class PetRepository : IPetRepository
             .FirstOrDefaultAsync(p => p.Id == petId, cancellationToken);
     }
 
+    public async Task<Pet?> GetByIdWithPhotosAsync(Guid petId, CancellationToken cancellationToken = default)
+    {
+        return await _context.Pets
+            .Include("_photos")
+            .FirstOrDefaultAsync(p => p.Id == petId, cancellationToken);
+    }
+
     public async Task<IReadOnlyCollection<Pet>> GetByOwnerIdAsync(
         Guid ownerId,
         CancellationToken cancellationToken = default)

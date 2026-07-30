@@ -7,6 +7,8 @@ public interface IPetRepository
 {
     Task<Pet?> GetByIdAsync(Guid petId, CancellationToken cancellationToken = default);
 
+    Task<Pet?> GetByIdWithPhotosAsync(Guid petId, CancellationToken cancellationToken = default);
+
     Task<IReadOnlyCollection<Pet>> GetByOwnerIdAsync(
         Guid ownerId,
         CancellationToken cancellationToken = default);

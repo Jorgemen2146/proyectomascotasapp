@@ -120,9 +120,45 @@ public sealed class Pet : AggregateRoot<Guid>
         return Result.Success();
     }
 
-    public void AddPhoto(PetPhoto photo)
+    public Result AddPhoto(PetPhoto photo)
     {
         ArgumentNullException.ThrowIfNull(photo);
+
+        if (IsDeleted)
+            return Result.Failure(PetErrors.AlreadyDeleted);
+
         _photos.Add(photo);
+        return Result.Success();
+    }
+
+    public Result SetMainPhoto(Guid photoId)
+    {
+        var photo = _photos.Find(p => p.Id == photoId);
+        if (photo is null)
+            return Result.Failure(PetErrors.PhotoNotFound);
+
+        foreach (var p in _photos)
+            p.UnsetMain();
+
+        photo.SetAsMain();
+        return Result.Success();
+    }
+
+    public Result RemovePhoto(Guid photoId)
+    {
+        var photo = _photos.Find(p => p.Id == photoId);
+        if (photo is null)
+            return Result.Failure(PetErrors.PhotoNotFound);
+
+        bool wasMain = photo.IsMain;
+        _photos.Remove(photo);
+
+        if (wasMain)
+        {
+            var oldest = _photos.OrderBy(p => p.CreatedAt).FirstOrDefault();
+            oldest?.SetAsMain();
+        }
+
+        return Result.Success();
     }
 }

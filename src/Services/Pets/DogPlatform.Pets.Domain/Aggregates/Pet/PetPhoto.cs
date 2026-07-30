@@ -25,6 +25,9 @@ public sealed class PetPhoto : Entity<Guid>
     public bool IsMain { get; private set; }
     public DateTime CreatedAt { get; private set; }
 
+    internal void SetAsMain() => IsMain = true;
+    internal void UnsetMain() => IsMain = false;
+
     public static PetPhoto Create(
         Guid id,
         Guid petId,
