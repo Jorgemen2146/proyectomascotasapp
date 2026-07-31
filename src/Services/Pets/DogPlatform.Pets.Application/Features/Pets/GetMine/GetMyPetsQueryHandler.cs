@@ -1,32 +1,47 @@
+using DogPlatform.Pets.Application.Common;
+using DogPlatform.Pets.Application.Queries;
 using DogPlatform.Pets.Application.Security;
-using DogPlatform.Pets.Domain.Repositories;
 using DogPlatform.SharedKernel.Primitives;
+using FluentValidation;
 using MediatR;
 
 namespace DogPlatform.Pets.Application.Features.Pets.GetMine;
 
-public sealed class GetMyPetsQueryHandler : IRequestHandler<GetMyPetsQuery, Result<IReadOnlyCollection<MyPetResponse>>>
+public sealed class GetMyPetsQueryHandler
+    : IRequestHandler<GetMyPetsQuery, Result<PagedResult<MyPetResponse>>>
 {
-    private readonly IPetRepository _petRepository;
+    private readonly IPetQueryService _queryService;
     private readonly ICurrentUser _currentUser;
+    private readonly IValidator<GetMyPetsQuery> _validator;
 
-    public GetMyPetsQueryHandler(IPetRepository petRepository, ICurrentUser currentUser)
+    public GetMyPetsQueryHandler(
+        IPetQueryService queryService,
+        ICurrentUser currentUser,
+        IValidator<GetMyPetsQuery> validator)
     {
-        _petRepository = petRepository;
+        _queryService = queryService;
         _currentUser = currentUser;
+        _validator = validator;
     }
 
-    public async Task<Result<IReadOnlyCollection<MyPetResponse>>> Handle(
+    public async Task<Result<PagedResult<MyPetResponse>>> Handle(
         GetMyPetsQuery request,
         CancellationToken cancellationToken)
     {
-        var pets = await _petRepository.GetByOwnerIdAsync(_currentUser.UserId, cancellationToken);
+        var validation = await _validator.ValidateAsync(request, cancellationToken);
+        if (!validation.IsValid)
+        {
+            var first = validation.Errors[0];
+            return Result.Failure<PagedResult<MyPetResponse>>(
+                Error.Validation(first.ErrorCode, first.ErrorMessage));
+        }
 
-        var responses = pets
-            .Select(p => new MyPetResponse(p.Id, p.BreedId, p.Name, p.BirthDate, p.Gender.Value))
-            .ToList()
-            .AsReadOnly();
+        var result = await _queryService.GetMyPetsAsync(
+            _currentUser.UserId,
+            request,
+            cancellationToken);
 
-        return Result.Success<IReadOnlyCollection<MyPetResponse>>(responses);
+        return Result.Success(result);
     }
 }
+

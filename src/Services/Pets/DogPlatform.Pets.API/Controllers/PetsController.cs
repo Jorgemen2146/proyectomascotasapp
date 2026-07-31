@@ -53,14 +53,27 @@ public sealed class PetsController : ControllerBase
     }
 
     /// <summary>
-    /// Get all pets for the authenticated user.
+    /// Get all pets for the authenticated user, with optional pagination, filtering and sorting.
+    /// OwnerId is taken exclusively from the JWT — do not pass it as a parameter.
     /// </summary>
-    [HttpGet]
+    [HttpGet("mine")]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> GetMyPets(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetMyPets(
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? name = null,
+        [FromQuery] int? speciesId = null,
+        [FromQuery] int? breedId = null,
+        [FromQuery] string? sex = null,
+        [FromQuery] string sortBy = "CreatedAt",
+        [FromQuery] string sortDirection = "DESC",
+        CancellationToken cancellationToken = default)
     {
-        var query = new GetMyPetsQuery();
+        var query = new GetMyPetsQuery(
+            pageNumber, pageSize, name, speciesId, breedId, sex, sortBy, sortDirection);
+
         var result = await _mediator.Send(query, cancellationToken);
 
         if (result.IsFailure)

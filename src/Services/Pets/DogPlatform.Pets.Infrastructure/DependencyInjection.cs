@@ -1,9 +1,11 @@
 using Amazon.S3;
 using DogPlatform.Pets.Application;
+using DogPlatform.Pets.Application.Queries;
 using DogPlatform.Pets.Application.Security;
 using DogPlatform.Pets.Application.Storage;
 using DogPlatform.Pets.Domain.Repositories;
 using DogPlatform.Pets.Infrastructure.Persistence.Context;
+using DogPlatform.Pets.Infrastructure.Persistence.Queries;
 using DogPlatform.Pets.Infrastructure.Persistence.Repositories;
 using DogPlatform.Pets.Infrastructure.Security;
 using DogPlatform.Pets.Infrastructure.Storage;
@@ -27,6 +29,7 @@ public static class DependencyInjection
         services.AddScoped<IPetsUnitOfWork>(sp => sp.GetRequiredService<PetsDbContext>());
         services.AddScoped<IPetRepository, PetRepository>();
         services.AddScoped<IPetPhotoRepository, PetPhotoRepository>();
+        services.AddScoped<IPetQueryService, PetQueryService>();
         services.AddScoped<IBreedRepository, BreedRepository>();
         services.AddScoped<ISpeciesRepository, SpeciesRepository>();
 

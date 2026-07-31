@@ -1,6 +1,6 @@
 namespace DogPlatform.Pets.Application.Features.Pets.GetMine;
 
-public sealed record MyPetResponse(
+public sealed record MyPetListItemResponse(
     Guid Id,
     string Name,
     int SpeciesId,
@@ -12,4 +12,3 @@ public sealed record MyPetResponse(
     string? MainPhotoUrl,
     DateTime CreatedAt,
     DateTime? UpdatedAt);
-
