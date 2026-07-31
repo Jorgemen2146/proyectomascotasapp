@@ -47,4 +47,11 @@ public sealed class PetPhotoRepository : IPetPhotoRepository
         _context.PetPhotos.Remove(photo);
         await Task.CompletedTask;
     }
+
+    public async Task<bool> ExistsByUrlAsync(Guid petId, string url, CancellationToken cancellationToken = default)
+    {
+        return await _context.PetPhotos
+            .AsNoTracking()
+            .AnyAsync(p => p.PetId == petId && p.Url == url, cancellationToken);
+    }
 }

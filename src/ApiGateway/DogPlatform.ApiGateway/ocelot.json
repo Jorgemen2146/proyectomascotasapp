@@ -1,0 +1,101 @@
+{
+  "Routes": [
+    // ── Pets ────────────────────────────────────────────────────────────────
+    {
+      "UpstreamPathTemplate": "/api/v1/pets",
+      "UpstreamHttpMethod": [ "GET", "POST" ],
+      "DownstreamPathTemplate": "/api/v1/pets",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "pets-api", "Port": 8080 }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/pets/{id}",
+      "UpstreamHttpMethod": [ "GET", "PUT", "DELETE" ],
+      "DownstreamPathTemplate": "/api/v1/pets/{id}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "pets-api", "Port": 8080 }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/pets/mine",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/api/v1/pets/mine",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "pets-api", "Port": 8080 }
+      ]
+    },
+    // ── Pet Photos (existing URL-based, legacy) ──────────────────────────────
+    {
+      "UpstreamPathTemplate": "/api/v1/pets/{petId}/photos",
+      "UpstreamHttpMethod": [ "GET", "POST" ],
+      "DownstreamPathTemplate": "/api/v1/pets/{petId}/photos",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "pets-api", "Port": 8080 }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/pets/{petId}/photos/{photoId}/main",
+      "UpstreamHttpMethod": [ "PUT" ],
+      "DownstreamPathTemplate": "/api/v1/pets/{petId}/photos/{photoId}/main",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "pets-api", "Port": 8080 }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/pets/{petId}/photos/{photoId}",
+      "UpstreamHttpMethod": [ "DELETE" ],
+      "DownstreamPathTemplate": "/api/v1/pets/{petId}/photos/{photoId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "pets-api", "Port": 8080 }
+      ]
+    },
+    // ── Pet Photos — S3 pre-signed upload flow ───────────────────────────────
+    {
+      "UpstreamPathTemplate": "/api/v1/pets/{petId}/photos/upload-url",
+      "UpstreamHttpMethod": [ "POST" ],
+      "DownstreamPathTemplate": "/api/v1/pets/{petId}/photos/upload-url",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "pets-api", "Port": 8080 }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/pets/{petId}/photos/confirm",
+      "UpstreamHttpMethod": [ "POST" ],
+      "DownstreamPathTemplate": "/api/v1/pets/{petId}/photos/confirm",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "pets-api", "Port": 8080 }
+      ]
+    },
+    // ── Species / Breeds ─────────────────────────────────────────────────────
+    {
+      "UpstreamPathTemplate": "/api/v1/species",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/api/v1/species",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "pets-api", "Port": 8080 }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/species/{speciesId}/breeds",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/api/v1/species/{speciesId}/breeds",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "pets-api", "Port": 8080 }
+      ]
+    }
+  ],
+  "GlobalConfiguration": {
+    "BaseUrl": "http://localhost:5000"
+  }
+}

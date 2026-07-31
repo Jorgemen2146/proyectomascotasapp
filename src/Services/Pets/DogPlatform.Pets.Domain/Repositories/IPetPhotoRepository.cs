@@ -11,4 +11,6 @@ public interface IPetPhotoRepository
     Task AddAsync(PetPhoto photo, CancellationToken cancellationToken = default);
 
     Task RemoveAsync(PetPhoto photo, CancellationToken cancellationToken = default);
+
+    Task<bool> ExistsByUrlAsync(Guid petId, string url, CancellationToken cancellationToken = default);
 }
