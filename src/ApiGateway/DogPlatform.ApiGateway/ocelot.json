@@ -93,6 +93,34 @@
       "DownstreamHostAndPorts": [
         { "Host": "pets-api", "Port": 8080 }
       ]
+    },
+    // ── Genealogy ───────────────────────────────────────────────────────────
+    {
+      "UpstreamPathTemplate": "/api/v1/genealogy/{petId}/parents",
+      "UpstreamHttpMethod": [ "PUT", "GET" ],
+      "DownstreamPathTemplate": "/api/v1/genealogy/{petId}/parents",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "genealogy-api", "Port": 8080 }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/genealogy/{petId}/father",
+      "UpstreamHttpMethod": [ "DELETE" ],
+      "DownstreamPathTemplate": "/api/v1/genealogy/{petId}/father",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "genealogy-api", "Port": 8080 }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/genealogy/{petId}/mother",
+      "UpstreamHttpMethod": [ "DELETE" ],
+      "DownstreamPathTemplate": "/api/v1/genealogy/{petId}/mother",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "genealogy-api", "Port": 8080 }
+      ]
     }
   ],
   "GlobalConfiguration": {
