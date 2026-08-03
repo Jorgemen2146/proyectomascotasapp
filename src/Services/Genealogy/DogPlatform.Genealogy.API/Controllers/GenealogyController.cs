@@ -1,5 +1,9 @@
 using DogPlatform.Genealogy.Application.Features.AssignParents;
+using DogPlatform.Genealogy.Application.Features.GetAncestors;
+using DogPlatform.Genealogy.Application.Features.GetAncestorTree;
+using DogPlatform.Genealogy.Application.Features.GetDescendants;
 using DogPlatform.Genealogy.Application.Features.GetParents;
+using DogPlatform.Genealogy.Application.Features.GetSiblings;
 using DogPlatform.Genealogy.Application.Features.RemoveFather;
 using DogPlatform.Genealogy.Application.Features.RemoveMother;
 using DogPlatform.SharedKernel.Primitives;
@@ -101,6 +105,85 @@ public sealed class GenealogyController : ControllerBase
     }
 
     // ── Error mapping ──────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Returns the ancestor tree (father/mother, grandparents, great-grandparents, ...) of a pet.
+    /// </summary>
+    [HttpGet("{petId:guid}/tree")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> GetAncestorTree(
+        Guid petId,
+        [FromQuery] int? depth,
+        CancellationToken cancellationToken)
+    {
+        var query  = new GetAncestorTreeQuery(petId, depth);
+        var result = await _mediator.Send(query, cancellationToken);
+
+        return result.IsFailure
+            ? MapError(result.Error)
+            : Ok(result.Value);
+    }
+
+    /// <summary>
+    /// Returns a flattened list of ancestors with the lineage path(s) leading to each one.
+    /// </summary>
+    [HttpGet("{petId:guid}/ancestors")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> GetAncestors(
+        Guid petId,
+        [FromQuery] int? depth,
+        CancellationToken cancellationToken)
+    {
+        var query  = new GetAncestorsQuery(petId, depth);
+        var result = await _mediator.Send(query, cancellationToken);
+
+        return result.IsFailure
+            ? MapError(result.Error)
+            : Ok(result.Value);
+    }
+
+    /// <summary>
+    /// Returns the descendants of a pet (children, grandchildren, great-grandchildren, ...).
+    /// </summary>
+    [HttpGet("{petId:guid}/descendants")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> GetDescendants(
+        Guid petId,
+        [FromQuery] int? depth,
+        CancellationToken cancellationToken)
+    {
+        var query  = new GetDescendantsQuery(petId, depth);
+        var result = await _mediator.Send(query, cancellationToken);
+
+        return result.IsFailure
+            ? MapError(result.Error)
+            : Ok(result.Value);
+    }
+
+    /// <summary>
+    /// Returns the calculated siblings of a pet (full and half siblings), derived from
+    /// shared father/mother. There is no siblings table.
+    /// </summary>
+    [HttpGet("{petId:guid}/siblings")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> GetSiblings(
+        Guid petId,
+        CancellationToken cancellationToken)
+    {
+        var query  = new GetSiblingsQuery(petId);
+        var result = await _mediator.Send(query, cancellationToken);
+
+        return result.IsFailure
+            ? MapError(result.Error)
+            : Ok(result.Value);
+    }
 
     private IActionResult MapError(Error error) => error.Type switch
     {

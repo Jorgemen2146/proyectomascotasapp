@@ -121,6 +121,42 @@
       "DownstreamHostAndPorts": [
         { "Host": "genealogy-api", "Port": 8080 }
       ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/genealogy/{petId}/tree",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/api/v1/genealogy/{petId}/tree",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "genealogy-api", "Port": 8080 }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/genealogy/{petId}/ancestors",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/api/v1/genealogy/{petId}/ancestors",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "genealogy-api", "Port": 8080 }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/genealogy/{petId}/descendants",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/api/v1/genealogy/{petId}/descendants",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "genealogy-api", "Port": 8080 }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/genealogy/{petId}/siblings",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/api/v1/genealogy/{petId}/siblings",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "genealogy-api", "Port": 8080 }
+      ]
     }
   ],
   "GlobalConfiguration": {

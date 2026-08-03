@@ -43,4 +43,19 @@ public static class GenealogyErrors
         Error.Unauthorized(
             "Genealogy.Unauthorized",
             "You are not the owner of this pet.");
+
+    public static readonly Error CircularLineageDetected =
+        Error.Validation(
+            "Genealogy.CircularLineageDetected",
+            "The requested parent assignment would create a circular lineage (a pet cannot be its own ancestor or descendant).");
+
+    public static readonly Error MaximumTraversalExceeded =
+        Error.Failure(
+            "Genealogy.MaximumTraversalExceeded",
+            "The lineage graph exceeds the maximum number of nodes allowed for a safe traversal. Please review the underlying data for corruption.");
+
+    public static readonly Error InvalidDepth =
+        Error.Validation(
+            "Genealogy.InvalidDepth",
+            "The requested depth is outside the allowed range.");
 }

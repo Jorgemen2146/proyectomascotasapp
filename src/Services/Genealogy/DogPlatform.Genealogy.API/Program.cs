@@ -11,7 +11,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddDogPlatformSwagger("DogPlatform Genealogy API");
 
-builder.Services.AddApplication();
+builder.Services.AddApplication(builder.Configuration);
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton(TimeProvider.System);

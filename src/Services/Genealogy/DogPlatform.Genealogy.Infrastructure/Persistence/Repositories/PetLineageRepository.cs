@@ -36,4 +36,34 @@ public sealed class PetLineageRepository : IPetLineageRepository
         _context.PetLineages.Update(lineage);
         return Task.CompletedTask;
     }
+
+    public async Task<IReadOnlyList<PetLineage>> GetByPetIdsAsync(
+        IEnumerable<Guid> petIds,
+        CancellationToken cancellationToken = default)
+    {
+        var ids = petIds as ICollection<Guid> ?? petIds.ToArray();
+        if (ids.Count == 0)
+            return Array.Empty<PetLineage>();
+
+        return await _context.PetLineages
+            .AsNoTracking()
+            .Where(l => ids.Contains(l.PetId))
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<PetLineage>> GetChildrenByParentIdsAsync(
+        IEnumerable<Guid> parentIds,
+        CancellationToken cancellationToken = default)
+    {
+        var ids = parentIds as ICollection<Guid> ?? parentIds.ToArray();
+        if (ids.Count == 0)
+            return Array.Empty<PetLineage>();
+
+        return await _context.PetLineages
+            .AsNoTracking()
+            .Where(l =>
+                (l.FatherId != null && ids.Contains(l.FatherId.Value)) ||
+                (l.MotherId != null && ids.Contains(l.MotherId.Value)))
+            .ToListAsync(cancellationToken);
+    }
 }
