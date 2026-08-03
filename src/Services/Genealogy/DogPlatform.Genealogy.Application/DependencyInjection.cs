@@ -1,5 +1,7 @@
+using DogPlatform.Genealogy.Application.Analysis;
 using DogPlatform.Genealogy.Application.Features.AssignParents;
 using DogPlatform.Genealogy.Application.Options;
+using DogPlatform.Genealogy.Application.Traversal;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Configuration;
@@ -25,6 +27,23 @@ public static class DependencyInjection
                 options => options.DefaultTreeDepth <= options.MaximumTreeDepth,
                 "DefaultTreeDepth cannot be greater than MaximumTreeDepth.")
             .ValidateOnStart();
+
+        services
+            .AddOptions<GenealogyAnalysisOptions>()
+            .Bind(configuration.GetSection(GenealogyAnalysisOptions.SectionName))
+            .ValidateDataAnnotations()
+            .Validate(
+                options => options.DefaultAnalysisDepth <= options.MaximumAnalysisDepth,
+                "DefaultAnalysisDepth cannot be greater than MaximumAnalysisDepth.")
+            .Validate(
+                options => options.InbreedingWarningThreshold <= options.HighInbreedingThreshold,
+                "InbreedingWarningThreshold cannot be greater than HighInbreedingThreshold.")
+            .ValidateOnStart();
+
+        services.AddScoped<IGenealogyTraversalService, GenealogyTraversalService>();
+        services.AddScoped<IInbreedingCalculator, WrightInbreedingCalculator>();
+        services.AddScoped<IKinshipCalculator, WrightKinshipCalculator>();
+        services.AddScoped<IPedigreeStatisticsCalculator, PedigreeStatisticsCalculator>();
 
         return services;
     }

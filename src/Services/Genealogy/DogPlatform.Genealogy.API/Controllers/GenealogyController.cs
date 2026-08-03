@@ -1,7 +1,9 @@
 using DogPlatform.Genealogy.Application.Features.AssignParents;
+using DogPlatform.Genealogy.Application.Features.CalculateRelationship;
 using DogPlatform.Genealogy.Application.Features.GetAncestors;
 using DogPlatform.Genealogy.Application.Features.GetAncestorTree;
 using DogPlatform.Genealogy.Application.Features.GetDescendants;
+using DogPlatform.Genealogy.Application.Features.GetLineageStatistics;
 using DogPlatform.Genealogy.Application.Features.GetParents;
 using DogPlatform.Genealogy.Application.Features.GetSiblings;
 using DogPlatform.Genealogy.Application.Features.RemoveFather;
@@ -185,9 +187,58 @@ public sealed class GenealogyController : ControllerBase
             : Ok(result.Value);
     }
 
-    private IActionResult MapError(Error error) => error.Type switch
+    /// <summary>
+    /// Returns pedigree statistics for a pet: completeness, ancestor count (unique and
+    /// repeated), generation distribution, and an estimated inbreeding coefficient.
+    /// This is a mathematical ESTIMATION based solely on the registered pedigree data and
+    /// does not constitute a veterinary or genetic diagnosis.
+    /// </summary>
+    [HttpGet("{petId:guid}/statistics")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> GetLineageStatistics(
+        Guid petId,
+        [FromQuery] int? depth,
+        CancellationToken cancellationToken)
     {
-        ErrorType.NotFound     => NotFound(error),
+        var query  = new GetLineageStatisticsQuery(petId, depth);
+        var result = await _mediator.Send(query, cancellationToken);
+
+        return result.IsFailure
+            ? MapError(result.Error)
+            : Ok(result.Value);
+    }
+
+    /// <summary>
+    /// Estimates the genealogical relationship between two pets (parent/child,
+    /// sibling, cousin, etc.) and an estimated relationship (kinship) coefficient,
+    /// derived exclusively from recorded parent/child links. Requires the requesting
+    /// user to own both pets. This is a mathematical ESTIMATION, not a veterinary or
+    /// genetic diagnosis.
+    /// </summary>
+    [HttpGet("relationship")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> CalculateRelationship(
+        [FromQuery] Guid petId1,
+        [FromQuery] Guid petId2,
+        [FromQuery] int? depth,
+        CancellationToken cancellationToken)
+    {
+        var query  = new CalculateRelationshipQuery(petId1, petId2, depth);
+        var result = await _mediator.Send(query, cancellationToken);
+
+        return result.IsFailure
+            ? MapError(result.Error)
+            : Ok(result.Value);
+    }
+
+    private IActionResult MapError(Error error) =>
+        error.Type switch
+        {
+            ErrorType.NotFound     => NotFound(error),
         ErrorType.Unauthorized => Forbid(),
         ErrorType.Validation   => BadRequest(error),
         _                      => BadRequest(error)

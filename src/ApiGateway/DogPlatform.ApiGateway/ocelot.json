@@ -157,6 +157,24 @@
       "DownstreamHostAndPorts": [
         { "Host": "genealogy-api", "Port": 8080 }
       ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/genealogy/{petId}/statistics",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/api/v1/genealogy/{petId}/statistics",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "genealogy-api", "Port": 8080 }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/genealogy/relationship",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/api/v1/genealogy/relationship",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "genealogy-api", "Port": 8080 }
+      ]
     }
   ],
   "GlobalConfiguration": {

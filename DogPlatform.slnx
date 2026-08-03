@@ -20,6 +20,7 @@
     <Project Path="src/Services/Genealogy/DogPlatform.Genealogy.Application/DogPlatform.Genealogy.Application.csproj" />
     <Project Path="src/Services/Genealogy/DogPlatform.Genealogy.Domain/DogPlatform.Genealogy.Domain.csproj" />
     <Project Path="src/Services/Genealogy/DogPlatform.Genealogy.Infrastructure/DogPlatform.Genealogy.Infrastructure.csproj" />
+    <Project Path="src/Services/Genealogy/DogPlatform.Genealogy.Tests/DogPlatform.Genealogy.Tests.csproj" />
   </Folder>
   <Folder Name="/src/Services/Health/">
     <Project Path="src/Services/Health/DogPlatform.Health.API/DogPlatform.Health.API.csproj" />
