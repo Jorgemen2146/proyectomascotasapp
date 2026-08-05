@@ -175,6 +175,109 @@
       "DownstreamHostAndPorts": [
         { "Host": "genealogy-api", "Port": 8080 }
       ]
+    },
+    // ── Matching: Profiles ─────────────────────────────────────────────
+    {
+      "UpstreamPathTemplate": "/api/v1/matching/profiles/{petId}",
+      "UpstreamHttpMethod": [ "GET", "PUT" ],
+      "DownstreamPathTemplate": "/api/v1/matching/profiles/{petId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "matching-api", "Port": 8080 }
+      ]
+    },
+    // ── Matching: Candidates ───────────────────────────────────────────
+    {
+      "UpstreamPathTemplate": "/api/v1/matching/pets/{petId}/candidates",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/api/v1/matching/pets/{petId}/candidates",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "matching-api", "Port": 8080 }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/matching/pets/{petId}/candidates/{candidatePetId}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/api/v1/matching/pets/{petId}/candidates/{candidatePetId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "matching-api", "Port": 8080 }
+      ]
+    },
+    // ── Matching: Favorites ────────────────────────────────────────────
+    {
+      "UpstreamPathTemplate": "/api/v1/matching/pets/{petId}/favorites",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/api/v1/matching/pets/{petId}/favorites",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "matching-api", "Port": 8080 }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/matching/pets/{petId}/favorites/{candidatePetId}",
+      "UpstreamHttpMethod": [ "PUT", "DELETE" ],
+      "DownstreamPathTemplate": "/api/v1/matching/pets/{petId}/favorites/{candidatePetId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "matching-api", "Port": 8080 }
+      ]
+    },
+    // ── Matching: Requests ─────────────────────────────────────────────
+    {
+      "UpstreamPathTemplate": "/api/v1/matching/requests",
+      "UpstreamHttpMethod": [ "POST" ],
+      "DownstreamPathTemplate": "/api/v1/matching/requests",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "matching-api", "Port": 8080 }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/matching/requests/incoming",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/api/v1/matching/requests/incoming",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "matching-api", "Port": 8080 }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/matching/requests/outgoing",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/api/v1/matching/requests/outgoing",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "matching-api", "Port": 8080 }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/matching/requests/{matchRequestId}/accept",
+      "UpstreamHttpMethod": [ "POST" ],
+      "DownstreamPathTemplate": "/api/v1/matching/requests/{matchRequestId}/accept",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "matching-api", "Port": 8080 }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/matching/requests/{matchRequestId}/reject",
+      "UpstreamHttpMethod": [ "POST" ],
+      "DownstreamPathTemplate": "/api/v1/matching/requests/{matchRequestId}/reject",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "matching-api", "Port": 8080 }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/matching/requests/{matchRequestId}/cancel",
+      "UpstreamHttpMethod": [ "POST" ],
+      "DownstreamPathTemplate": "/api/v1/matching/requests/{matchRequestId}/cancel",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "matching-api", "Port": 8080 }
+      ]
     }
   ],
   "GlobalConfiguration": {
