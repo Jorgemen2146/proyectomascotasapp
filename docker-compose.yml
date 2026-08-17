@@ -1,0 +1,142 @@
+version: "3.9"
+
+# Stack local de DogPlatform para pruebas antes de publicar en AWS.
+# Los nombres de las variables ConnectionStrings__<Nombre> deben coincidir
+# con la clave usada en cada appsettings.json (ej: PetsDb, GenealogyDb, etc.).
+# Ajusta esos nombres según el appsettings.json real de cada servicio.
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "${SQL_SA_PASSWORD:?set SQL_SA_PASSWORD in your .env}"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    networks:
+      - dogplatform
+
+  identity-api:
+    build:
+      context: .
+      dockerfile: src/Services/Identity/DogPlatform.Identity.API/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__IdentityDb: "Server=sqlserver,1433;Database=DogPlatform_IdentityDb;User Id=sa;Password=${SQL_SA_PASSWORD};TrustServerCertificate=True;"
+    depends_on:
+      - sqlserver
+    networks:
+      - dogplatform
+
+  pets-api:
+    build:
+      context: .
+      dockerfile: src/Services/Pets/DogPlatform.Pets.API/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__PetsDb: "Server=sqlserver,1433;Database=DogPlatform_PetsDb;User Id=sa;Password=${SQL_SA_PASSWORD};TrustServerCertificate=True;"
+    depends_on:
+      - sqlserver
+    networks:
+      - dogplatform
+
+  genealogy-api:
+    build:
+      context: .
+      dockerfile: src/Services/Genealogy/DogPlatform.Genealogy.API/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__GenealogyDb: "Server=sqlserver,1433;Database=DogPlatform_GenealogyDb;User Id=sa;Password=${SQL_SA_PASSWORD};TrustServerCertificate=True;"
+    depends_on:
+      - sqlserver
+    networks:
+      - dogplatform
+
+  health-api:
+    build:
+      context: .
+      dockerfile: src/Services/Health/DogPlatform.Health.API/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__HealthDb: "Server=sqlserver,1433;Database=DogPlatform_HealthDb;User Id=sa;Password=${SQL_SA_PASSWORD};TrustServerCertificate=True;"
+    depends_on:
+      - sqlserver
+    networks:
+      - dogplatform
+
+  matching-api:
+    build:
+      context: .
+      dockerfile: src/Services/Matching/DogPlatform.Matching.API/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__MatchingDb: "Server=sqlserver,1433;Database=DogPlatform_MatchingDb;User Id=sa;Password=${SQL_SA_PASSWORD};TrustServerCertificate=True;"
+    depends_on:
+      - sqlserver
+    networks:
+      - dogplatform
+
+  notification-api:
+    build:
+      context: .
+      dockerfile: src/Services/Notification/DogPlatform.Notification.API/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__NotificationDb: "Server=sqlserver,1433;Database=DogPlatform_NotificationDb;User Id=sa;Password=${SQL_SA_PASSWORD};TrustServerCertificate=True;"
+    depends_on:
+      - sqlserver
+    networks:
+      - dogplatform
+
+  veterinarian-api:
+    build:
+      context: .
+      dockerfile: src/Services/Veterinarian/DogPlatform.Veterinarian.API/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__VeterinarianDb: "Server=sqlserver,1433;Database=DogPlatform_VeterinarianDb;User Id=sa;Password=${SQL_SA_PASSWORD};TrustServerCertificate=True;"
+    depends_on:
+      - sqlserver
+    networks:
+      - dogplatform
+
+  walks-api:
+    build:
+      context: .
+      dockerfile: src/Services/Walks/DogPlatform.Walks.API/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__WalksDb: "Server=sqlserver,1433;Database=DogPlatform_WalksDb;User Id=sa;Password=${SQL_SA_PASSWORD};TrustServerCertificate=True;"
+    depends_on:
+      - sqlserver
+    networks:
+      - dogplatform
+
+  apigateway:
+    build:
+      context: .
+      dockerfile: src/ApiGateway/DogPlatform.ApiGateway/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+    ports:
+      - "8080:8080"
+    depends_on:
+      - identity-api
+      - pets-api
+      - genealogy-api
+      - health-api
+      - matching-api
+      - notification-api
+      - veterinarian-api
+      - walks-api
+    networks:
+      - dogplatform
+
+networks:
+  dogplatform:
+    driver: bridge
+
+volumes:
+  sqlserver-data:

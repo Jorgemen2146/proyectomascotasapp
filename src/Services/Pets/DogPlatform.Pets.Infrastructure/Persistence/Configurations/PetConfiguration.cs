@@ -81,6 +81,8 @@ public sealed class PetConfiguration : IEntityTypeConfiguration<Pet>
             .HasForeignKey(p => p.BreedId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        builder.Ignore(p => p.Photos);
+
         builder.HasMany<PetPhoto>("_photos")
             .WithOne()
             .HasForeignKey(pp => pp.PetId)

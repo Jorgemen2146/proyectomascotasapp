@@ -1,3 +1,5 @@
+using MMLib.SwaggerForOcelot;
+using MMLib.SwaggerForOcelot.DependencyInjection;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 
@@ -9,6 +11,7 @@ builder.Configuration
     .AddJsonFile($"ocelot.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
 
 builder.Services.AddOcelot(builder.Configuration);
+builder.Services.AddSwaggerForOcelot(builder.Configuration);
 
 // Preserve the Authorization header when forwarding to downstream services
 builder.Services.AddCors(options =>
@@ -21,6 +24,8 @@ var app = builder.Build();
 
 app.UseCors();
 app.UseHttpsRedirection();
+
+app.UseSwaggerForOcelotUI();
 
 await app.UseOcelot();
 
