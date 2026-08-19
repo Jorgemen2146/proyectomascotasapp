@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "8ba7e2b6-14bd-4d65-ae51-d09f1a7f2026",
     "name": "DogPlatform",
-    "description": "Colección generada desde Controllers, Program.cs, launchSettings.json y ocelot.json. Las operaciones expuestas por Ocelot usan {{gatewayUrl}}. Los endpoints sin ruta upstream usan la URL directa del servicio. Configuración detectada: Gateway launchSettings=5279, Ocelot BaseUrl=5101; downstream Identity=5102 pero launchSettings Identity=5149.",
+    "description": "Colección DogPlatform preparada para pruebas locales mediante IIS. Las operaciones expuestas por Ocelot usan {{gatewayUrl}}. Los endpoints sin ruta upstream usan la URL directa del servicio. Puertos IIS: Gateway=5101, Identity=5102, Pets=5103, Matching=5104, Walks=5105, Health=5106, Veterinarian=5107, Genealogy=5108, Notification=5109.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -1142,61 +1142,57 @@
   "variable": [
     {
       "key": "gatewayUrl",
-      "value": "http://localhost:5279",
+      "value": "http://localhost:5101",
       "type": "string",
-      "description": "Puerto HTTP de launchSettings del Gateway. Ocelot GlobalConfiguration declara 5101."
+      "description": "API Gateway publicado en IIS local."
     },
     {
       "key": "identityUrl",
-      "value": "http://localhost:5149",
-      "type": "string"
+      "value": "http://localhost:5102",
+      "type": "string",
+      "description": "Identity API publicada en IIS local."
     },
     {
       "key": "petsUrl",
-      "value": "http://localhost:5095",
-      "type": "string"
+      "value": "http://localhost:5103",
+      "type": "string",
+      "description": "Pets API publicada en IIS local."
     },
     {
       "key": "healthUrl",
-      "value": "http://localhost:5293",
-      "type": "string"
+      "value": "http://localhost:5106",
+      "type": "string",
+      "description": "Health API publicada en IIS local."
     },
     {
       "key": "matchingUrl",
-      "value": "http://localhost:5166",
-      "type": "string"
+      "value": "http://localhost:5104",
+      "type": "string",
+      "description": "Matching API publicada en IIS local."
     },
     {
       "key": "walksUrl",
-      "value": "http://localhost:5146",
-      "type": "string"
+      "value": "http://localhost:5105",
+      "type": "string",
+      "description": "Walks API publicada en IIS local."
     },
     {
       "key": "veterinarianUrl",
-      "value": "http://localhost:5113",
-      "type": "string"
+      "value": "http://localhost:5107",
+      "type": "string",
+      "description": "Veterinarian API publicada en IIS local."
     },
     {
       "key": "notificationUrl",
-      "value": "http://localhost:5023",
-      "type": "string"
+      "value": "http://localhost:5109",
+      "type": "string",
+      "description": "Notification API publicada en IIS local."
     },
     {
       "key": "genealogyUrl",
-      "value": "http://localhost:5161",
-      "type": "string"
-    },
-    {
-      "key": "gatewayConfiguredUrl",
-      "value": "http://localhost:5101",
+      "value": "http://localhost:5108",
       "type": "string",
-      "description": "Ocelot GlobalConfiguration.BaseUrl."
-    },
-    {
-      "key": "identityGatewayDownstreamUrl",
-      "value": "http://localhost:5102",
-      "type": "string",
-      "description": "DownstreamHostAndPorts de Identity en Ocelot."
+      "description": "Genealogy API publicada en IIS local."
     },
     {
       "key": "accessToken",
