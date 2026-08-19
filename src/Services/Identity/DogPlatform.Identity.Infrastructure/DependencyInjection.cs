@@ -1,7 +1,9 @@
 using System.Text;
 using DogPlatform.Identity.Application;
+using DogPlatform.Identity.Application.Communication;
 using DogPlatform.Identity.Application.Security;
 using DogPlatform.Identity.Domain.Repositories;
+using DogPlatform.Identity.Infrastructure.Messaging;
 using DogPlatform.Identity.Infrastructure.Authentication;
 using DogPlatform.Identity.Infrastructure.Persistence.Context;
 using DogPlatform.Identity.Infrastructure.Persistence.Repositories;
@@ -33,8 +35,29 @@ public static class DependencyInjection
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
         services.AddScoped<IPasswordHasher, Pbkdf2PasswordHasher>();
+        services.AddSingleton<IEmailVerificationCodeService, HmacEmailVerificationCodeService>();
         services.AddSingleton<IRefreshTokenGenerator, SecureRefreshTokenGenerator>();
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+
+        services.Configure<EmailOptions>(
+            configuration.GetSection(EmailOptions.SectionName));
+
+        services.AddHttpClient<ResendEmailSender>(client =>
+        {
+            client.BaseAddress = new Uri("https://api.resend.com/");
+            client.Timeout = TimeSpan.FromSeconds(15);
+        });
+
+        services.AddScoped<IEmailSender>(provider =>
+        {
+            var options = provider.GetRequiredService<Microsoft.Extensions.Options.IOptions<EmailOptions>>().Value;
+            return options.Provider.ToUpperInvariant() switch
+            {
+                "RESEND" => provider.GetRequiredService<ResendEmailSender>(),
+                _ => throw new InvalidOperationException(
+                    $"Unsupported email provider '{options.Provider}'.")
+            };
+        });
 
         services
             .AddOptions<JwtOptions>()

@@ -62,6 +62,24 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
             .HasColumnName("IsEmailConfirmed")
             .IsRequired();
 
+        builder.Property(u => u.EmailConfirmedAt)
+            .HasColumnName("EmailConfirmedAt");
+
+        builder.Property(u => u.EmailVerificationCodeHash)
+            .HasColumnName("EmailVerificationCodeHash")
+            .HasMaxLength(128);
+
+        builder.Property(u => u.EmailVerificationCodeExpiresAt)
+            .HasColumnName("EmailVerificationCodeExpiresAt");
+
+        builder.Property(u => u.EmailVerificationAttempts)
+            .HasColumnName("EmailVerificationAttempts")
+            .IsRequired()
+            .HasDefaultValue(0);
+
+        builder.Property(u => u.EmailVerificationLastSentAt)
+            .HasColumnName("EmailVerificationLastSentAt");
+
         builder.Property(u => u.IsActive)
             .HasColumnName("IsActive")
             .IsRequired();

@@ -38,6 +38,62 @@
           "response": []
         },
         {
+          "name": "Verify Email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": "{{gatewayUrl}}/api/v1/auth/verify-email",
+            "description": "Anónimo. Verifica el correo con el código de 6 dígitos recibido. Respuestas esperadas: 200, 400 o 409.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"jorge@test.com\",\n  \"code\": \"{{verificationCode}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Resend Verification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": "{{gatewayUrl}}/api/v1/auth/resend-verification",
+            "description": "Anónimo. Reenvía el código si la cuenta es elegible; aplica un cooldown de 60 segundos y responde de forma genérica.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"jorge@test.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
           "name": "Login",
           "request": {
             "method": "POST",
@@ -1140,6 +1196,12 @@
     }
   ],
   "variable": [
+    {
+      "key": "verificationCode",
+      "value": "",
+      "type": "string",
+      "description": "Código de 6 dígitos recibido por correo."
+    },
     {
       "key": "gatewayUrl",
       "value": "http://localhost:5101",

@@ -33,6 +33,7 @@
     <Project Path="src/Services/Identity/DogPlatform.Identity.Application/DogPlatform.Identity.Application.csproj" />
     <Project Path="src/Services/Identity/DogPlatform.Identity.Domain/DogPlatform.Identity.Domain.csproj" />
     <Project Path="src/Services/Identity/DogPlatform.Identity.Infrastructure/DogPlatform.Identity.Infrastructure.csproj" />
+    <Project Path="src/Services/Identity/DogPlatform.Identity.Tests/DogPlatform.Identity.Tests.csproj" />
   </Folder>
   <Folder Name="/src/Services/Matching/">
     <Project Path="src/Services/Matching/DogPlatform.Matching.API/DogPlatform.Matching.API.csproj" />

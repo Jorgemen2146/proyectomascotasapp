@@ -4,6 +4,8 @@ using DogPlatform.Identity.Application.Features.Authentication.Login;
 using DogPlatform.Identity.Application.Features.Authentication.Logout;
 using DogPlatform.Identity.Application.Features.Authentication.RefreshToken;
 using DogPlatform.Identity.Application.Features.Authentication.Register;
+using DogPlatform.Identity.Application.Features.Authentication.ResendVerification;
+using DogPlatform.Identity.Application.Features.Authentication.VerifyEmail;
 using DogPlatform.SharedKernel.Primitives;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -61,6 +63,7 @@ public sealed class AuthController : ControllerBase
     [ProducesResponseType(typeof(LoginResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> Login(
         [FromBody] LoginRequest request,
         CancellationToken cancellationToken)
@@ -70,12 +73,69 @@ public sealed class AuthController : ControllerBase
 
         if (result.IsFailure)
         {
+            if (result.Error.Code == "EMAIL_NOT_VERIFIED")
+            {
+                return StatusCode(
+                    StatusCodes.Status403Forbidden,
+                    new { error = result.Error.Code, description = result.Error.Description });
+            }
+
             return result.Error.Type switch
             {
                 ErrorType.Unauthorized => Unauthorized(new { error = result.Error.Code, description = result.Error.Description }),
                 ErrorType.Validation => BadRequest(new { error = result.Error.Code, description = result.Error.Description }),
                 _ => BadRequest(new { error = result.Error.Code, description = result.Error.Description })
             };
+        }
+
+        return Ok(result.Value);
+    }
+
+    [HttpPost("verify-email")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(VerifyEmailResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> VerifyEmail(
+        [FromBody] VerifyEmailRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(
+            new VerifyEmailCommand(request.Email, request.Code),
+            cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return result.Error.Type switch
+            {
+                ErrorType.Conflict => Conflict(new { error = result.Error.Code, description = result.Error.Description }),
+                ErrorType.Validation => BadRequest(new { error = result.Error.Code, description = result.Error.Description }),
+                _ => BadRequest(new { error = result.Error.Code, description = result.Error.Description })
+            };
+        }
+
+        return Ok(result.Value);
+    }
+
+    [HttpPost("resend-verification")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(ResendVerificationResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ResendVerification(
+        [FromBody] ResendVerificationRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(
+            new ResendVerificationCommand(request.Email),
+            cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return BadRequest(new
+            {
+                error = result.Error.Code,
+                description = result.Error.Description
+            });
         }
 
         return Ok(result.Value);

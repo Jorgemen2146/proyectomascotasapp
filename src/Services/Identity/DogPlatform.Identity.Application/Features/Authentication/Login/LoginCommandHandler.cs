@@ -64,6 +64,9 @@ internal sealed class LoginCommandHandler : IRequestHandler<LoginCommand, Result
         if (!passwordValid)
             return Result.Failure<LoginResponse>(InvalidCredentials);
 
+        if (!user.IsEmailConfirmed)
+            return Result.Failure<LoginResponse>(UserErrors.EmailNotVerified);
+
         var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
 
         var jwtResult = _jwtTokenGenerator.GenerateAccessToken(user);

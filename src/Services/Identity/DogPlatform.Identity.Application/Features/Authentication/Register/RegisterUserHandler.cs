@@ -1,3 +1,5 @@
+using DogPlatform.Identity.Application.Communication;
+using DogPlatform.Identity.Application.Features.Authentication;
 using DogPlatform.Identity.Application.Security;
 using DogPlatform.Identity.Domain.Aggregates.User;
 using DogPlatform.Identity.Domain.Errors;
@@ -14,17 +16,23 @@ internal sealed class RegisterUserCommandHandler
     private readonly IUserRepository _userRepository;
     private readonly IIdentityUnitOfWork _unitOfWork;
     private readonly IPasswordHasher _passwordHasher;
+    private readonly IEmailVerificationCodeService _verificationCodeService;
+    private readonly IEmailSender _emailSender;
     private readonly TimeProvider _timeProvider;
 
     public RegisterUserCommandHandler(
         IUserRepository userRepository,
         IIdentityUnitOfWork unitOfWork,
         IPasswordHasher passwordHasher,
+        IEmailVerificationCodeService verificationCodeService,
+        IEmailSender emailSender,
         TimeProvider timeProvider)
     {
         _userRepository = userRepository;
         _unitOfWork = unitOfWork;
         _passwordHasher = passwordHasher;
+        _verificationCodeService = verificationCodeService;
+        _emailSender = emailSender;
         _timeProvider = timeProvider;
     }
 
@@ -71,9 +79,23 @@ internal sealed class RegisterUserCommandHandler
         if (!string.IsNullOrWhiteSpace(request.PhoneNumber))
             user.UpdateProfile(request.PhoneNumber, null, utcNow);
 
-        // 8. Persist
+        var verificationCode = _verificationCodeService.Generate();
+        var issueResult = user.IssueEmailVerificationCode(
+            verificationCode.Hash,
+            utcNow.Add(EmailVerificationPolicy.CodeLifetime),
+            utcNow);
+
+        if (issueResult.IsFailure)
+            return Result.Failure<RegisterUserResponse>(issueResult.Error);
+
+        // 8. Persist the account and code hash before sending the email.
         await _userRepository.AddAsync(user, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await _emailSender.SendVerificationCodeAsync(
+            email.Value,
+            verificationCode.Code,
+            cancellationToken);
 
         // 9. Return safe response
         return Result.Success(new RegisterUserResponse(

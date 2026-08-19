@@ -7,6 +7,8 @@ namespace DogPlatform.Identity.Domain.Aggregates.User;
 
 public sealed class User : AggregateRoot<Guid>
 {
+    public const int MaximumEmailVerificationAttempts = 5;
+
     private readonly List<UserRole> _userRoles = [];
 
     private User(
@@ -23,6 +25,7 @@ public sealed class User : AggregateRoot<Guid>
         PasswordHash = passwordHash;
         PasswordSalt = passwordSalt;
         IsEmailConfirmed = false;
+        EmailVerificationAttempts = 0;
         IsActive = true;
         CreatedAt = createdAt;
     }
@@ -37,6 +40,11 @@ public sealed class User : AggregateRoot<Guid>
     public string? PhoneNumber { get; private set; }
     public string? ProfilePhotoUrl { get; private set; }
     public bool IsEmailConfirmed { get; private set; }
+    public DateTime? EmailConfirmedAt { get; private set; }
+    public string? EmailVerificationCodeHash { get; private set; }
+    public DateTime? EmailVerificationCodeExpiresAt { get; private set; }
+    public int EmailVerificationAttempts { get; private set; }
+    public DateTime? EmailVerificationLastSentAt { get; private set; }
     public bool IsActive { get; private set; }
     public DateTime? LastLogin { get; private set; }
     public DateTime CreatedAt { get; private set; }
@@ -86,6 +94,10 @@ public sealed class User : AggregateRoot<Guid>
             return Result.Failure(UserErrors.EmailAlreadyConfirmed);
 
         IsEmailConfirmed = true;
+        EmailConfirmedAt = utcNow;
+        EmailVerificationCodeHash = null;
+        EmailVerificationCodeExpiresAt = null;
+        EmailVerificationAttempts = 0;
         UpdatedAt = utcNow;
 
         Raise(new UserEmailConfirmedDomainEvent(
@@ -95,6 +107,51 @@ public sealed class User : AggregateRoot<Guid>
             Email.Value));
 
         return Result.Success();
+    }
+
+    public Result IssueEmailVerificationCode(
+        string codeHash,
+        DateTime expiresAtUtc,
+        DateTime sentAtUtc)
+    {
+        if (IsEmailConfirmed)
+            return Result.Failure(UserErrors.EmailAlreadyConfirmed);
+
+        ArgumentException.ThrowIfNullOrWhiteSpace(codeHash);
+
+        if (expiresAtUtc <= sentAtUtc)
+            throw new ArgumentOutOfRangeException(nameof(expiresAtUtc));
+
+        EmailVerificationCodeHash = codeHash;
+        EmailVerificationCodeExpiresAt = expiresAtUtc;
+        EmailVerificationAttempts = 0;
+        EmailVerificationLastSentAt = sentAtUtc;
+        UpdatedAt = sentAtUtc;
+
+        return Result.Success();
+    }
+
+    public bool RecordFailedEmailVerificationAttempt(DateTime utcNow)
+    {
+        if (EmailVerificationCodeHash is null)
+            return true;
+
+        EmailVerificationAttempts++;
+        UpdatedAt = utcNow;
+
+        if (EmailVerificationAttempts < MaximumEmailVerificationAttempts)
+            return false;
+
+        EmailVerificationCodeHash = null;
+        EmailVerificationCodeExpiresAt = null;
+        return true;
+    }
+
+    public void InvalidateEmailVerificationCode(DateTime utcNow)
+    {
+        EmailVerificationCodeHash = null;
+        EmailVerificationCodeExpiresAt = null;
+        UpdatedAt = utcNow;
     }
 
     /// <summary>
