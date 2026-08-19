@@ -1,0 +1,1257 @@
+{
+  "info": {
+    "_postman_id": "8ba7e2b6-14bd-4d65-ae51-d09f1a7f2026",
+    "name": "DogPlatform",
+    "description": "Colección generada desde Controllers, Program.cs, launchSettings.json y ocelot.json. Las operaciones expuestas por Ocelot usan {{gatewayUrl}}. Los endpoints sin ruta upstream usan la URL directa del servicio. Configuración detectada: Gateway launchSettings=5279, Ocelot BaseUrl=5101; downstream Identity=5102 pero launchSettings Identity=5149.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Identity",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": "{{gatewayUrl}}/api/v1/auth/register",
+            "description": "Anónimo. Gateway: /api/v1/auth/{everything} -> Identity /api/v1/auth/{everything}. Respuestas esperadas: 201, 400 o 409.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Jorge\",\n  \"lastName\": \"Test\",\n  \"email\": \"jorge@test.com\",\n  \"password\": \"Testing123\",\n  \"phoneNumber\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": "{{gatewayUrl}}/api/v1/auth/login",
+            "description": "Anónimo. Respuesta 200: LoginResponse con accessToken y refreshToken. El script guarda ambas como variables de colección.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"jorge@test.com\",\n  \"password\": \"Testing123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "  const json = pm.response.json();",
+                  "  if (json.accessToken) pm.collectionVariables.set('accessToken', json.accessToken);",
+                  "  if (json.refreshToken) pm.collectionVariables.set('refreshToken', json.refreshToken);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": "{{gatewayUrl}}/api/v1/auth/refresh",
+            "description": "Anónimo. Respuestas esperadas: 200, 400 o 401. Actualiza los tokens de colección si tiene éxito.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "  const json = pm.response.json();",
+                  "  if (json.accessToken) pm.collectionVariables.set('accessToken', json.accessToken);",
+                  "  if (json.refreshToken) pm.collectionVariables.set('refreshToken', json.refreshToken);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": "{{gatewayUrl}}/api/v1/auth/logout",
+            "description": "Anónimo según el controller. Respuesta esperada: 204.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{gatewayUrl}}/api/v1/auth/me",
+            "description": "JWT requerido. Respuestas esperadas: 200 o 401."
+          },
+          "response": []
+        },
+        {
+          "name": "Health (Direct)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": "{{identityUrl}}/health",
+            "description": "Endpoint real de Program.cs, no tiene ruta upstream en ocelot.json. Respuesta esperada: 200."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Pets",
+      "item": [
+        {
+          "name": "Create Pet",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{gatewayUrl}}/api/v1/pets",
+            "description": "JWT requerido. Respuestas esperadas: 201, 400 o 401.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"breedId\": 1,\n  \"name\": \"Firulais\",\n  \"birthDate\": \"2022-06-15T00:00:00Z\",\n  \"gender\": \"M\",\n  \"weight\": 18.5,\n  \"color\": \"Marrón\",\n  \"pedigreeNumber\": null,\n  \"isSterilized\": false,\n  \"description\": \"Perro de prueba\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Pets",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{gatewayUrl}}/api/v1/pets/mine?pageNumber=1&pageSize=10&sortBy=CreatedAt&sortDirection=DESC",
+            "description": "JWT requerido. Query opcional adicional: name, speciesId, breedId, sex. Respuestas esperadas: 200, 400 o 401."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Pet By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{gatewayUrl}}/api/v1/pets/{{petId}}",
+            "description": "JWT requerido. Path: petId. Respuestas esperadas: 200, 401, 403 o 404."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Pet",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{gatewayUrl}}/api/v1/pets/{{petId}}",
+            "description": "JWT requerido. Path: petId. Respuestas esperadas: 200, 400, 401, 403 o 404.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Firulais actualizado\",\n  \"birthDate\": \"2022-06-15T00:00:00Z\",\n  \"gender\": \"M\",\n  \"weight\": 19.2,\n  \"color\": \"Marrón\",\n  \"pedigreeNumber\": null,\n  \"isSterilized\": false,\n  \"description\": \"Datos actualizados\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Pet",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{gatewayUrl}}/api/v1/pets/{{petId}}",
+            "description": "JWT requerido. Soft delete. Respuestas esperadas: 204, 401, 403 o 404."
+          },
+          "response": []
+        },
+        {
+          "name": "Add Pet Photo (Legacy URL)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{gatewayUrl}}/api/v1/pets/{{petId}}/photos",
+            "description": "JWT requerido. Content-Type application/json. Respuestas esperadas: 201, 400, 401, 403 o 404.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"imageUrl\": \"https://example.com/dog.jpg\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Pet Photos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{gatewayUrl}}/api/v1/pets/{{petId}}/photos",
+            "description": "JWT requerido. Respuestas esperadas: 200, 401, 403 o 404."
+          },
+          "response": []
+        },
+        {
+          "name": "Set Main Photo",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{gatewayUrl}}/api/v1/pets/{{petId}}/photos/{{photoId}}/main",
+            "description": "JWT requerido. Sin body. Respuestas esperadas: 204, 401, 403 o 404."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Photo Upload URL",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{gatewayUrl}}/api/v1/pets/{{petId}}/photos/upload-url",
+            "description": "JWT requerido. Flujo S3; S3Storage está deshabilitado en configuración base. Respuestas esperadas: 200, 400, 401, 403 o 404.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fileName\": \"dog.jpg\",\n  \"contentType\": \"image/jpeg\",\n  \"fileSize\": 102400\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Confirm Photo Upload",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{gatewayUrl}}/api/v1/pets/{{petId}}/photos/confirm",
+            "description": "JWT requerido. Registra un upload ya completado. Respuestas esperadas: 201, 400, 401, 403, 404 o 409.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"objectKey\": \"{{objectKey}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Pet Photo",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{gatewayUrl}}/api/v1/pets/{{petId}}/photos/{{photoId}}",
+            "description": "JWT requerido. Respuestas esperadas: 204, 401, 403 o 404."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Species",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": "{{gatewayUrl}}/api/v1/species",
+            "description": "Anónimo. Respuesta esperada: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Breeds By Species",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": "{{gatewayUrl}}/api/v1/species/{{speciesId}}/breeds",
+            "description": "Anónimo. Path speciesId entero mayor a cero. Respuestas esperadas: 200, 400 o 404."
+          },
+          "response": []
+        },
+        {
+          "name": "Health (Direct)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": "{{petsUrl}}/health",
+            "description": "Endpoint real de Program.cs, no tiene ruta upstream en Ocelot. Respuesta esperada: 200."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Weather Forecast (Direct)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": "{{healthUrl}}/weatherforecast",
+            "description": "Único endpoint implementado actualmente. No coincide con el catch-all /api/v1/health/{everything} de Ocelot; solo puede probarse directamente. Respuesta esperada: 200."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Matching",
+      "item": [
+        {
+          "name": "Get Matching Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{gatewayUrl}}/api/v1/matching/profiles/{{petId}}",
+            "description": "JWT requerido. Respuestas esperadas: 200, 401 o 404."
+          },
+          "response": []
+        },
+        {
+          "name": "Upsert Matching Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{gatewayUrl}}/api/v1/matching/profiles/{{petId}}",
+            "description": "JWT requerido. Respuestas esperadas: 200, 400, 401 o 404.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isActive\": true,\n  \"preferredBreedIds\": [\n    1\n  ],\n  \"minimumAgeMonths\": 12,\n  \"maximumAgeMonths\": 84,\n  \"requirePedigree\": false,\n  \"requireGenealogyValidation\": true,\n  \"maximumEstimatedInbreedingCoefficient\": 0.125,\n  \"minimumCompatibilityScore\": 60\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search Candidates",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{gatewayUrl}}/api/v1/matching/pets/{{petId}}/candidates?pageNumber=1&pageSize=10&sortBy=CompatibilityScore&sortDirection=DESC&favoritesOnly=false",
+            "description": "JWT requerido. Query opcional: breedId, minimumAgeMonths, maximumAgeMonths, minimumScore. Respuestas esperadas: 200, 400, 401 o 404."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Candidate Detail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{gatewayUrl}}/api/v1/matching/pets/{{petId}}/candidates/{{candidatePetId}}",
+            "description": "JWT requerido. Respuestas esperadas: 200, 400, 401 o 404."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Favorites",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{gatewayUrl}}/api/v1/matching/pets/{{petId}}/favorites?pageNumber=1&pageSize=10",
+            "description": "JWT requerido. Respuestas esperadas: 200 o 401."
+          },
+          "response": []
+        },
+        {
+          "name": "Add Favorite",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{gatewayUrl}}/api/v1/matching/pets/{{petId}}/favorites/{{candidatePetId}}",
+            "description": "JWT requerido. Sin body. Respuestas esperadas: 204, 400, 401, 404 o 409."
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Favorite",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{gatewayUrl}}/api/v1/matching/pets/{{petId}}/favorites/{{candidatePetId}}",
+            "description": "JWT requerido. Respuestas esperadas: 204, 401 o 404."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Match Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{gatewayUrl}}/api/v1/matching/requests",
+            "description": "JWT requerido. Respuestas esperadas: 201, 400, 401, 404 o 409.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"petId\": \"{{petId}}\",\n  \"candidatePetId\": \"{{candidatePetId}}\",\n  \"message\": \"Solicitud de encuentro entre mascotas\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Incoming Match Requests",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{gatewayUrl}}/api/v1/matching/requests/incoming?pageNumber=1&pageSize=10&status=Pending",
+            "description": "JWT requerido. status opcional: Pending, Accepted, Rejected, Cancelled o Expired. Respuestas esperadas: 200 o 401."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Outgoing Match Requests",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{gatewayUrl}}/api/v1/matching/requests/outgoing?pageNumber=1&pageSize=10&status=Pending",
+            "description": "JWT requerido. status opcional. Respuestas esperadas: 200 o 401."
+          },
+          "response": []
+        },
+        {
+          "name": "Accept Match Request",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{gatewayUrl}}/api/v1/matching/requests/{{matchRequestId}}/accept",
+            "description": "JWT requerido. Sin body. Respuestas esperadas: 200, 401, 404 o 409."
+          },
+          "response": []
+        },
+        {
+          "name": "Reject Match Request",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{gatewayUrl}}/api/v1/matching/requests/{{matchRequestId}}/reject",
+            "description": "JWT requerido. Sin body. Respuestas esperadas: 200, 401, 404 o 409."
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel Match Request",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{gatewayUrl}}/api/v1/matching/requests/{{matchRequestId}}/cancel",
+            "description": "JWT requerido. Sin body. Respuestas esperadas: 200, 401, 404 o 409."
+          },
+          "response": []
+        },
+        {
+          "name": "Health (Direct)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": "{{matchingUrl}}/health",
+            "description": "Endpoint real de Program.cs, no tiene ruta upstream en Ocelot. Respuesta esperada: 200."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Walks",
+      "item": [
+        {
+          "name": "Weather Forecast (Direct)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": "{{walksUrl}}/weatherforecast",
+            "description": "Único endpoint implementado actualmente. No coincide con /api/v1/walks/{everything} de Ocelot. Respuesta esperada: 200."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Veterinarian",
+      "item": [
+        {
+          "name": "Weather Forecast (Direct)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": "{{veterinarianUrl}}/weatherforecast",
+            "description": "Único endpoint implementado actualmente. No coincide con /api/v1/veterinarian/{everything} de Ocelot. Respuesta esperada: 200."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Notification",
+      "item": [
+        {
+          "name": "Weather Forecast (Direct)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": "{{notificationUrl}}/weatherforecast",
+            "description": "Único endpoint implementado actualmente. No coincide con /api/v1/notification/{everything} de Ocelot. Respuesta esperada: 200."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Genealogy",
+      "item": [
+        {
+          "name": "Assign Parents",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{gatewayUrl}}/api/v1/genealogy/{{petId}}/parents",
+            "description": "JWT requerido. Ambos IDs son nullable. Respuestas esperadas: 204, 400, 401 o 404.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fatherId\": \"{{fatherPetId}}\",\n  \"motherId\": \"{{motherPetId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Parents",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{gatewayUrl}}/api/v1/genealogy/{{petId}}/parents",
+            "description": "JWT requerido. Respuestas esperadas: 200, 401 o 404."
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Father",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{gatewayUrl}}/api/v1/genealogy/{{petId}}/father",
+            "description": "JWT requerido. Respuestas esperadas: 204, 401 o 404."
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Mother",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{gatewayUrl}}/api/v1/genealogy/{{petId}}/mother",
+            "description": "JWT requerido. Respuestas esperadas: 204, 401 o 404."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Ancestor Tree",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{gatewayUrl}}/api/v1/genealogy/{{petId}}/tree?depth=3",
+            "description": "JWT requerido. Query depth opcional. Respuestas esperadas: 200, 400 o 401."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Ancestors",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{gatewayUrl}}/api/v1/genealogy/{{petId}}/ancestors?depth=3",
+            "description": "JWT requerido. Query depth opcional. Respuestas esperadas: 200, 400 o 401."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Descendants",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{gatewayUrl}}/api/v1/genealogy/{{petId}}/descendants?depth=3",
+            "description": "JWT requerido. Query depth opcional. Respuestas esperadas: 200, 400 o 401."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Siblings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{gatewayUrl}}/api/v1/genealogy/{{petId}}/siblings",
+            "description": "JWT requerido. Respuestas esperadas: 200 o 401."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Lineage Statistics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{gatewayUrl}}/api/v1/genealogy/{{petId}}/statistics?depth=5",
+            "description": "JWT requerido. Query depth opcional. Respuestas esperadas: 200, 400 o 401."
+          },
+          "response": []
+        },
+        {
+          "name": "Calculate Relationship",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{gatewayUrl}}/api/v1/genealogy/relationship?petId1={{petId}}&petId2={{secondPetId}}&depth=5",
+            "description": "JWT requerido. Query obligatoria: petId1, petId2; depth opcional. Respuestas esperadas: 200, 400 o 401."
+          },
+          "response": []
+        },
+        {
+          "name": "Health (Direct)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": "{{genealogyUrl}}/health",
+            "description": "Endpoint real de Program.cs, no tiene ruta upstream en Ocelot. Respuesta esperada: 200."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "gatewayUrl",
+      "value": "http://localhost:5279",
+      "type": "string",
+      "description": "Puerto HTTP de launchSettings del Gateway. Ocelot GlobalConfiguration declara 5101."
+    },
+    {
+      "key": "identityUrl",
+      "value": "http://localhost:5149",
+      "type": "string"
+    },
+    {
+      "key": "petsUrl",
+      "value": "http://localhost:5095",
+      "type": "string"
+    },
+    {
+      "key": "healthUrl",
+      "value": "http://localhost:5293",
+      "type": "string"
+    },
+    {
+      "key": "matchingUrl",
+      "value": "http://localhost:5166",
+      "type": "string"
+    },
+    {
+      "key": "walksUrl",
+      "value": "http://localhost:5146",
+      "type": "string"
+    },
+    {
+      "key": "veterinarianUrl",
+      "value": "http://localhost:5113",
+      "type": "string"
+    },
+    {
+      "key": "notificationUrl",
+      "value": "http://localhost:5023",
+      "type": "string"
+    },
+    {
+      "key": "genealogyUrl",
+      "value": "http://localhost:5161",
+      "type": "string"
+    },
+    {
+      "key": "gatewayConfiguredUrl",
+      "value": "http://localhost:5101",
+      "type": "string",
+      "description": "Ocelot GlobalConfiguration.BaseUrl."
+    },
+    {
+      "key": "identityGatewayDownstreamUrl",
+      "value": "http://localhost:5102",
+      "type": "string",
+      "description": "DownstreamHostAndPorts de Identity en Ocelot."
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refreshToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "petId",
+      "value": "11111111-1111-1111-1111-111111111111",
+      "type": "string"
+    },
+    {
+      "key": "secondPetId",
+      "value": "22222222-2222-2222-2222-222222222222",
+      "type": "string"
+    },
+    {
+      "key": "candidatePetId",
+      "value": "22222222-2222-2222-2222-222222222222",
+      "type": "string"
+    },
+    {
+      "key": "fatherPetId",
+      "value": "33333333-3333-3333-3333-333333333333",
+      "type": "string"
+    },
+    {
+      "key": "motherPetId",
+      "value": "44444444-4444-4444-4444-444444444444",
+      "type": "string"
+    },
+    {
+      "key": "photoId",
+      "value": "55555555-5555-5555-5555-555555555555",
+      "type": "string"
+    },
+    {
+      "key": "matchRequestId",
+      "value": "66666666-6666-6666-6666-666666666666",
+      "type": "string"
+    },
+    {
+      "key": "speciesId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "objectKey",
+      "value": "pets/11111111-1111-1111-1111-111111111111/example.jpg",
+      "type": "string"
+    }
+  ]
+}
