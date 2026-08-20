@@ -1,0 +1,392 @@
+{
+  "Routes": [
+    // ── Auth / Identity ─────────────────────────────────────────
+    {
+      "UpstreamPathTemplate": "/api/v1/auth/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "DownstreamPathTemplate": "/api/v1/auth/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 5102 }
+      ]
+    },
+    // ── Pets ─────────────────────────────────────────────────────
+    {
+      "UpstreamPathTemplate": "/api/v1/pets",
+      "UpstreamHttpMethod": [ "GET", "POST" ],
+      "DownstreamPathTemplate": "/api/v1/pets",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 5103 }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/pets/{id}",
+      "UpstreamHttpMethod": [ "GET", "PUT", "DELETE" ],
+      "DownstreamPathTemplate": "/api/v1/pets/{id}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 5103 }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/pets/mine",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/api/v1/pets/mine",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 5103 }
+      ]
+    },
+    // ── Pet Photos (existing URL-based, legacy) ───────────────────
+    {
+      "UpstreamPathTemplate": "/api/v1/pets/{petId}/photos",
+      "UpstreamHttpMethod": [ "GET", "POST" ],
+      "DownstreamPathTemplate": "/api/v1/pets/{petId}/photos",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 5103 }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/pets/{petId}/photos/{photoId}/main",
+      "UpstreamHttpMethod": [ "PUT" ],
+      "DownstreamPathTemplate": "/api/v1/pets/{petId}/photos/{photoId}/main",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 5103 }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/pets/{petId}/photos/{photoId}",
+      "UpstreamHttpMethod": [ "DELETE" ],
+      "DownstreamPathTemplate": "/api/v1/pets/{petId}/photos/{photoId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 5103 }
+      ]
+    },
+    // ── Pet Photos — S3 pre-signed upload flow ─────────────────────
+    {
+      "UpstreamPathTemplate": "/api/v1/pets/{petId}/photos/upload-url",
+      "UpstreamHttpMethod": [ "POST" ],
+      "DownstreamPathTemplate": "/api/v1/pets/{petId}/photos/upload-url",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 5103 }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/pets/{petId}/photos/upload/{uploadToken}",
+      "UpstreamHttpMethod": [ "PUT" ],
+      "DownstreamPathTemplate": "/api/v1/pets/{petId}/photos/upload/{uploadToken}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 5103 }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/pets/{petId}/photos/content/{encodedObjectKey}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/api/v1/pets/{petId}/photos/content/{encodedObjectKey}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 5103 }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/pets/{petId}/photos/confirm",
+      "UpstreamHttpMethod": [ "POST" ],
+      "DownstreamPathTemplate": "/api/v1/pets/{petId}/photos/confirm",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 5103 }
+      ]
+    },
+    // ── Species / Breeds ────────────────────────────────────────
+    {
+      "UpstreamPathTemplate": "/api/v1/species",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/api/v1/species",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 5103 }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/species/{speciesId}/breeds",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/api/v1/species/{speciesId}/breeds",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 5103 }
+      ]
+    },
+    // ── Genealogy ───────────────────────────────────────────────
+    {
+      "UpstreamPathTemplate": "/api/v1/genealogy/{petId}/parents",
+      "UpstreamHttpMethod": [ "PUT", "GET" ],
+      "DownstreamPathTemplate": "/api/v1/genealogy/{petId}/parents",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 5108 }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/genealogy/{petId}/father",
+      "UpstreamHttpMethod": [ "DELETE" ],
+      "DownstreamPathTemplate": "/api/v1/genealogy/{petId}/father",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 5108 }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/genealogy/{petId}/mother",
+      "UpstreamHttpMethod": [ "DELETE" ],
+      "DownstreamPathTemplate": "/api/v1/genealogy/{petId}/mother",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 5108 }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/genealogy/{petId}/tree",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/api/v1/genealogy/{petId}/tree",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 5108 }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/genealogy/{petId}/ancestors",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/api/v1/genealogy/{petId}/ancestors",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 5108 }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/genealogy/{petId}/descendants",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/api/v1/genealogy/{petId}/descendants",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 5108 }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/genealogy/{petId}/siblings",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/api/v1/genealogy/{petId}/siblings",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 5108 }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/genealogy/{petId}/statistics",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/api/v1/genealogy/{petId}/statistics",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 5108 }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/genealogy/relationship",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/api/v1/genealogy/relationship",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 5108 }
+      ]
+    },
+    // ── Matching: Profiles ──────────────────────────────────────
+    {
+      "UpstreamPathTemplate": "/api/v1/matching/profiles/{petId}",
+      "UpstreamHttpMethod": [ "GET", "PUT" ],
+      "DownstreamPathTemplate": "/api/v1/matching/profiles/{petId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 5104 }
+      ]
+    },
+    // ── Matching: Candidates ────────────────────────────────────
+    {
+      "UpstreamPathTemplate": "/api/v1/matching/pets/{petId}/candidates",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/api/v1/matching/pets/{petId}/candidates",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 5104 }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/matching/pets/{petId}/candidates/{candidatePetId}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/api/v1/matching/pets/{petId}/candidates/{candidatePetId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 5104 }
+      ]
+    },
+    // ── Matching: Favorites ─────────────────────────────────────
+    {
+      "UpstreamPathTemplate": "/api/v1/matching/pets/{petId}/favorites",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/api/v1/matching/pets/{petId}/favorites",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 5104 }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/matching/pets/{petId}/favorites/{candidatePetId}",
+      "UpstreamHttpMethod": [ "PUT", "DELETE" ],
+      "DownstreamPathTemplate": "/api/v1/matching/pets/{petId}/favorites/{candidatePetId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 5104 }
+      ]
+    },
+    // ── Matching: Requests ──────────────────────────────────────
+    {
+      "UpstreamPathTemplate": "/api/v1/matching/requests",
+      "UpstreamHttpMethod": [ "POST" ],
+      "DownstreamPathTemplate": "/api/v1/matching/requests",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 5104 }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/matching/requests/incoming",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/api/v1/matching/requests/incoming",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 5104 }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/matching/requests/outgoing",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/api/v1/matching/requests/outgoing",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 5104 }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/matching/requests/{matchRequestId}/accept",
+      "UpstreamHttpMethod": [ "POST" ],
+      "DownstreamPathTemplate": "/api/v1/matching/requests/{matchRequestId}/accept",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 5104 }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/matching/requests/{matchRequestId}/reject",
+      "UpstreamHttpMethod": [ "POST" ],
+      "DownstreamPathTemplate": "/api/v1/matching/requests/{matchRequestId}/reject",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 5104 }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/matching/requests/{matchRequestId}/cancel",
+      "UpstreamHttpMethod": [ "POST" ],
+      "DownstreamPathTemplate": "/api/v1/matching/requests/{matchRequestId}/cancel",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 5104 }
+      ]
+    },
+    // ── Walks (catch-all, pendiente de endpoints definitivos) ────
+    {
+      "UpstreamPathTemplate": "/api/v1/walks/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "DownstreamPathTemplate": "/api/v1/walks/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 5105 }
+      ]
+    },
+    // ── Health (catch-all, pendiente de endpoints definitivos) ───
+    {
+      "UpstreamPathTemplate": "/api/v1/health/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "DownstreamPathTemplate": "/api/v1/health/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 5106 }
+      ]
+    },
+    // ── Veterinarian (catch-all, pendiente de endpoints definitivos) ─
+    {
+      "UpstreamPathTemplate": "/api/v1/veterinarian/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "DownstreamPathTemplate": "/api/v1/veterinarian/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 5107 }
+      ]
+    },
+    // ── Notification (catch-all, pendiente de endpoints definitivos) ─
+    {
+      "UpstreamPathTemplate": "/api/v1/notification/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "DownstreamPathTemplate": "/api/v1/notification/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 5109 }
+      ]
+    }
+  ],
+  "GlobalConfiguration": {
+    "BaseUrl": "http://localhost:5101"
+  },
+  "SwaggerEndPoints": [
+    {
+      "Key": "identity",
+      "Config": [
+        { "Name": "Identity API", "Version": "v1", "Url": "http://localhost:5102/swagger/v1/swagger.json" }
+      ]
+    },
+    {
+      "Key": "pets",
+      "Config": [
+        { "Name": "Pets API", "Version": "v1", "Url": "http://localhost:5103/swagger/v1/swagger.json" }
+      ]
+    },
+    {
+      "Key": "matching",
+      "Config": [
+        { "Name": "Matching API", "Version": "v1", "Url": "http://localhost:5104/swagger/v1/swagger.json" }
+      ]
+    },
+    {
+      "Key": "walks",
+      "Config": [
+        { "Name": "Walks API", "Version": "v1", "Url": "http://localhost:5105/swagger/v1/swagger.json" }
+      ]
+    },
+    {
+      "Key": "genealogy",
+      "Config": [
+        { "Name": "Genealogy API", "Version": "v1", "Url": "http://localhost:5108/swagger/v1/swagger.json" }
+      ]
+    },
+    {
+      "Key": "notification",
+      "Config": [
+        { "Name": "Notification API", "Version": "v1", "Url": "http://localhost:5109/swagger/v1/swagger.json" }
+      ]
+    }
+  ]
+}
