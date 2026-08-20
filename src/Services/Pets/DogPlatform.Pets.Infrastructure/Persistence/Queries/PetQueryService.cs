@@ -3,6 +3,7 @@ using DogPlatform.Pets.Application.Features.Pets.GetMine;
 using DogPlatform.Pets.Application.Queries;
 using DogPlatform.Pets.Infrastructure.Persistence.Context;
 using DogPlatform.Pets.Application.Storage;
+using DogPlatform.Pets.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 
 namespace DogPlatform.Pets.Infrastructure.Persistence.Queries;
@@ -55,8 +56,8 @@ public sealed class PetQueryService : IPetQueryService
 
         if (!string.IsNullOrWhiteSpace(query.Sex))
         {
-            var sex = query.Sex.Trim().ToUpperInvariant();
-            baseQuery = baseQuery.Where(p => EF.Property<string>(p, "Gender") == sex);
+            var gender = Gender.Create(query.Sex).Value;
+            baseQuery = baseQuery.Where(p => p.Gender.Equals(gender));
         }
 
         // ── Count before pagination ─────────────────────────────────────────
@@ -100,7 +101,7 @@ public sealed class PetQueryService : IPetQueryService
                 p.BirthDate,
                 p.CreatedAt,
                 p.UpdatedAt,
-                GenderValue = EF.Property<string>(p, "Gender"),
+                p.Gender,
                 BreedName    = _context.Breeds
                                    .Where(b => b.Id == p.BreedId)
                                    .Select(b => b.Name)
@@ -131,7 +132,7 @@ public sealed class PetQueryService : IPetQueryService
                 i.SpeciesName,
                 i.BreedId,
                 i.BreedName,
-                i.GenderValue,
+                i.Gender.Value,
                 i.BirthDate,
                 i.MainPhotoUrl is null ? null : _photoStorage.ResolvePublicUrl(i.MainPhotoUrl),
                 i.CreatedAt,
