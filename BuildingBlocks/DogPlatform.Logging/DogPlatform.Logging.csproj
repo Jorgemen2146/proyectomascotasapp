@@ -1,8 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\DogPlatform.SharedKernel\DogPlatform.SharedKernel.csproj" />
-    <ProjectReference Include="..\DogPlatform.Common\DogPlatform.Common.csproj" />
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.3" />
   </ItemGroup>
 
   <PropertyGroup>

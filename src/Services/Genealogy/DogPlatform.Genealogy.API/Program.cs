@@ -2,6 +2,7 @@ using System.Text;
 using DogPlatform.Common.Extensions;
 using DogPlatform.Genealogy.Application;
 using DogPlatform.Genealogy.Infrastructure;
+using DogPlatform.Logging;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
@@ -15,6 +16,7 @@ builder.Services.AddApplication(builder.Configuration);
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddDogPlatformHttpLogging(builder.Configuration, builder.Environment);
 
 var jwtSection = builder.Configuration.GetSection("Jwt");
 var secret     = jwtSection["Secret"]   ?? string.Empty;
@@ -41,9 +43,11 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-app.UseDogPlatformSwagger("DogPlatform Genealogy API v1");
-
 app.UseHttpsRedirection();
+
+app.UseDogPlatformExceptionHandling();
+app.UseDogPlatformRequestLogging();
+app.UseDogPlatformSwagger("DogPlatform Genealogy API v1");
 
 app.UseAuthentication();
 app.UseAuthorization();

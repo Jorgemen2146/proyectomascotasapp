@@ -7,6 +7,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\DogPlatform.Logging\DogPlatform.Logging.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Ocelot" Version="23.4.3" />
     <PackageReference Include="MMLib.SwaggerForOcelot" Version="9.0.0" />
   </ItemGroup>

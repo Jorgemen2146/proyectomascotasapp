@@ -5,6 +5,7 @@
     <Project Path="BuildingBlocks/DogPlatform.Contracts/DogPlatform.Contracts.csproj" />
     <Project Path="BuildingBlocks/DogPlatform.EventBus/DogPlatform.EventBus.csproj" />
     <Project Path="BuildingBlocks/DogPlatform.Logging/DogPlatform.Logging.csproj" />
+    <Project Path="BuildingBlocks/DogPlatform.Logging.Tests/DogPlatform.Logging.Tests.csproj" />
     <Project Path="BuildingBlocks/DogPlatform.SharedKernel/DogPlatform.SharedKernel.csproj" />
   </Folder>
   <Folder Name="/Elementos de la solución/">

@@ -1,3 +1,4 @@
+using DogPlatform.Logging;
 using MMLib.SwaggerForOcelot;
 using MMLib.SwaggerForOcelot.DependencyInjection;
 using Ocelot.DependencyInjection;
@@ -11,6 +12,10 @@ builder.Configuration
     .AddJsonFile($"ocelot.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
 
 builder.Services.AddOcelot(builder.Configuration);
+builder.Services.AddDogPlatformHttpLogging(
+    builder.Configuration,
+    builder.Environment,
+    persistUnhandledExceptions: false);
 //builder.Services.AddSwaggerForOcelot(builder.Configuration);
 
 // Preserve the Authorization header when forwarding to downstream services
@@ -24,6 +29,7 @@ var app = builder.Build();
 
 app.UseCors();
 app.UseHttpsRedirection();
+app.UseDogPlatformRequestLogging();
 
 //app.UseSwaggerForOcelotUI();
 
