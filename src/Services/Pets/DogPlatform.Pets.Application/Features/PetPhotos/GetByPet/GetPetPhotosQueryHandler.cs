@@ -1,4 +1,5 @@
 using DogPlatform.Pets.Application.Security;
+using DogPlatform.Pets.Application.Storage;
 using DogPlatform.Pets.Domain.Errors;
 using DogPlatform.Pets.Domain.Repositories;
 using DogPlatform.SharedKernel.Primitives;
@@ -12,15 +13,18 @@ public sealed class GetPetPhotosQueryHandler
     private readonly IPetRepository _petRepository;
     private readonly IPetPhotoRepository _photoRepository;
     private readonly ICurrentUser _currentUser;
+    private readonly IPhotoStorageService _storage;
 
     public GetPetPhotosQueryHandler(
         IPetRepository petRepository,
         IPetPhotoRepository photoRepository,
-        ICurrentUser currentUser)
+        ICurrentUser currentUser,
+        IPhotoStorageService storage)
     {
         _petRepository = petRepository;
         _photoRepository = photoRepository;
         _currentUser = currentUser;
+        _storage = storage;
     }
 
     public async Task<Result<IReadOnlyCollection<PetPhotoResponse>>> Handle(
@@ -39,7 +43,12 @@ public sealed class GetPetPhotosQueryHandler
         var response = photos
             .OrderByDescending(p => p.IsMain)
             .ThenBy(p => p.CreatedAt)
-            .Select(p => new PetPhotoResponse(p.Id, p.PetId, p.Url, p.IsMain, p.CreatedAt))
+            .Select(p => new PetPhotoResponse(
+                p.Id,
+                p.PetId,
+                _storage.ResolvePublicUrl(p.Url),
+                p.IsMain,
+                p.CreatedAt))
             .ToList()
             .AsReadOnly();
 

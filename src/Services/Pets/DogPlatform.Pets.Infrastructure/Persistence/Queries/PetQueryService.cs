@@ -2,6 +2,7 @@ using DogPlatform.Pets.Application.Common;
 using DogPlatform.Pets.Application.Features.Pets.GetMine;
 using DogPlatform.Pets.Application.Queries;
 using DogPlatform.Pets.Infrastructure.Persistence.Context;
+using DogPlatform.Pets.Application.Storage;
 using Microsoft.EntityFrameworkCore;
 
 namespace DogPlatform.Pets.Infrastructure.Persistence.Queries;
@@ -14,10 +15,12 @@ namespace DogPlatform.Pets.Infrastructure.Persistence.Queries;
 public sealed class PetQueryService : IPetQueryService
 {
     private readonly PetsDbContext _context;
+    private readonly IPhotoStorageService _photoStorage;
 
-    public PetQueryService(PetsDbContext context)
+    public PetQueryService(PetsDbContext context, IPhotoStorageService photoStorage)
     {
         _context = context;
+        _photoStorage = photoStorage;
     }
 
     public async Task<PagedResult<MyPetResponse>> GetMyPetsAsync(
@@ -130,7 +133,7 @@ public sealed class PetQueryService : IPetQueryService
                 i.BreedName,
                 i.GenderValue,
                 i.BirthDate,
-                i.MainPhotoUrl,
+                i.MainPhotoUrl is null ? null : _photoStorage.ResolvePublicUrl(i.MainPhotoUrl),
                 i.CreatedAt,
                 i.UpdatedAt))
             .ToList()

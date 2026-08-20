@@ -31,6 +31,8 @@ public sealed class S3PhotoStorageService : IPhotoStorageService
     private readonly S3StorageOptions _options;
     private readonly ILogger<S3PhotoStorageService> _logger;
 
+    public string ProviderName => "S3";
+
     public S3PhotoStorageService(
         IAmazonS3 s3,
         IOptions<S3StorageOptions> options,
@@ -127,6 +129,7 @@ public sealed class S3PhotoStorageService : IPhotoStorageService
         var result = new PresignedUploadResult(
             safeKey,
             uploadUrl,
+            "PUT",
             expires,
             requiredHeaders.AsReadOnly());
 
@@ -189,5 +192,29 @@ public sealed class S3PhotoStorageService : IPhotoStorageService
                 "Failed to delete S3 object {ObjectKey}.", objectKey);
             return false;
         }
+    }
+
+    public Task<Result> UploadObjectAsync(
+        PhotoUploadRequest request,
+        Stream content,
+        CancellationToken cancellationToken = default) =>
+        Task.FromResult(Result.Failure(
+            Error.Validation("Storage.DirectUploadUnsupported", "Direct API uploads are not used by the S3 provider.")));
+
+    public Task<Result<PhotoContent>> OpenReadAsync(
+        string objectKey,
+        CancellationToken cancellationToken = default) =>
+        Task.FromResult(Result.Failure<PhotoContent>(
+            Error.Validation("Storage.ContentProxyUnsupported", "Content proxying is not used by the S3 provider.")));
+
+    public string ResolvePublicUrl(string objectKey)
+    {
+        if (Uri.TryCreate(objectKey, UriKind.Absolute, out _))
+            return objectKey;
+
+        if (string.IsNullOrWhiteSpace(_options.PublicBaseUrl))
+            return objectKey;
+
+        return $"{_options.PublicBaseUrl.TrimEnd('/')}/{objectKey.TrimStart('/')}";
     }
 }

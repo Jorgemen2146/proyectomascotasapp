@@ -53,6 +53,7 @@ public sealed class CreatePetPhotoUploadUrlCommandHandler
         return Result.Success(new PetPhotoUploadUrlResponse(
             r.ObjectKey,
             r.UploadUrl,
+            r.Method,
             r.ExpiresAtUtc,
             r.RequiredHeaders));
     }

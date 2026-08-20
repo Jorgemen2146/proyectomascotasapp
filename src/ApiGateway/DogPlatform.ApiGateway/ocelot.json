@@ -77,6 +77,24 @@
       ]
     },
     {
+      "UpstreamPathTemplate": "/api/v1/pets/{petId}/photos/upload/{uploadToken}",
+      "UpstreamHttpMethod": [ "PUT" ],
+      "DownstreamPathTemplate": "/api/v1/pets/{petId}/photos/upload/{uploadToken}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 5103 }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/pets/{petId}/photos/content/{encodedObjectKey}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/api/v1/pets/{petId}/photos/content/{encodedObjectKey}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 5103 }
+      ]
+    },
+    {
       "UpstreamPathTemplate": "/api/v1/pets/{petId}/photos/confirm",
       "UpstreamHttpMethod": [ "POST" ],
       "DownstreamPathTemplate": "/api/v1/pets/{petId}/photos/confirm",

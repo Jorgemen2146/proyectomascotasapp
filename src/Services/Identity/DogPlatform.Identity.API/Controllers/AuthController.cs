@@ -6,6 +6,8 @@ using DogPlatform.Identity.Application.Features.Authentication.RefreshToken;
 using DogPlatform.Identity.Application.Features.Authentication.Register;
 using DogPlatform.Identity.Application.Features.Authentication.ResendVerification;
 using DogPlatform.Identity.Application.Features.Authentication.VerifyEmail;
+using DogPlatform.Identity.Application.Features.Profile.GetMyProfile;
+using DogPlatform.Identity.Application.Features.Profile.UpdateMyProfile;
 using DogPlatform.SharedKernel.Primitives;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -181,23 +183,50 @@ public sealed class AuthController : ControllerBase
     [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public IActionResult Me()
+    public async Task<IActionResult> Me(CancellationToken cancellationToken)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)
-                  ?? User.FindFirstValue("sub");
-        var email = User.FindFirstValue(ClaimTypes.Email)
-                 ?? User.FindFirstValue("email");
-        var firstName = User.FindFirstValue(ClaimTypes.GivenName)
-                     ?? User.FindFirstValue("given_name");
-        var lastName = User.FindFirstValue(ClaimTypes.Surname)
-                    ?? User.FindFirstValue("family_name");
+        if (!TryGetUserId(out var userId))
+            return Unauthorized();
 
-        return Ok(new
-        {
+        var result = await _mediator.Send(new GetMyProfileQuery(userId), cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : NotFound(result.Error);
+    }
+
+    [HttpPut("me")]
+    [Authorize]
+    [ProducesResponseType(typeof(MyProfileResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateMe(
+        [FromBody] UpdateMyProfileRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var userId))
+            return Unauthorized();
+
+        var result = await _mediator.Send(new UpdateMyProfileCommand(
             userId,
-            email,
-            firstName,
-            lastName
-        });
+            request.FirstName,
+            request.LastName,
+            request.PhoneNumber), cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return result.Error.Type switch
+            {
+                ErrorType.NotFound => NotFound(result.Error),
+                _ => BadRequest(result.Error)
+            };
+        }
+
+        return Ok(result.Value);
+    }
+
+    private bool TryGetUserId(out Guid userId)
+    {
+        var value = User.FindFirstValue(ClaimTypes.NameIdentifier)
+                 ?? User.FindFirstValue("sub");
+        return Guid.TryParse(value, out userId);
     }
 }

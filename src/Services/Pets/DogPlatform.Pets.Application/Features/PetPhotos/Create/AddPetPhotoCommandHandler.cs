@@ -1,4 +1,5 @@
 using DogPlatform.Pets.Application.Security;
+using DogPlatform.Pets.Application.Storage;
 using DogPlatform.Pets.Domain.Aggregates.Pet;
 using DogPlatform.Pets.Domain.Errors;
 using DogPlatform.Pets.Domain.Repositories;
@@ -15,19 +16,22 @@ public sealed class AddPetPhotoCommandHandler
     private readonly IPetsUnitOfWork _unitOfWork;
     private readonly ICurrentUser _currentUser;
     private readonly TimeProvider _timeProvider;
+    private readonly IPhotoStorageService _storage;
 
     public AddPetPhotoCommandHandler(
         IPetRepository petRepository,
         IPetPhotoRepository photoRepository,
         IPetsUnitOfWork unitOfWork,
         ICurrentUser currentUser,
-        TimeProvider timeProvider)
+        TimeProvider timeProvider,
+        IPhotoStorageService storage)
     {
         _petRepository = petRepository;
         _photoRepository = photoRepository;
         _unitOfWork = unitOfWork;
         _currentUser = currentUser;
         _timeProvider = timeProvider;
+        _storage = storage;
     }
 
     public async Task<Result<PetPhotoResponse>> Handle(
@@ -62,7 +66,7 @@ public sealed class AddPetPhotoCommandHandler
         return Result.Success(new PetPhotoResponse(
             photo.Id,
             photo.PetId,
-            photo.Url,
+            _storage.ResolvePublicUrl(photo.Url),
             photo.IsMain,
             photo.CreatedAt));
     }

@@ -248,6 +248,23 @@ public sealed class User : AggregateRoot<Guid>
         UpdatedAt = utcNow;
     }
 
+    public Result UpdateProfile(
+        string firstName,
+        string lastName,
+        string? phoneNumber,
+        DateTime utcNow)
+    {
+        var fullNameResult = FullName.Create(firstName, lastName);
+        if (fullNameResult.IsFailure)
+            return Result.Failure(fullNameResult.Error);
+
+        FullName = fullNameResult.Value;
+        PhoneNumber = string.IsNullOrWhiteSpace(phoneNumber) ? null : phoneNumber.Trim();
+        UpdatedAt = utcNow;
+
+        return Result.Success();
+    }
+
     /// <summary>
     /// Records the timestamp of a successful login.
     /// </summary>

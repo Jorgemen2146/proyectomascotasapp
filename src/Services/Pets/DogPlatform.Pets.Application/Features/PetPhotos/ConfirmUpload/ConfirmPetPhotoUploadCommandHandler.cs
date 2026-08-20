@@ -54,7 +54,7 @@ public sealed class ConfirmPetPhotoUploadCommandHandler
         if (!request.ObjectKey.StartsWith(expectedPrefix, StringComparison.OrdinalIgnoreCase))
             return Result.Failure<PetPhotoResponse>(PetErrors.InvalidObjectKey);
 
-        // 3. Verify object exists in S3
+        // 3. Verify object exists in the active storage provider
         var exists = await _storageService.ObjectExistsAsync(request.ObjectKey, cancellationToken);
         if (!exists)
             return Result.Failure<PetPhotoResponse>(PetErrors.ObjectNotFound);
@@ -85,7 +85,7 @@ public sealed class ConfirmPetPhotoUploadCommandHandler
         return Result.Success(new PetPhotoResponse(
             photo.Id,
             photo.PetId,
-            photo.Url,
+            _storageService.ResolvePublicUrl(photo.Url),
             photo.IsMain,
             photo.CreatedAt));
     }

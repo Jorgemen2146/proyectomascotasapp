@@ -8,6 +8,8 @@ namespace DogPlatform.Pets.Application.Storage;
 /// </summary>
 public interface IPhotoStorageService
 {
+    string ProviderName { get; }
+
     /// <summary>
     /// Generates a pre-signed HTTP PUT URL for uploading a photo directly to storage.
     /// The object key is derived from userId + petId and is safe — it never trusts client input.
@@ -34,4 +36,15 @@ public interface IPhotoStorageService
     Task<bool> DeleteObjectAsync(
         string objectKey,
         CancellationToken cancellationToken = default);
+
+    Task<Result> UploadObjectAsync(
+        PhotoUploadRequest request,
+        Stream content,
+        CancellationToken cancellationToken = default);
+
+    Task<Result<PhotoContent>> OpenReadAsync(
+        string objectKey,
+        CancellationToken cancellationToken = default);
+
+    string ResolvePublicUrl(string objectKey);
 }

@@ -42,8 +42,8 @@ public sealed class DeletePetPhotoCommandHandler : IRequestHandler<DeletePetPhot
         if (pet.OwnerId != _currentUser.UserId)
             return Result.Failure(PetErrors.Unauthorized);
 
-        var photo = await _photoRepository.GetByIdAsync(request.PhotoId, cancellationToken);
-        if (photo is null || photo.PetId != request.PetId)
+        var photo = pet.Photos.FirstOrDefault(candidate => candidate.Id == request.PhotoId);
+        if (photo is null)
             return Result.Failure(PetErrors.PhotoNotFound);
 
         // Capture the object key before removal
@@ -57,14 +57,14 @@ public sealed class DeletePetPhotoCommandHandler : IRequestHandler<DeletePetPhot
         await _photoRepository.RemoveAsync(photo, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        // Attempt S3 cleanup after successful DB commit.
+        // Attempt provider cleanup after successful DB commit.
         // A failure here does NOT roll back the DB deletion.
         // TODO: for reliable eventual cleanup, enqueue an outbox event instead.
         var deleted = await _storageService.DeleteObjectAsync(objectKey, cancellationToken);
         if (!deleted)
         {
             _logger.LogWarning(
-                "S3 object deletion failed for key {ObjectKey} after DB photo {PhotoId} was removed. Manual cleanup may be required.",
+                "Storage object deletion failed for key {ObjectKey} after DB photo {PhotoId} was removed. Manual cleanup may be required.",
                 objectKey,
                 request.PhotoId);
         }

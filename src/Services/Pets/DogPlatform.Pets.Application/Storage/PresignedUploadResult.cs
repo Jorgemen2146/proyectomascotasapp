@@ -7,5 +7,6 @@ namespace DogPlatform.Pets.Application.Storage;
 public sealed record PresignedUploadResult(
     string ObjectKey,
     string UploadUrl,
+    string Method,
     DateTime ExpiresAtUtc,
     IReadOnlyDictionary<string, string> RequiredHeaders);

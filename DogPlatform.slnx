@@ -52,6 +52,7 @@
     <Project Path="src/Services/Pets/DogPlatform.Pets.Application/DogPlatform.Pets.Application.csproj" />
     <Project Path="src/Services/Pets/DogPlatform.Pets.Domain/DogPlatform.Pets.Domain.csproj" />
     <Project Path="src/Services/Pets/DogPlatform.Pets.Infrastructure/DogPlatform.Pets.Infrastructure.csproj" />
+    <Project Path="src/Services/Pets/DogPlatform.Pets.Tests/DogPlatform.Pets.Tests.csproj" />
   </Folder>
   <Folder Name="/src/Services/Veterinarian/">
     <Project Path="src/Services/Veterinarian/DogPlatform.Veterinarian.API/DogPlatform.Veterinarian.API.csproj" />
