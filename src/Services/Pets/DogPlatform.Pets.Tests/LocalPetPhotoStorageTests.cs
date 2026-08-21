@@ -13,6 +13,65 @@ public sealed class LocalPetPhotoStorageTests : IDisposable
         "DogPlatform.Pets.Tests",
         Guid.NewGuid().ToString("N"));
 
+    [Theory]
+    [MemberData(nameof(ValidImages))]
+    public async Task SaveAsync_ValidImage_WritesSafePetKey(
+        string fileName, string contentType, byte[] bytes)
+    {
+        var petId = Guid.NewGuid();
+        var storage = CreateStorage();
+
+        var result = await storage.SaveAsync(petId, bytes, contentType, fileName);
+
+        Assert.True(result.IsSuccess);
+        Assert.StartsWith($"pets/{petId:D}/", result.Value.ObjectKey);
+        Assert.DoesNotContain(fileName, result.Value.ObjectKey);
+        Assert.True(await storage.ObjectExistsAsync(result.Value.ObjectKey));
+    }
+
+    public static TheoryData<string, string, byte[]> ValidImages => new()
+    {
+        { "luna.jpg", "image/jpeg", [0xFF, 0xD8, 0xFF, 0xD9] },
+        { "luna.png", "image/png", [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A] },
+        { "luna.webp", "image/webp", "RIFF0000WEBP"u8.ToArray() }
+    };
+
+    [Theory]
+    [InlineData("luna.svg", "image/svg+xml", "Storage.InvalidContentType")]
+    [InlineData("luna.exe", "image/jpeg", "Storage.ExtensionMismatch")]
+    public async Task SaveAsync_InvalidTypeOrExtension_IsRejected(
+        string fileName, string contentType, string expectedCode)
+    {
+        var result = await CreateStorage().SaveAsync(
+            Guid.NewGuid(), [0xFF, 0xD8, 0xFF], contentType, fileName);
+
+        Assert.True(result.IsFailure);
+        Assert.Equal(expectedCode, result.Error.Code);
+    }
+
+    [Fact]
+    public async Task SaveAsync_MismatchedMagicBytes_IsRejected()
+    {
+        var result = await CreateStorage().SaveAsync(
+            Guid.NewGuid(), "<html>"u8.ToArray(), "image/jpeg", "luna.jpg");
+
+        Assert.True(result.IsFailure);
+        Assert.Equal("Storage.ContentSignatureMismatch", result.Error.Code);
+    }
+
+    [Fact]
+    public async Task SaveAsync_DecodedImageOverTenMb_IsRejected()
+    {
+        var bytes = new byte[10 * 1024 * 1024 + 1];
+        bytes[0] = 0xFF; bytes[1] = 0xD8; bytes[2] = 0xFF;
+
+        var result = await CreateStorage().SaveAsync(
+            Guid.NewGuid(), bytes, "image/jpeg", "luna.jpg");
+
+        Assert.True(result.IsFailure);
+        Assert.Equal("Storage.FileTooLarge", result.Error.Code);
+    }
+
     [Fact]
     public async Task CreateUploadUrl_ReturnsGatewayPutWithSafeObjectKey()
     {

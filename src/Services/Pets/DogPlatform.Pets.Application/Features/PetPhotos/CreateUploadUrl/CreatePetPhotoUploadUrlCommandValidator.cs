@@ -12,7 +12,7 @@ public sealed class CreatePetPhotoUploadUrlCommandValidator
         "image/webp"
     ];
 
-    private const long MaxFileSizeBytes = 5 * 1024 * 1024; // 5 MB default (overridden by S3StorageOptions)
+    private const long MaxFileSizeBytes = 10 * 1024 * 1024;
 
     public CreatePetPhotoUploadUrlCommandValidator()
     {

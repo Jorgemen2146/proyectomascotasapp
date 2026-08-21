@@ -9,10 +9,8 @@ public sealed class AddPetPhotoCommandValidator : AbstractValidator<AddPetPhotoC
         RuleFor(x => x.PetId)
             .NotEmpty();
 
-        RuleFor(x => x.ImageUrl)
-            .NotEmpty()
-            .MaximumLength(2000)
-            .Must(url => Uri.TryCreate(url, UriKind.Absolute, out _))
-            .WithMessage("ImageUrl must be a valid absolute URL.");
+        RuleFor(x => x.FileName).NotEmpty().MaximumLength(255);
+        RuleFor(x => x.ContentType).NotEmpty().MaximumLength(100);
+        RuleFor(x => x.ImageBase64).NotEmpty();
     }
 }

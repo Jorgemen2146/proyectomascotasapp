@@ -43,6 +43,19 @@ public sealed class HttpLoggingTests
         Assert.Contains("***", result);
     }
 
+    [Theory]
+    [InlineData("imageBase64")]
+    [InlineData("base64")]
+    [InlineData("imageData")]
+    [InlineData("fileContent")]
+    public void Base64_image_fields_are_removed_from_json_logs(string propertyName)
+    {
+        var result = Sanitizer.SanitizeJson($"{{\"{propertyName}\":\"large-image-payload\"}}");
+
+        Assert.DoesNotContain("large-image-payload", result);
+        Assert.Contains("[BASE64_IMAGE_REMOVED]", result);
+    }
+
     [Fact]
     public async Task Authorization_header_is_not_logged()
     {

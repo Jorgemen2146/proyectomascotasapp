@@ -43,6 +43,42 @@ public sealed class S3PhotoStorageService : IPhotoStorageService
         _logger = logger;
     }
 
+    public async Task<Result<StoredPhotoResult>> SaveAsync(
+        Guid petId,
+        byte[] content,
+        string contentType,
+        string originalFileName,
+        CancellationToken cancellationToken = default)
+    {
+        if (!_options.Enabled)
+            return Result.Failure<StoredPhotoResult>(Error.Failure(
+                "Storage.Disabled", "Photo storage is not enabled in this environment."));
+
+        if (!ImageFileValidation.TryValidate(
+                content, contentType, originalFileName, out var extension, out var error))
+            return Result.Failure<StoredPhotoResult>(error);
+
+        var objectKey = $"pets/{petId:D}/{Guid.NewGuid():D}{extension}";
+        try
+        {
+            using var stream = new MemoryStream(content, writable: false);
+            await _s3.PutObjectAsync(new PutObjectRequest
+            {
+                BucketName = _options.BucketName,
+                Key = objectKey,
+                ContentType = contentType,
+                InputStream = stream
+            }, cancellationToken);
+            return Result.Success(new StoredPhotoResult(objectKey, contentType, content.LongLength));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to store photo for pet {PetId} in S3.", petId);
+            return Result.Failure<StoredPhotoResult>(Error.Failure(
+                "Storage.WriteFailed", "The image could not be stored."));
+        }
+    }
+
     public Task<Result<PresignedUploadResult>> CreatePresignedUploadAsync(
         Guid userId,
         Guid petId,

@@ -1,0 +1,65 @@
+using DogPlatform.SharedKernel.Primitives;
+
+namespace DogPlatform.Pets.Infrastructure.Storage;
+
+internal static class ImageFileValidation
+{
+    private const int MaximumBytes = 10 * 1024 * 1024;
+
+    private static readonly IReadOnlyDictionary<string, string[]> Extensions =
+        new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["image/jpeg"] = [".jpg", ".jpeg"],
+            ["image/png"] = [".png"],
+            ["image/webp"] = [".webp"]
+        };
+
+    public static bool TryValidate(
+        byte[] content, string contentType, string fileName,
+        out string safeExtension, out Error error)
+    {
+        safeExtension = string.Empty;
+        error = Error.None;
+
+        if (!Extensions.TryGetValue(contentType, out var allowedExtensions))
+        {
+            error = Error.Validation("Storage.InvalidContentType", "Only JPEG, PNG and WebP images are allowed.");
+            return false;
+        }
+
+        var requestedExtension = Path.GetExtension(fileName);
+        if (!allowedExtensions.Contains(requestedExtension, StringComparer.OrdinalIgnoreCase))
+        {
+            error = Error.Validation("Storage.ExtensionMismatch", "The file extension does not match its declared image type.");
+            return false;
+        }
+
+        if (content.Length == 0 || content.Length > MaximumBytes)
+        {
+            error = Error.Validation("Storage.FileTooLarge", "The image must be between 1 byte and 10 MB.");
+            return false;
+        }
+
+        if (!HasExpectedSignature(contentType, content))
+        {
+            error = Error.Validation("Storage.ContentSignatureMismatch", "The file content does not match its declared image type.");
+            return false;
+        }
+
+        safeExtension = contentType.Equals("image/jpeg", StringComparison.OrdinalIgnoreCase)
+            ? ".jpg"
+            : allowedExtensions[0];
+        return true;
+    }
+
+    private static bool HasExpectedSignature(string contentType, ReadOnlySpan<byte> content) =>
+        contentType.ToLowerInvariant() switch
+        {
+            "image/jpeg" => content.Length >= 3 && content[0] == 0xFF && content[1] == 0xD8 && content[2] == 0xFF,
+            "image/png" => content.Length >= 8 && content[..8].SequenceEqual(
+                new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A }),
+            "image/webp" => content.Length >= 12 && content[..4].SequenceEqual("RIFF"u8) &&
+                content.Slice(8, 4).SequenceEqual("WEBP"u8),
+            _ => false
+        };
+}

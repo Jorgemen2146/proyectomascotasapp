@@ -8,9 +8,10 @@ namespace DogPlatform.Logging;
 public sealed class RequestSanitizer : IRequestSanitizer
 {
     private const string RedactedValue = "***";
+    private const string Base64ImageRedactedValue = "[BASE64_IMAGE_REMOVED]";
 
     private static readonly Regex SensitiveAssignment = new(
-        "(?<key>password|currentPassword|newPassword|confirmPassword|accessToken|refreshToken|authorization|apiKey|secret|verificationCode|code|token)\\s*[:=]\\s*(?<value>\\\"[^\\\"]*\\\"|'[^']*'|[^&,\\s}]+)",
+        "(?<key>password|currentPassword|newPassword|confirmPassword|accessToken|refreshToken|authorization|apiKey|secret|verificationCode|code|token|imageBase64|base64|imageData|fileContent)\\s*[:=]\\s*(?<value>\\\"[^\\\"]*\\\"|'[^']*'|[^&,\\s}]+)",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant,
         TimeSpan.FromMilliseconds(100));
 
@@ -26,7 +27,13 @@ public sealed class RequestSanitizer : IRequestSanitizer
         "verificationCode", "code", "token", "cookie", "set-cookie"
     };
 
-    public bool IsSensitiveName(string name) => SensitiveNames.Contains(name);
+    private static readonly HashSet<string> Base64ImageNames = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "imageBase64", "base64", "imageData", "fileContent"
+    };
+
+    public bool IsSensitiveName(string name) =>
+        SensitiveNames.Contains(name) || Base64ImageNames.Contains(name);
 
     public string SanitizeJson(string value)
     {
@@ -70,7 +77,8 @@ public sealed class RequestSanitizer : IRequestSanitizer
             return value;
         }
 
-        var sanitized = SensitiveAssignment.Replace(value, match => $"{match.Groups["key"].Value}=***");
+        var sanitized = SensitiveAssignment.Replace(value, match =>
+            $"{match.Groups["key"].Value}={(Base64ImageNames.Contains(match.Groups["key"].Value) ? Base64ImageRedactedValue : RedactedValue)}");
         return BearerToken.Replace(sanitized, "Bearer ***");
     }
 
@@ -82,7 +90,9 @@ public sealed class RequestSanitizer : IRequestSanitizer
             {
                 if (IsSensitiveName(property.Key))
                 {
-                    jsonObject[property.Key] = RedactedValue;
+                    jsonObject[property.Key] = Base64ImageNames.Contains(property.Key)
+                        ? Base64ImageRedactedValue
+                        : RedactedValue;
                 }
                 else
                 {

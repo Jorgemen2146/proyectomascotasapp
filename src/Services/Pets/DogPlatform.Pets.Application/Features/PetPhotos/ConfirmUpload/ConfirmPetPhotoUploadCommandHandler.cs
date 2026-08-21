@@ -85,7 +85,7 @@ public sealed class ConfirmPetPhotoUploadCommandHandler
         return Result.Success(new PetPhotoResponse(
             photo.Id,
             photo.PetId,
-            _storageService.ResolvePublicUrl(photo.Url),
+            PetPhotoUrls.Content(photo.PetId, photo.Id),
             photo.IsMain,
             photo.CreatedAt));
     }

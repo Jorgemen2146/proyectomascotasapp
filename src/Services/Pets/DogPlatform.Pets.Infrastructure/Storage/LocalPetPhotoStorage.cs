@@ -32,10 +32,53 @@ public sealed class LocalPetPhotoStorage : IPhotoStorageService
         _uploadProtector = dataProtectionProvider.CreateProtector(
             "DogPlatform.Pets.LocalPhotoUpload.v1");
         _timeProvider = timeProvider;
+        if (string.IsNullOrWhiteSpace(_options.Local.RootPath))
+            throw new InvalidOperationException("Storage:Local:RootPath must be configured.");
         _rootPath = Path.GetFullPath(_options.Local.RootPath);
     }
 
     public string ProviderName => "Local";
+
+    public async Task<Result<StoredPhotoResult>> SaveAsync(
+        Guid petId,
+        byte[] content,
+        string contentType,
+        string originalFileName,
+        CancellationToken cancellationToken = default)
+    {
+        if (!ImageFileValidation.TryValidate(
+                content, contentType, originalFileName, out var extension, out var error))
+            return Result.Failure<StoredPhotoResult>(error);
+
+        var objectKey = $"pets/{petId:D}/{Guid.NewGuid():D}{extension}";
+        if (!TryResolveObjectPath(objectKey, out var targetPath))
+            return Result.Failure<StoredPhotoResult>(Error.Validation(
+                "Storage.InvalidObjectKey", "The generated object key is invalid."));
+
+        var temporaryPath = targetPath + $".{Guid.NewGuid():N}.tmp";
+        try
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(targetPath)!);
+            await File.WriteAllBytesAsync(temporaryPath, content, cancellationToken);
+            File.Move(temporaryPath, targetPath, false);
+            return Result.Success(new StoredPhotoResult(objectKey, contentType, content.LongLength));
+        }
+        catch (IOException)
+        {
+            return Result.Failure<StoredPhotoResult>(Error.Failure(
+                "Storage.WriteFailed", "The image could not be written to local storage."));
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Result.Failure<StoredPhotoResult>(Error.Failure(
+                "Storage.AccessDenied", "The application pool cannot write to local photo storage."));
+        }
+        finally
+        {
+            if (File.Exists(temporaryPath))
+                File.Delete(temporaryPath);
+        }
+    }
 
     public Task<Result<PresignedUploadResult>> CreatePresignedUploadAsync(
         Guid userId,
@@ -253,7 +296,9 @@ public sealed class LocalPetPhotoStorage : IPhotoStorageService
 
         if (fileSize <= 0 || fileSize > _options.MaximumFileSizeBytes)
         {
-            error = Error.Validation("Storage.FileTooLarge", "The file must be between 1 byte and 5 MB.");
+            error = Error.Validation(
+                "Storage.FileTooLarge",
+                $"The file must be between 1 byte and {_options.MaximumFileSizeBytes / 1024 / 1024} MB.");
             return false;
         }
 
@@ -278,20 +323,26 @@ public sealed class LocalPetPhotoStorage : IPhotoStorageService
             return false;
 
         var segments = objectKey.Split('/', StringSplitOptions.RemoveEmptyEntries);
-        if (segments.Length != 6 ||
-            !string.Equals(segments[0], "pets", StringComparison.Ordinal) ||
-            !Guid.TryParseExact(segments[1], "D", out _) ||
-            !Guid.TryParseExact(segments[2], "D", out _) ||
-            segments[3].Length != 4 || !segments[3].All(char.IsDigit) ||
-            segments[4].Length != 2 || !segments[4].All(char.IsDigit))
+        var isBase64FlowKey = segments.Length == 3 &&
+            string.Equals(segments[0], "pets", StringComparison.Ordinal) &&
+            Guid.TryParseExact(segments[1], "D", out _);
+        var isLegacyKey = segments.Length == 6 &&
+            string.Equals(segments[0], "pets", StringComparison.Ordinal) &&
+            Guid.TryParseExact(segments[1], "D", out _) &&
+            Guid.TryParseExact(segments[2], "D", out _) &&
+            segments[3].Length == 4 && segments[3].All(char.IsDigit) &&
+            segments[4].Length == 2 && segments[4].All(char.IsDigit);
+        if (!isBase64FlowKey && !isLegacyKey)
             return false;
 
-        var extension = Path.GetExtension(segments[5]).ToLowerInvariant();
+        var fileSegment = segments[^1];
+        var extension = Path.GetExtension(fileSegment).ToLowerInvariant();
         if (!AllowedExtensions.Values.SelectMany(value => value).Contains(extension) ||
-            !Guid.TryParseExact(Path.GetFileNameWithoutExtension(segments[5]), "D", out _))
+            !Guid.TryParseExact(Path.GetFileNameWithoutExtension(fileSegment), "D", out _))
             return false;
 
-        var candidate = Path.GetFullPath(Path.Combine(_rootPath, Path.Combine(segments.Skip(2).ToArray())));
+        var relativeSegments = isBase64FlowKey ? segments.Skip(1) : segments.Skip(2);
+        var candidate = Path.GetFullPath(Path.Combine(_rootPath, Path.Combine(relativeSegments.ToArray())));
         var rootPrefix = _rootPath.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
         if (!candidate.StartsWith(rootPrefix, StringComparison.OrdinalIgnoreCase))
             return false;

@@ -3,6 +3,7 @@ using DogPlatform.Pets.Application.Common;
 using DogPlatform.Pets.Application.Features.PetPhotos.ConfirmUpload;
 using DogPlatform.Pets.Application.Features.PetPhotos.CreateUploadUrl;
 using DogPlatform.Pets.Application.Features.PetPhotos.Delete;
+using DogPlatform.Pets.Application.Features.PetPhotos.Create;
 using DogPlatform.Pets.Application.Features.Pets.Create;
 using DogPlatform.Pets.Application.Features.Pets.GetMine;
 using DogPlatform.Pets.Application.Features.Pets.Update;
@@ -135,9 +136,47 @@ public sealed class PetWorkflowTests
             CancellationToken.None);
 
         Assert.True(result.IsSuccess);
-        Assert.True(result.Value.IsMain);
+        Assert.True(result.Value.IsPrimary);
         Assert.Single(photos.Photos);
-        Assert.StartsWith("http://localhost:5101/", result.Value.Url);
+        Assert.Equal($"/api/v1/pets/{pet.Id:D}/photos/{result.Value.PhotoId:D}/content", result.Value.Url);
+    }
+
+    [Fact]
+    public async Task AddBase64Photo_ForOwner_StoresBytesAndMetadataAsPrimary()
+    {
+        var ownerId = Guid.NewGuid();
+        var pet = CreatePet(ownerId);
+        var photos = new FakePhotoRepository();
+        var storage = new FakePhotoStorage();
+        var handler = new AddPetPhotoCommandHandler(
+            new FakePetRepository(pet), photos, new FakeUnitOfWork(),
+            new FakeCurrentUser(ownerId), new TestTimeProvider(UtcNow), storage);
+
+        var result = await handler.Handle(new AddPetPhotoCommand(
+            pet.Id, "luna.jpg", "image/jpeg", Convert.ToBase64String([0xFF, 0xD8, 0xFF, 0xD9])),
+            CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        Assert.True(result.Value.IsPrimary);
+        Assert.Equal($"/api/v1/pets/{pet.Id:D}/photos/{result.Value.PhotoId:D}/content", result.Value.Url);
+        Assert.Single(photos.Photos);
+    }
+
+    [Fact]
+    public async Task AddBase64Photo_InvalidBase64_IsValidationFailureWithoutStorage()
+    {
+        var ownerId = Guid.NewGuid();
+        var pet = CreatePet(ownerId);
+        var handler = new AddPetPhotoCommandHandler(
+            new FakePetRepository(pet), new FakePhotoRepository(), new FakeUnitOfWork(),
+            new FakeCurrentUser(ownerId), new TestTimeProvider(UtcNow), new FakePhotoStorage());
+
+        var result = await handler.Handle(
+            new AddPetPhotoCommand(pet.Id, "luna.jpg", "image/jpeg", "not-base64!"),
+            CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+        Assert.Equal("Pet.Photo.InvalidBase64", result.Error.Code);
     }
 
     [Fact]
@@ -241,6 +280,12 @@ public sealed class PetWorkflowTests
         public bool CreateCalled { get; private set; }
         public bool Exists { get; init; }
         public string? DeletedObjectKey { get; private set; }
+
+        public Task<Result<StoredPhotoResult>> SaveAsync(
+            Guid petId, byte[] content, string contentType, string originalFileName,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult(Result.Success(new StoredPhotoResult(
+                $"pets/{petId:D}/{Guid.NewGuid():D}.jpg", contentType, content.LongLength)));
 
         public Task<Result<PresignedUploadResult>> CreatePresignedUploadAsync(
             Guid userId, Guid petId, string fileName, string contentType, long fileSize,

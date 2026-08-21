@@ -4,5 +4,5 @@ public sealed record PetPhotoResponse(
     Guid PhotoId,
     Guid PetId,
     string Url,
-    bool IsMain,
+    bool IsPrimary,
     DateTime CreatedAt);

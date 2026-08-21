@@ -411,7 +411,7 @@
           "response": []
         },
         {
-          "name": "Add Pet Photo (Legacy URL)",
+          "name": "Add Pet Photo (Base64)",
           "request": {
             "method": "POST",
             "header": [
@@ -432,10 +432,10 @@
               ]
             },
             "url": "{{gatewayUrl}}/api/v1/pets/{{petId}}/photos",
-            "description": "JWT requerido. Content-Type application/json. Respuestas esperadas: 201, 400, 401, 403 o 404.",
+            "description": "JWT requerido. La imagen real decodificada admite hasta 10 MB y el request HTTP hasta 16 MB. Respuestas esperadas: 201, 400, 401, 403, 404, 413 o 500.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"imageUrl\": \"https://example.com/dog.jpg\"\n}",
+              "raw": "{\n  \"fileName\": \"luna.jpg\",\n  \"contentType\": \"image/jpeg\",\n  \"imageBase64\": \"<BASE64>\"\n}",
               "options": {
                 "raw": {
                   "language": "json"

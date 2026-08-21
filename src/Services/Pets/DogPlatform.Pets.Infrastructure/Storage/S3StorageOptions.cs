@@ -25,7 +25,7 @@ public sealed class S3StorageOptions
 
     public int PresignedUrlExpirationMinutes { get; init; } = 10;
 
-    public long MaximumFileSizeBytes { get; init; } = 5 * 1024 * 1024; // 5 MB
+    public long MaximumFileSizeBytes { get; init; } = 10 * 1024 * 1024;
 
     public IReadOnlyList<string> AllowedContentTypes { get; init; } =
     [

@@ -116,10 +116,9 @@ public sealed class PetQueryService : IPetQueryService
                                        .Where(s => s.Id == b.SpeciesId)
                                        .Select(s => s.Name))
                                    .FirstOrDefault() ?? string.Empty,
-                // Left-join to PetPhotos for the single main photo URL (object key)
-                MainPhotoUrl = _context.PetPhotos
+                MainPhotoId = _context.PetPhotos
                                    .Where(pp => pp.PetId == p.Id && pp.IsMain)
-                                   .Select(pp => pp.Url)
+                                   .Select(pp => (Guid?)pp.Id)
                                    .FirstOrDefault()
             })
             .ToListAsync(cancellationToken);
@@ -134,7 +133,9 @@ public sealed class PetQueryService : IPetQueryService
                 i.BreedName,
                 i.Gender.Value,
                 i.BirthDate,
-                i.MainPhotoUrl is null ? null : _photoStorage.ResolvePublicUrl(i.MainPhotoUrl),
+                i.MainPhotoId is null
+                    ? null
+                    : $"/api/v1/pets/{i.Id:D}/photos/{i.MainPhotoId.Value:D}/content",
                 i.CreatedAt,
                 i.UpdatedAt))
             .ToList()

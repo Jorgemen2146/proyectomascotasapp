@@ -10,6 +10,13 @@ public interface IPhotoStorageService
 {
     string ProviderName { get; }
 
+    Task<Result<StoredPhotoResult>> SaveAsync(
+        Guid petId,
+        byte[] content,
+        string contentType,
+        string originalFileName,
+        CancellationToken cancellationToken = default);
+
     /// <summary>
     /// Generates a pre-signed HTTP PUT URL for uploading a photo directly to storage.
     /// The object key is derived from userId + petId and is safe — it never trusts client input.

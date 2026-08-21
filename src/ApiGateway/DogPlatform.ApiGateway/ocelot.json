@@ -77,6 +77,15 @@
       ]
     },
     {
+      "UpstreamPathTemplate": "/api/v1/pets/{petId}/photos/{photoId}/content",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/api/v1/pets/{petId}/photos/{photoId}/content",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 5103 }
+      ]
+    },
+    {
       "UpstreamPathTemplate": "/api/v1/pets/{petId}/photos/upload/{uploadToken}",
       "UpstreamHttpMethod": [ "PUT" ],
       "DownstreamPathTemplate": "/api/v1/pets/{petId}/photos/upload/{uploadToken}",

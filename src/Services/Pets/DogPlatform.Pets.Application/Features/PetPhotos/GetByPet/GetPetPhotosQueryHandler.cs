@@ -46,7 +46,7 @@ public sealed class GetPetPhotosQueryHandler
             .Select(p => new PetPhotoResponse(
                 p.Id,
                 p.PetId,
-                _storage.ResolvePublicUrl(p.Url),
+                PetPhotoUrls.Content(p.PetId, p.Id),
                 p.IsMain,
                 p.CreatedAt))
             .ToList()

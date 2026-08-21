@@ -8,6 +8,12 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
+const long maximumPhotoJsonRequestBytes = 16 * 1024 * 1024;
+builder.WebHost.ConfigureKestrel(options =>
+    options.Limits.MaxRequestBodySize = maximumPhotoJsonRequestBytes);
+builder.Services.Configure<Microsoft.AspNetCore.Builder.IISServerOptions>(options =>
+    options.MaxRequestBodySize = maximumPhotoJsonRequestBytes);
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddDogPlatformSwagger("DogPlatform Pets API");

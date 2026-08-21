@@ -45,6 +45,9 @@ public sealed class PetQueryServiceTests
     private sealed class FakePhotoStorage : IPhotoStorageService
     {
         public string ProviderName => "Test";
+        public Task<Result<StoredPhotoResult>> SaveAsync(
+            Guid petId, byte[] content, string contentType, string originalFileName,
+            CancellationToken cancellationToken = default) => throw new NotSupportedException();
         public Task<Result<PresignedUploadResult>> CreatePresignedUploadAsync(
             Guid userId, Guid petId, string fileName, string contentType, long fileSize,
             CancellationToken cancellationToken = default) => throw new NotSupportedException();
