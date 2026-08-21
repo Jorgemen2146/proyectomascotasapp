@@ -1,4 +1,5 @@
 using DogPlatform.Identity.Application.Features.Profile.GetMyProfile;
+using DogPlatform.Identity.Application.Features.Profile.Photo;
 using DogPlatform.Identity.Domain.Errors;
 using DogPlatform.Identity.Domain.Repositories;
 using DogPlatform.SharedKernel.Primitives;
@@ -61,6 +62,7 @@ public sealed class UpdateMyProfileCommandHandler
             user.FullName.LastName,
             user.Email.Value,
             user.PhoneNumber,
-            user.IsEmailConfirmed));
+            user.IsEmailConfirmed,
+            string.IsNullOrWhiteSpace(user.ProfilePhotoUrl) ? null : ProfilePhotoUrls.Content));
     }
 }

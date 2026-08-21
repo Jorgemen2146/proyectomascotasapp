@@ -1,4 +1,5 @@
 using DogPlatform.Identity.Domain.Errors;
+using DogPlatform.Identity.Application.Features.Profile.Photo;
 using DogPlatform.Identity.Domain.Repositories;
 using DogPlatform.SharedKernel.Primitives;
 using MediatR;
@@ -29,6 +30,7 @@ public sealed class GetMyProfileQueryHandler
             user.FullName.LastName,
             user.Email.Value,
             user.PhoneNumber,
-            user.IsEmailConfirmed));
+            user.IsEmailConfirmed,
+            string.IsNullOrWhiteSpace(user.ProfilePhotoUrl) ? null : ProfilePhotoUrls.Content));
     }
 }

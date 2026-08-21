@@ -8,6 +8,7 @@ using DogPlatform.Identity.Application.Features.Authentication.ResendVerificatio
 using DogPlatform.Identity.Application.Features.Authentication.VerifyEmail;
 using DogPlatform.Identity.Application.Features.Profile.GetMyProfile;
 using DogPlatform.Identity.Application.Features.Profile.UpdateMyProfile;
+using DogPlatform.Identity.Application.Features.Profile.Photo;
 using DogPlatform.SharedKernel.Primitives;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -221,6 +222,52 @@ public sealed class AuthController : ControllerBase
         }
 
         return Ok(result.Value);
+    }
+
+    [HttpPost("me/photo")]
+    [Authorize]
+    [ProducesResponseType(typeof(ProfilePhotoResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UploadMyPhoto(
+        [FromBody] UploadProfilePhotoRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var userId))
+            return Unauthorized();
+
+        var result = await _mediator.Send(new UploadProfilePhotoCommand(
+            userId, request.FileName, request.ContentType, request.ImageBase64), cancellationToken);
+
+        if (result.IsSuccess)
+            return Ok(result.Value);
+
+        return result.Error.Type switch
+        {
+            ErrorType.NotFound => NotFound(result.Error),
+            ErrorType.Validation => BadRequest(result.Error),
+            _ => StatusCode(StatusCodes.Status500InternalServerError, result.Error)
+        };
+    }
+
+    [HttpGet("me/photo/content")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetMyPhotoContent(CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var userId))
+            return Unauthorized();
+
+        var result = await _mediator.Send(new GetProfilePhotoContentQuery(userId), cancellationToken);
+        if (result.IsFailure)
+            return result.Error.Type == ErrorType.NotFound
+                ? NotFound(result.Error)
+                : StatusCode(StatusCodes.Status500InternalServerError, result.Error);
+
+        return File(result.Value.Stream, result.Value.ContentType);
     }
 
     private bool TryGetUserId(out Guid userId)

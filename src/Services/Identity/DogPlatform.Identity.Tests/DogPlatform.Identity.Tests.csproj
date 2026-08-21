@@ -21,6 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="..\DogPlatform.Identity.Application\DogPlatform.Identity.Application.csproj" />
     <ProjectReference Include="..\DogPlatform.Identity.Domain\DogPlatform.Identity.Domain.csproj" />
+    <ProjectReference Include="..\DogPlatform.Identity.Infrastructure\DogPlatform.Identity.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

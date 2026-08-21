@@ -2,12 +2,14 @@ using System.Text;
 using DogPlatform.Identity.Application;
 using DogPlatform.Identity.Application.Communication;
 using DogPlatform.Identity.Application.Security;
+using DogPlatform.Identity.Application.ProfilePhotos;
 using DogPlatform.Identity.Domain.Repositories;
 using DogPlatform.Identity.Infrastructure.Messaging;
 using DogPlatform.Identity.Infrastructure.Authentication;
 using DogPlatform.Identity.Infrastructure.Persistence.Context;
 using DogPlatform.Identity.Infrastructure.Persistence.Repositories;
 using DogPlatform.Identity.Infrastructure.Security;
+using DogPlatform.Identity.Infrastructure.Storage;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -33,6 +35,13 @@ public static class DependencyInjection
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+
+        services.Configure<ProfileStorageOptions>(
+            configuration.GetSection(ProfileStorageOptions.SectionName));
+        var profileStorageProvider = configuration[$"{ProfileStorageOptions.SectionName}:Provider"] ?? "Local";
+        if (!profileStorageProvider.Equals("Local", StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException($"Unsupported profile storage provider '{profileStorageProvider}'.");
+        services.AddScoped<IProfilePhotoStorage, LocalProfilePhotoStorage>();
 
         services.AddScoped<IPasswordHasher, Pbkdf2PasswordHasher>();
         services.AddSingleton<IEmailVerificationCodeService, HmacEmailVerificationCodeService>();

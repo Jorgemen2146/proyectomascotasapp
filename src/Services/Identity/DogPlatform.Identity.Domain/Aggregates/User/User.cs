@@ -265,6 +265,13 @@ public sealed class User : AggregateRoot<Guid>
         return Result.Success();
     }
 
+    public void SetProfilePhotoUrl(string profilePhotoUrl, DateTime utcNow)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(profilePhotoUrl);
+        ProfilePhotoUrl = profilePhotoUrl.Trim();
+        UpdatedAt = utcNow;
+    }
+
     /// <summary>
     /// Records the timestamp of a successful login.
     /// </summary>

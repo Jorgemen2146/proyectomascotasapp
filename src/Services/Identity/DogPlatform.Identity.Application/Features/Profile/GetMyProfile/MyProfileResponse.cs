@@ -6,4 +6,5 @@ public sealed record MyProfileResponse(
     string LastName,
     string Email,
     string? PhoneNumber,
-    bool IsEmailConfirmed);
+    bool IsEmailConfirmed,
+    string? ProfilePhotoUrl);
