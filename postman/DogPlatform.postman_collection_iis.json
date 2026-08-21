@@ -432,10 +432,10 @@
               ]
             },
             "url": "{{gatewayUrl}}/api/v1/pets/{{petId}}/photos",
-            "description": "JWT requerido. La imagen real decodificada admite hasta 10 MB y el request HTTP hasta 16 MB. Respuestas esperadas: 201, 400, 401, 403, 404, 413 o 500.",
+            "description": "FLUJO ACTUAL LOCAL. Pega Base64 puro en la variable imageBase64, sin el prefijo data:image/...;base64,. Formatos: JPEG, PNG o WebP. La imagen binaria decodificada admite hasta 10 MB y el request HTTP hasta 16 MB. Un 201 guarda automáticamente photoId y photoUrl. Respuestas: 201, 400, 401, 403, 404, 413 o 500.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"fileName\": \"luna.jpg\",\n  \"contentType\": \"image/jpeg\",\n  \"imageBase64\": \"<BASE64>\"\n}",
+              "raw": "{\n  \"fileName\": \"{{photoFileName}}\",\n  \"contentType\": \"{{photoContentType}}\",\n  \"imageBase64\": \"{{imageBase64}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -443,7 +443,24 @@
               }
             }
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Photo created', function () { pm.response.to.have.status(201); });",
+                  "if (pm.response.code === 201) {",
+                  "  const json = pm.response.json();",
+                  "  pm.collectionVariables.set('photoId', json.photoId);",
+                  "  const gateway = pm.collectionVariables.get('gatewayUrl').replace(/\\/$/, '');",
+                  "  pm.collectionVariables.set('photoUrl', gateway + json.url);",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Get Pet Photos",
@@ -486,7 +503,7 @@
           "response": []
         },
         {
-          "name": "Create Photo Upload URL",
+          "name": "LEGACY - Create Photo Upload URL",
           "request": {
             "method": "POST",
             "header": [
@@ -507,7 +524,7 @@
               ]
             },
             "url": "{{gatewayUrl}}/api/v1/pets/{{petId}}/photos/upload-url",
-            "description": "JWT requerido. Flujo S3; S3Storage está deshabilitado en configuración base. Respuestas esperadas: 200, 400, 401, 403 o 404.",
+            "description": "LEGACY. Flujo presigned URL reservado para S3; no se usa para la carga Base64 local actual. Respuestas: 200, 400, 401, 403 o 404.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"fileName\": \"dog.jpg\",\n  \"contentType\": \"image/jpeg\",\n  \"fileSize\": 102400\n}",
@@ -536,7 +553,7 @@
           ]
         },
         {
-          "name": "Upload Photo Bytes (Local)",
+          "name": "LEGACY - Upload Photo Bytes",
           "request": {
             "method": "PUT",
             "header": [
@@ -557,7 +574,7 @@
               ]
             },
             "url": "{{uploadUrl}}",
-            "description": "Provider=Local. Selecciona un archivo binario cuyo tipo y tamaÃ±o coincidan con la solicitud de upload-url.",
+            "description": "LEGACY. Paso PUT del flujo upload-url; no se usa para la carga Base64 local actual.",
             "body": {
               "mode": "file",
               "file": {
@@ -568,7 +585,7 @@
           "response": []
         },
         {
-          "name": "Confirm Photo Upload",
+          "name": "LEGACY - Confirm Photo Upload",
           "request": {
             "method": "POST",
             "header": [
@@ -589,7 +606,7 @@
               ]
             },
             "url": "{{gatewayUrl}}/api/v1/pets/{{petId}}/photos/confirm",
-            "description": "JWT requerido. Registra un upload ya completado. Respuestas esperadas: 201, 400, 401, 403, 404 o 409.",
+            "description": "LEGACY. Confirma un upload presigned ya completado; no se usa para la carga Base64 local actual. Respuestas: 201, 400, 401, 403, 404 o 409.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"objectKey\": \"{{objectKey}}\"\n}",
@@ -618,7 +635,7 @@
           ]
         },
         {
-          "name": "Get Local Photo Content",
+          "name": "Get Photo Content (by photoId)",
           "request": {
             "method": "GET",
             "header": [],
@@ -632,8 +649,8 @@
                 }
               ]
             },
-            "url": "{{photoUrl}}",
-            "description": "JWT requerido. Descarga una imagen local confirmada sin exponer la ruta fÃ­sica."
+            "url": "{{gatewayUrl}}/api/v1/pets/{{petId}}/photos/{{photoId}}/content",
+            "description": "JWT requerido. Descarga la imagen mediante la URL relativa al Gateway devuelta por POST photo, sin exponer la ruta física. Respuestas: 200, 401, 403 o 404."
           },
           "response": []
         },
@@ -1436,7 +1453,26 @@
     {
       "key": "photoUrl",
       "value": "",
-      "type": "string"
+      "type": "string",
+      "description": "URL absoluta calculada automáticamente después de crear una foto."
+    },
+    {
+      "key": "photoFileName",
+      "value": "luna.jpg",
+      "type": "string",
+      "description": "Nombre original. Extensiones permitidas: .jpg, .jpeg, .png o .webp."
+    },
+    {
+      "key": "photoContentType",
+      "value": "image/jpeg",
+      "type": "string",
+      "description": "Valores permitidos: image/jpeg, image/png o image/webp."
+    },
+    {
+      "key": "imageBase64",
+      "value": "",
+      "type": "string",
+      "description": "Pega aquí Base64 puro, sin data:image/...;base64,. Máximo binario decodificado: 10 MB."
     }
   ]
 }
