@@ -5,6 +5,12 @@
     <ProjectReference Include="..\DogPlatform.Health.Infrastructure\DogPlatform.Health.Infrastructure.csproj" />
     <ProjectReference Include="..\..\..\..\BuildingBlocks\DogPlatform.Authentication\DogPlatform.Authentication.csproj" />
     <ProjectReference Include="..\..\..\..\BuildingBlocks\DogPlatform.Logging\DogPlatform.Logging.csproj" />
+    <ProjectReference Include="..\..\..\..\BuildingBlocks\DogPlatform.Common\DogPlatform.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
   </ItemGroup>
 
   <PropertyGroup>

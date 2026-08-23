@@ -1,6 +1,7 @@
 using DogPlatform.Pets.Application.Features.Pets.Create;
 using DogPlatform.Pets.Application.Features.Pets.Delete;
 using DogPlatform.Pets.Application.Features.Pets.GetById;
+using DogPlatform.Pets.Application.Features.Pets.GetHealthContext;
 using DogPlatform.Pets.Application.Features.Pets.GetMine;
 using DogPlatform.Pets.Application.Features.Pets.Update;
 using DogPlatform.Pets.API.Requests.Pets;
@@ -102,6 +103,32 @@ public sealed class PetsController : ControllerBase
             return result.Error.Code switch
             {
                 "Pet.NotFound" => NotFound(),
+                "Pet.Unauthorized" => Forbid(),
+                _ => BadRequest(result.Error)
+            };
+        }
+
+        return Ok(result.Value);
+    }
+
+    /// <summary>
+    /// Returns the minimal authenticated pet context required by Health.
+    /// </summary>
+    [HttpGet("{id:guid}/health-context")]
+    [ProducesResponseType(typeof(PetHealthContextResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetPetHealthContext(
+        [FromRoute] Guid id,
+        CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetPetHealthContextQuery(id), cancellationToken);
+        if (result.IsFailure)
+        {
+            return result.Error.Code switch
+            {
+                "Pet.NotFound" or "Pet.BreedNotFound" => NotFound(),
                 "Pet.Unauthorized" => Forbid(),
                 _ => BadRequest(result.Error)
             };

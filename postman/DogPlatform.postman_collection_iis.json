@@ -719,17 +719,77 @@
       "name": "Health",
       "item": [
         {
-          "name": "Weather Forecast (Direct)",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "auth": {
-              "type": "noauth"
+          "name": "Vaccines",
+          "item": [
+            {
+              "name": "Get Vaccines",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "auth": { "type": "noauth" },
+                "url": "{{gatewayUrl}}/api/v1/health/vaccines?speciesId={{speciesId}}",
+                "description": "Catálogo activo por especie (1=perro, 2=gato)."
+              },
+              "response": []
             },
-            "url": "{{healthUrl}}/weatherforecast",
-            "description": "Único endpoint implementado actualmente. No coincide con el catch-all /api/v1/health/{everything} de Ocelot; solo puede probarse directamente. Respuesta esperada: 200."
-          },
-          "response": []
+            {
+              "name": "Get Pet Vaccinations",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+                "url": "{{gatewayUrl}}/api/v1/health/pets/{{petId}}/vaccinations",
+                "description": "JWT requerido; valida ownership contra Pets."
+              },
+              "response": []
+            },
+            {
+              "name": "Create Vaccination",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }],
+                "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+                "url": "{{gatewayUrl}}/api/v1/health/pets/{{petId}}/vaccinations",
+                "description": "NextDueAtUtc es calculado por el backend.",
+                "body": { "mode": "raw", "raw": "{\n  \"vaccineId\": {{vaccineId}},\n  \"doseNumber\": 1,\n  \"appliedAtUtc\": \"2026-08-22T10:00:00Z\",\n  \"veterinarianName\": \"Dr. Pérez\",\n  \"clinicName\": \"Veterinaria Central\",\n  \"batchNumber\": \"ABC123\",\n  \"notes\": \"Sin reacciones\"\n}", "options": { "raw": { "language": "json" } } }
+              },
+              "response": []
+            },
+            {
+              "name": "Update Vaccination",
+              "request": {
+                "method": "PUT",
+                "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }],
+                "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+                "url": "{{gatewayUrl}}/api/v1/health/pets/{{petId}}/vaccinations/{{petVaccinationId}}",
+                "description": "Recalcula NextDueAtUtc con AppliedAtUtc y DoseNumber.",
+                "body": { "mode": "raw", "raw": "{\n  \"doseNumber\": 2,\n  \"appliedAtUtc\": \"2026-08-22T10:00:00Z\",\n  \"veterinarianName\": \"Dr. Pérez\",\n  \"clinicName\": \"Veterinaria Central\",\n  \"batchNumber\": \"ABC123\",\n  \"notes\": \"Sin reacciones\"\n}", "options": { "raw": { "language": "json" } } }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete Vaccination",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+                "url": "{{gatewayUrl}}/api/v1/health/pets/{{petId}}/vaccinations/{{petVaccinationId}}",
+                "description": "Soft delete. Respuesta esperada: 204."
+              },
+              "response": []
+            },
+            {
+              "name": "Get Vaccination Status",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+                "url": "{{gatewayUrl}}/api/v1/health/pets/{{petId}}/vaccination-status",
+                "description": "Resumen de estados de la última aplicación por vacuna."
+              },
+              "response": []
+            }
+          ]
         }
       ]
     },
@@ -1428,6 +1488,16 @@
     {
       "key": "photoId",
       "value": "55555555-5555-5555-5555-555555555555",
+      "type": "string"
+    },
+    {
+      "key": "vaccineId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "petVaccinationId",
+      "value": "77777777-7777-7777-7777-777777777777",
       "type": "string"
     },
     {

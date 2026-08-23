@@ -28,6 +28,7 @@
     <Project Path="src/Services/Health/DogPlatform.Health.Application/DogPlatform.Health.Application.csproj" />
     <Project Path="src/Services/Health/DogPlatform.Health.Domain/DogPlatform.Health.Domain.csproj" />
     <Project Path="src/Services/Health/DogPlatform.Health.Infrastructure/DogPlatform.Health.Infrastructure.csproj" />
+    <Project Path="src/Services/Health/DogPlatform.Health.Tests/DogPlatform.Health.Tests.csproj" />
   </Folder>
   <Folder Name="/src/Services/Identity/">
     <Project Path="src/Services/Identity/DogPlatform.Identity.API/DogPlatform.Identity.API.csproj" />
