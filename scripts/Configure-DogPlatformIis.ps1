@@ -17,7 +17,7 @@ $sites = @(
     [pscustomobject]@{ Name = 'Health.API';       Port = 5106 },
     [pscustomobject]@{ Name = 'Veterinarian.API'; Port = 5107 },
     [pscustomobject]@{ Name = 'Genealogy.API';    Port = 5108 },
-    [pscustomobject]@{ Name = 'Notification.API'; Port = 5109 }
+    [pscustomobject]@{ Name = 'Notifications.API'; Port = 5109 }
 )
 
 foreach ($site in $sites) {

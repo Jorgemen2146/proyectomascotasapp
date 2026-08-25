@@ -790,6 +790,22 @@
               "response": []
             }
           ]
+        },
+        {
+          "name": "Internal vaccination reminders",
+          "item": [
+            {
+              "name": "Get vaccination reminder candidates",
+              "request": {
+                "method": "GET",
+                "header": [{ "key": "X-DogPlatform-Internal-Key", "value": "{{internalServiceApiKey}}", "type": "text" }],
+                "auth": { "type": "noauth" },
+                "url": "{{healthUrl}}/api/v1/health/internal/vaccination-reminders?date=2026-08-23",
+                "description": "Endpoint interno protegido; Health calcula candidatos y Notifications lo consume."
+              },
+              "response": []
+            }
+          ]
         }
       ]
     },
@@ -1138,24 +1154,54 @@
       ]
     },
     {
-      "name": "Notification",
+      "name": "Notifications",
       "item": [
         {
-          "name": "Weather Forecast (Direct)",
+          "name": "List notifications",
           "request": {
             "method": "GET",
             "header": [],
-            "auth": {
-              "type": "noauth"
-            },
-            "url": "{{notificationUrl}}/weatherforecast",
-            "description": "Único endpoint implementado actualmente. No coincide con /api/v1/notification/{everything} de Ocelot. Respuesta esperada: 200."
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "url": "{{gatewayUrl}}/api/v1/notifications?pageNumber=1&pageSize=20&unreadOnly=false",
+            "description": "Lista paginada del usuario autenticado. Respuesta esperada: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Unread count",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "url": "{{gatewayUrl}}/api/v1/notifications/unread-count",
+            "description": "Contador de notificaciones no leídas. Respuesta esperada: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Mark as read",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "url": "{{gatewayUrl}}/api/v1/notifications/{{notificationId}}/read",
+            "description": "Marca una notificación propia como leída. Respuesta esperada: 204 o 404."
+          },
+          "response": []
+        },
+        {
+          "name": "Mark all as read",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "url": "{{gatewayUrl}}/api/v1/notifications/read-all",
+            "description": "Marca todas las notificaciones del usuario autenticado como leídas. Respuesta esperada: 204."
           },
           "response": []
         }
       ]
-    },
-    {
+    },    {
       "name": "Genealogy",
       "item": [
         {
@@ -1499,6 +1545,17 @@
       "key": "petVaccinationId",
       "value": "77777777-7777-7777-7777-777777777777",
       "type": "string"
+    },
+    {
+      "key": "notificationId",
+      "value": "88888888-8888-8888-8888-888888888888",
+      "type": "string"
+    },
+    {
+      "key": "internalServiceApiKey",
+      "value": "",
+      "type": "string",
+      "description": "Credencial DEV interna; no guardar secretos en la colección."
     },
     {
       "key": "matchRequestId",

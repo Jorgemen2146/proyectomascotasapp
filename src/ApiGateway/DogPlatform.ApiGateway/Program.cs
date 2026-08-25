@@ -30,6 +30,7 @@ var app = builder.Build();
 app.UseCors();
 app.UseHttpsRedirection();
 app.UseDogPlatformRequestLogging();
+app.UseWebSockets();
 
 //app.UseSwaggerForOcelotUI();
 

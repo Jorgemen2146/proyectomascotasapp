@@ -346,11 +346,20 @@
         { "Host": "localhost", "Port": 5107 }
       ]
     },
+    // Notifications WebSocket realtime route
+    {
+      "UpstreamPathTemplate": "/ws/notifications",
+      "DownstreamPathTemplate": "/ws/notifications",
+      "DownstreamScheme": "ws",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 5109 }
+      ]
+    },
     // ── Notification (catch-all, pendiente de endpoints definitivos) ─
     {
-      "UpstreamPathTemplate": "/api/v1/notification/{everything}",
+      "UpstreamPathTemplate": "/api/v1/notifications/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
-      "DownstreamPathTemplate": "/api/v1/notification/{everything}",
+      "DownstreamPathTemplate": "/api/v1/notifications/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         { "Host": "localhost", "Port": 5109 }

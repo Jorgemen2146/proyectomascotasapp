@@ -70,6 +70,16 @@ public sealed class HttpLoggingTests
     }
 
     [Fact]
+    public void WebSocket_access_token_query_value_is_redacted()
+    {
+        var result = Sanitizer.SanitizeQueryString("?access_token=do-not-log-this&client=mobile");
+
+        Assert.DoesNotContain("do-not-log-this", result);
+        Assert.Contains("***", result);
+        Assert.Contains("mobile", result);
+    }
+
+    [Fact]
     public async Task Unhandled_exception_creates_error_log_and_returns_generated_error_id()
     {
         var writer = new CapturingWriter(153);

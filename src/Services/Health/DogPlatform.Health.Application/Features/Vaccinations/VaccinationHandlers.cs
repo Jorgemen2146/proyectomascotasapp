@@ -189,37 +189,53 @@ public sealed class GetPetVaccinationStatusQueryHandler : IRequestHandler<GetPet
     {
         var access = await GetPetVaccinationsQueryHandler.GetPetHealthData(request.PetId, _petAccess, cancellationToken);
         if (access.IsFailure) return Result.Failure<VaccinationStatusResponse>(access.Error);
-        var history = await _records.GetByPetIdAsync(request.PetId, cancellationToken);
+        var response = await VaccinationStatusResponseBuilder.BuildAsync(
+            access.Value, _records, _vaccines, _status,
+            _time.GetUtcNow().UtcDateTime, cancellationToken);
+        return Result.Success(response);
+    }
+}
+
+internal static class VaccinationStatusResponseBuilder
+{
+    public static async Task<VaccinationStatusResponse> BuildAsync(
+        PetHealthData pet,
+        IPetVaccinationRepository records,
+        IVaccineRepository vaccines,
+        IVaccinationStatusService status,
+        DateTime nowUtc,
+        CancellationToken cancellationToken)
+    {
+        var history = await records.GetByPetIdAsync(pet.PetId, cancellationToken);
         var latest = history.GroupBy(x => x.VaccineId).Select(g => g.OrderByDescending(x => x.AppliedAtUtc).First()).ToList();
-        var now = _time.GetUtcNow().UtcDateTime;
         var responses = new List<VaccinationStatusVaccineResponse>();
         foreach (var record in latest)
         {
-            var vaccine = await _vaccines.GetActiveByIdAsync(record.VaccineId, cancellationToken);
+            var vaccine = await vaccines.GetActiveByIdAsync(record.VaccineId, cancellationToken);
             responses.Add(VaccinationMapping.ToStatusResponse(
-                record, vaccine?.Name ?? "Unknown vaccine", _status, now));
+                record, vaccine?.Name ?? "Unknown vaccine", status, nowUtc));
         }
 
-        if (access.Value.BirthDate.HasValue)
+        if (pet.BirthDate.HasValue)
         {
-            var birthDateUtc = DateTime.SpecifyKind(access.Value.BirthDate.Value.Date, DateTimeKind.Utc);
-            var catalog = await _vaccines.GetActiveBySpeciesAsync(access.Value.SpeciesId, cancellationToken);
+            var birthDateUtc = DateTime.SpecifyKind(pet.BirthDate.Value.Date, DateTimeKind.Utc);
+            var catalog = await vaccines.GetActiveBySpeciesAsync(pet.SpeciesId, cancellationToken);
             foreach (var vaccine in catalog.Where(v => latest.All(x => x.VaccineId != v.VaccineId)))
             {
-                var schedules = await _vaccines.GetActiveSchedulesAsync(vaccine.VaccineId, cancellationToken);
+                var schedules = await vaccines.GetActiveSchedulesAsync(vaccine.VaccineId, cancellationToken);
                 var initial = schedules.Where(x => x.IsActive).OrderBy(x => x.DoseNumber).FirstOrDefault();
                 if (initial?.MinAgeWeeks is not int minAgeWeeks)
                     continue;
 
                 var recommendedDueAtUtc = birthDateUtc.AddDays(minAgeWeeks * 7L);
-                var eligible = now >= recommendedDueAtUtc;
+                var eligible = nowUtc >= recommendedDueAtUtc;
                 var daysUntilEligible = eligible
                     ? 0
-                    : (recommendedDueAtUtc.Date - now.Date).Days;
+                    : (recommendedDueAtUtc.Date - nowUtc.Date).Days;
                 int? daysOverdue = eligible
-                    ? Math.Max(0, (now.Date - recommendedDueAtUtc.Date).Days)
+                    ? Math.Max(0, (nowUtc.Date - recommendedDueAtUtc.Date).Days)
                     : null;
-                responses.Add(new(Guid.Empty, request.PetId, vaccine.VaccineId, vaccine.Name, null,
+                responses.Add(new(Guid.Empty, pet.PetId, vaccine.VaccineId, vaccine.Name, null,
                     null, null, VaccinationStatus.NotStarted.ToString(), null,
                     daysOverdue, null, null, null, null,
                     eligible, recommendedDueAtUtc, daysUntilEligible));
@@ -245,6 +261,6 @@ public sealed class GetPetVaccinationStatusQueryHandler : IRequestHandler<GetPet
             })
             .ThenBy(x => x.VaccineName, StringComparer.OrdinalIgnoreCase)
             .ToArray();
-        return Result.Success(new VaccinationStatusResponse(request.PetId, summary, orderedResponses));
+        return new VaccinationStatusResponse(pet.PetId, summary, orderedResponses);
     }
 }

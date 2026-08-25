@@ -1,5 +1,6 @@
 using Amazon.S3;
 using DogPlatform.Pets.Application;
+using DogPlatform.Pets.Application.Features.Pets.GetVaccinationContexts;
 using DogPlatform.Pets.Application.Queries;
 using DogPlatform.Pets.Application.Security;
 using DogPlatform.Pets.Application.Storage;
@@ -31,6 +32,7 @@ public static class DependencyInjection
         services.AddScoped<IPetRepository, PetRepository>();
         services.AddScoped<IPetPhotoRepository, PetPhotoRepository>();
         services.AddScoped<IPetQueryService, PetQueryService>();
+        services.AddScoped<IPetVaccinationContextQueryService, PetVaccinationContextQueryService>();
         services.AddScoped<IBreedRepository, BreedRepository>();
         services.AddScoped<ISpeciesRepository, SpeciesRepository>();
 

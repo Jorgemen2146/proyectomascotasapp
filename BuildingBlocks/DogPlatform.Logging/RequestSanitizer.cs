@@ -23,7 +23,7 @@ public sealed class RequestSanitizer : IRequestSanitizer
     private static readonly HashSet<string> SensitiveNames = new(StringComparer.OrdinalIgnoreCase)
     {
         "password", "currentPassword", "newPassword", "confirmPassword",
-        "accessToken", "refreshToken", "authorization", "apiKey", "secret",
+        "accessToken", "access_token", "refreshToken", "authorization", "apiKey", "secret",
         "verificationCode", "code", "token", "cookie", "set-cookie"
     };
 

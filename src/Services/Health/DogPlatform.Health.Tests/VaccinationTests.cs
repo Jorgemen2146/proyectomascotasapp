@@ -43,6 +43,83 @@ public sealed class VaccinationScheduleServiceTests
         new(dose, 1, dose, null, interval, booster, true, Applied);
 }
 
+public sealed class VaccinationReminderCandidateTests
+{
+    private static readonly Guid UserId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+    private static readonly Guid PetId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+    private static readonly DateOnly Date = new(2026, 8, 23);
+    private static readonly DateTime Now = Date.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
+
+    [Fact]
+    public async Task Internal_candidates_include_actionable_status_with_owner()
+    {
+        var records = new ReminderRecords();
+        records.Items.Add(PetVaccination.Create(
+            PetId, 1, 1, Now.AddDays(-20), Now.AddDays(3),
+            null, null, null, null, Now.AddDays(-20)));
+        var handler = CreateHandler(records, Now.AddYears(-2));
+
+        var result = await handler.Handle(new(Date), default);
+
+        var candidate = Assert.Single(result.Value);
+        Assert.Equal(UserId, candidate.UserId);
+        Assert.Equal(nameof(VaccinationStatus.DueSoon), candidate.Status);
+        Assert.Equal(3, candidate.DaysRemaining);
+    }
+
+    [Fact]
+    public async Task Internal_candidates_exclude_not_started_when_pet_is_not_eligible()
+    {
+        var handler = CreateHandler(new ReminderRecords(), Now.AddDays(-7));
+        var result = await handler.Handle(new(Date), default);
+        Assert.Empty(result.Value);
+    }
+
+    private static GetVaccinationReminderCandidatesQueryHandler CreateHandler(
+        ReminderRecords records, DateTime birthDate) =>
+        new(new ReminderPetCatalog(birthDate), records, new ReminderVaccines(),
+            new VaccinationStatusService());
+
+    private sealed class ReminderPetCatalog(DateTime birthDate) : IInternalPetCatalogService
+    {
+        public Task<IReadOnlyCollection<InternalPetVaccinationContext>> GetAllAsync(
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyCollection<InternalPetVaccinationContext>>(
+                [new(UserId, PetId, 1, birthDate, "Andrea Kitty")]);
+    }
+
+    private sealed class ReminderVaccines : IVaccineRepository
+    {
+        private readonly Vaccine _vaccine = new(1, 1, "Rabia", null, true, true, Now);
+        public Task<IReadOnlyCollection<Vaccine>> GetActiveBySpeciesAsync(
+            int speciesId, CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyCollection<Vaccine>>([_vaccine]);
+        public Task<Vaccine?> GetActiveByIdAsync(
+            int vaccineId, CancellationToken cancellationToken = default) =>
+            Task.FromResult<Vaccine?>(_vaccine);
+        public Task<IReadOnlyCollection<VaccineSchedule>> GetActiveSchedulesAsync(
+            int vaccineId, CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyCollection<VaccineSchedule>>(
+                [new VaccineSchedule(1, 1, 1, 12, null, null, true, Now)]);
+    }
+
+    private sealed class ReminderRecords : IPetVaccinationRepository
+    {
+        public List<PetVaccination> Items { get; } = [];
+        public Task<IReadOnlyCollection<PetVaccination>> GetByPetIdAsync(
+            Guid petId, CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyCollection<PetVaccination>>(
+                Items.Where(x => x.PetId == petId).ToArray());
+        public Task<PetVaccination?> GetByIdAsync(Guid petId, Guid petVaccinationId,
+            CancellationToken cancellationToken = default) => Task.FromResult<PetVaccination?>(null);
+        public Task<bool> ExactDuplicateExistsAsync(Guid petId, int vaccineId,
+            DateTime appliedAtUtc, int? doseNumber, Guid? excludingId = null,
+            CancellationToken cancellationToken = default) => Task.FromResult(false);
+        public Task AddAsync(PetVaccination vaccination,
+            CancellationToken cancellationToken = default) => Task.CompletedTask;
+    }
+}
+
 public sealed class VaccinationStatusServiceTests
 {
     private static readonly DateTime Now = new(2026, 8, 22, 10, 0, 0, DateTimeKind.Utc);

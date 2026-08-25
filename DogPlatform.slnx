@@ -48,6 +48,7 @@
     <Project Path="src/Services/Notification/DogPlatform.Notification.Application/DogPlatform.Notification.Application.csproj" />
     <Project Path="src/Services/Notification/DogPlatform.Notification.Domain/DogPlatform.Notification.Domain.csproj" />
     <Project Path="src/Services/Notification/DogPlatform.Notification.Infrastructure/DogPlatform.Notification.Infrastructure.csproj" />
+    <Project Path="src/Services/Notification/DogPlatform.Notification.Tests/DogPlatform.Notification.Tests.csproj" />
   </Folder>
   <Folder Name="/src/Services/Pets/">
     <Project Path="src/Services/Pets/DogPlatform.Pets.API/DogPlatform.Pets.API.csproj" />

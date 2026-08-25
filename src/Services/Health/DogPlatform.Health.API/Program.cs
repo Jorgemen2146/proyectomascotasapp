@@ -1,4 +1,5 @@
 using System.Text;
+using DogPlatform.Authentication;
 using DogPlatform.Common.Extensions;
 using DogPlatform.Health.Application;
 using DogPlatform.Health.Infrastructure;
@@ -30,7 +31,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         ValidAudience = jwt["Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret))
     };
-});
+}).AddInternalService(options =>
+    options.ApiKey = builder.Configuration["InternalServices:ApiKey"] ?? string.Empty);
 builder.Services.AddAuthorization();
 
 var app = builder.Build();

@@ -20,6 +20,13 @@ public static class DependencyInjection
         services.AddScoped<IPetVaccinationRepository, PetVaccinationRepository>();
         services.AddHttpClient<IPetAccessService, PetsAccessService>(client =>
             client.BaseAddress = new Uri(configuration["PetsService:BaseUrl"] ?? "http://localhost:5103"));
+        var internalKey = configuration["InternalServices:ApiKey"] ?? string.Empty;
+        services.AddHttpClient<IInternalPetCatalogService, InternalPetCatalogService>(client =>
+        {
+            client.BaseAddress = new Uri(configuration["PetsService:BaseUrl"] ?? "http://localhost:5103");
+            client.DefaultRequestHeaders.Add("X-DogPlatform-Internal-Key", internalKey);
+            client.Timeout = TimeSpan.FromSeconds(30);
+        });
         return services;
     }
 }

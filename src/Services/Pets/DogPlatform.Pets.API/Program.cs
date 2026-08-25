@@ -1,4 +1,5 @@
 using System.Text;
+using DogPlatform.Authentication;
 using DogPlatform.Common.Extensions;
 using DogPlatform.Pets.Application;
 using DogPlatform.Pets.Infrastructure;
@@ -43,7 +44,9 @@ builder.Services
             ValidAudience = audience,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret))
         };
-    });
+    })
+    .AddInternalService(options =>
+        options.ApiKey = builder.Configuration["InternalServices:ApiKey"] ?? string.Empty);
 
 builder.Services.AddAuthorization();
 
