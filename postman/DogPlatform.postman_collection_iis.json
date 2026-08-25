@@ -27,7 +27,7 @@
             "description": "Anónimo. Gateway: /api/v1/auth/{everything} -> Identity /api/v1/auth/{everything}. Respuestas esperadas: 201, 400 o 409.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"firstName\": \"Jorge\",\n  \"lastName\": \"Test\",\n  \"email\": \"jorge@test.com\",\n  \"password\": \"Testing123\",\n  \"phoneNumber\": null\n}",
+              "raw": "{\n  \"firstName\": \"Jorge\",\n  \"lastName\": \"Test\",\n  \"email\": \"jorge@test.com\",\n  \"password\": \"Testing123\",\n  \"phoneNumber\": null,\n  \"legalConsents\": [\n    {\n      \"type\": \"TermsAndConditions\",\n      \"version\": \"1.0\"\n    },\n    {\n      \"type\": \"PrivacyPolicy\",\n      \"version\": \"1.0\"\n    }\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -261,6 +261,69 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Legal",
+          "item": [
+            {
+              "name": "Get Active Legal Documents",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "auth": { "type": "noauth" },
+                "url": "{{gatewayUrl}}/api/v1/auth/legal/documents",
+                "description": "Anónimo. Devuelve los documentos legales activos requeridos para registro."
+              },
+              "response": []
+            },
+            {
+              "name": "Get My Legal Status",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+                },
+                "url": "{{gatewayUrl}}/api/v1/auth/me/legal-status",
+                "description": "JWT requerido. Indica si existen documentos activos requeridos pendientes."
+              },
+              "response": []
+            },
+            {
+              "name": "Get My Legal Consents",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+                },
+                "url": "{{gatewayUrl}}/api/v1/auth/me/legal-consents",
+                "description": "JWT requerido. Devuelve el historial legal del usuario."
+              },
+              "response": []
+            },
+            {
+              "name": "Accept Legal Document",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }],
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+                },
+                "url": "{{gatewayUrl}}/api/v1/auth/me/legal-consents",
+                "description": "JWT requerido. Acepta una nueva versión activa sin sobrescribir el historial.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"legalDocumentId\": \"{{legalDocumentId}}\"\n}",
+                  "options": { "raw": { "language": "json" } }
+                }
+              },
+              "response": []
+            }
+          ]
         },
         {
           "name": "Health (Direct)",
@@ -1692,6 +1755,11 @@
       "value": "image/jpeg",
       "type": "string",
       "description": "Valores permitidos: image/jpeg, image/png o image/webp."
+    },
+    {
+      "key": "legalDocumentId",
+      "value": "11111111-1111-4111-8111-111111111111",
+      "type": "string"
     },
     {
       "key": "imageBase64",

@@ -1,8 +1,10 @@
 using DogPlatform.Identity.Application.Communication;
 using DogPlatform.Identity.Application.Features.Authentication;
+using DogPlatform.Identity.Application.Features.Legal;
 using DogPlatform.Identity.Application.Security;
 using DogPlatform.Identity.Domain.Aggregates.User;
 using DogPlatform.Identity.Domain.Errors;
+using DogPlatform.Identity.Domain.Legal;
 using DogPlatform.Identity.Domain.Repositories;
 using DogPlatform.Identity.Domain.ValueObjects;
 using DogPlatform.SharedKernel.Primitives;
@@ -19,6 +21,8 @@ internal sealed class RegisterUserCommandHandler
     private readonly IEmailVerificationCodeService _verificationCodeService;
     private readonly IEmailSender _emailSender;
     private readonly TimeProvider _timeProvider;
+    private readonly ILegalDocumentRepository _legalDocumentRepository;
+    private readonly IUserLegalConsentRepository _legalConsentRepository;
 
     public RegisterUserCommandHandler(
         IUserRepository userRepository,
@@ -26,7 +30,9 @@ internal sealed class RegisterUserCommandHandler
         IPasswordHasher passwordHasher,
         IEmailVerificationCodeService verificationCodeService,
         IEmailSender emailSender,
-        TimeProvider timeProvider)
+        TimeProvider timeProvider,
+        ILegalDocumentRepository legalDocumentRepository,
+        IUserLegalConsentRepository legalConsentRepository)
     {
         _userRepository = userRepository;
         _unitOfWork = unitOfWork;
@@ -34,6 +40,8 @@ internal sealed class RegisterUserCommandHandler
         _verificationCodeService = verificationCodeService;
         _emailSender = emailSender;
         _timeProvider = timeProvider;
+        _legalDocumentRepository = legalDocumentRepository;
+        _legalConsentRepository = legalConsentRepository;
     }
 
     public async Task<Result<RegisterUserResponse>> Handle(
@@ -53,6 +61,37 @@ internal sealed class RegisterUserCommandHandler
             return Result.Failure<RegisterUserResponse>(fullNameResult.Error);
 
         var fullName = fullNameResult.Value;
+
+        // Legal validation happens before the user is tracked. Every active,
+        // required document must be explicitly accepted at its exact version.
+        var requiredDocuments = await _legalDocumentRepository
+            .GetActiveRequiredAsync(cancellationToken);
+        var providedConsents = request.LegalConsents ?? [];
+
+        foreach (var document in requiredDocuments)
+        {
+            var sameType = providedConsents.Where(consent =>
+                string.Equals(consent.Type, document.Type.ToString(),
+                    StringComparison.OrdinalIgnoreCase)).ToList();
+
+            if (sameType.Count == 0)
+                return Result.Failure<RegisterUserResponse>(LegalErrors.ConsentRequired);
+
+            if (!sameType.Any(consent => string.Equals(consent.Version, document.Version,
+                    StringComparison.OrdinalIgnoreCase)))
+                return Result.Failure<RegisterUserResponse>(LegalErrors.DocumentVersionInvalid);
+        }
+
+        var validPairs = requiredDocuments
+            .Select(document => $"{document.Type}:{document.Version}")
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var providedPairs = providedConsents
+            .Select(consent => $"{consent.Type?.Trim()}:{consent.Version?.Trim()}")
+            .ToList();
+
+        if (providedPairs.Count != providedPairs.Distinct(StringComparer.OrdinalIgnoreCase).Count()
+            || providedPairs.Any(pair => !validPairs.Contains(pair)))
+            return Result.Failure<RegisterUserResponse>(LegalErrors.DocumentVersionInvalid);
 
         // 3. Check email uniqueness
         var emailExists = await _userRepository.ExistsWithEmailAsync(email, cancellationToken);
@@ -90,6 +129,8 @@ internal sealed class RegisterUserCommandHandler
 
         // 8. Persist the account and code hash before sending the email.
         await _userRepository.AddAsync(user, cancellationToken);
+        await _legalConsentRepository.AddRangeAsync(requiredDocuments.Select(document =>
+            UserLegalConsent.Accept(Guid.NewGuid(), user.Id, document.Id, utcNow)), cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         await _emailSender.SendVerificationCodeAsync(

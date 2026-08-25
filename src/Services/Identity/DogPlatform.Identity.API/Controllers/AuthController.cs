@@ -6,6 +6,7 @@ using DogPlatform.Identity.Application.Features.Authentication.RefreshToken;
 using DogPlatform.Identity.Application.Features.Authentication.Register;
 using DogPlatform.Identity.Application.Features.Authentication.ResendVerification;
 using DogPlatform.Identity.Application.Features.Authentication.VerifyEmail;
+using DogPlatform.Identity.Application.Features.Legal;
 using DogPlatform.Identity.Application.Features.Profile.GetMyProfile;
 using DogPlatform.Identity.Application.Features.Profile.UpdateMyProfile;
 using DogPlatform.Identity.Application.Features.Profile.Photo;
@@ -41,7 +42,9 @@ public sealed class AuthController : ControllerBase
             request.LastName,
             request.Email,
             request.Password,
-            request.PhoneNumber);
+            request.PhoneNumber,
+            request.LegalConsents?.Select(consent =>
+                new LegalConsentSelection(consent.Type, consent.Version)).ToList());
 
         var result = await _mediator.Send(command, cancellationToken);
 

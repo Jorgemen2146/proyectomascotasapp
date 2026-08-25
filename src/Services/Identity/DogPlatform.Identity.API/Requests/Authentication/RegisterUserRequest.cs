@@ -5,4 +5,7 @@ public sealed record RegisterUserRequest(
     string LastName,
     string Email,
     string Password,
-    string? PhoneNumber = null);
+    string? PhoneNumber = null,
+    IReadOnlyList<LegalConsentRequest>? LegalConsents = null);
+
+public sealed record LegalConsentRequest(string Type, string Version);
