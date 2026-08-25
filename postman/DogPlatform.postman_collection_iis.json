@@ -1205,6 +1205,99 @@
       "name": "Genealogy",
       "item": [
         {
+          "name": "Get Tree",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "url": "{{gatewayUrl}}/api/v1/genealogy/pets/{{petId}}/tree?generations=3"
+          },
+          "response": []
+        },
+        {
+          "name": "Add Own Parent",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }],
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "url": "{{gatewayUrl}}/api/v1/genealogy/pets/{{petId}}/parents",
+            "body": { "mode": "raw", "raw": "{\n  \"parentPetId\": \"{{parentPetId}}\",\n  \"parentRole\": \"Father\"\n}", "options": { "raw": { "language": "json" } } }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Relationship",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "url": "{{gatewayUrl}}/api/v1/genealogy/relationships/{{relationshipId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Invitation",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }],
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "url": "{{gatewayUrl}}/api/v1/genealogy/invitations",
+            "body": { "mode": "raw", "raw": "{\n  \"childPetId\": \"{{petId}}\",\n  \"parentRole\": \"Father\",\n  \"ownerEmail\": \"{{invitedOwnerEmail}}\"\n}", "options": { "raw": { "language": "json" } } }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Invitation",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "url": "{{gatewayUrl}}/api/v1/genealogy/invitations/{{invitationToken}}"
+          },
+          "response": []
+        },
+        {
+          "name": "Accept Invitation",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }],
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "url": "{{gatewayUrl}}/api/v1/genealogy/invitations/{{invitationToken}}/accept",
+            "body": { "mode": "raw", "raw": "{\n  \"petId\": \"{{parentPetId}}\"\n}", "options": { "raw": { "language": "json" } } }
+          },
+          "response": []
+        },
+        {
+          "name": "Reject Invitation",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "url": "{{gatewayUrl}}/api/v1/genealogy/invitations/{{invitationToken}}/reject"
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel Invitation",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "url": "{{gatewayUrl}}/api/v1/genealogy/invitations/{{invitationId}}/cancel"
+          },
+          "response": []
+        },
+        {
+          "name": "My Invitations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "url": "{{gatewayUrl}}/api/v1/genealogy/invitations/mine?direction=incoming&status=Pending"
+          },
+          "response": []
+        },
+        {
           "name": "Assign Parents",
           "request": {
             "method": "PUT",
@@ -1436,6 +1529,11 @@
     }
   ],
   "variable": [
+    { "key": "parentPetId", "value": "", "type": "string" },
+    { "key": "relationshipId", "value": "", "type": "string" },
+    { "key": "invitationId", "value": "", "type": "string" },
+    { "key": "invitationToken", "value": "", "type": "string" },
+    { "key": "invitedOwnerEmail", "value": "", "type": "string" },
     {
       "key": "verificationCode",
       "value": "",

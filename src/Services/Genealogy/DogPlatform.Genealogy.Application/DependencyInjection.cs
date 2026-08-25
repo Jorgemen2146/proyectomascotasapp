@@ -1,5 +1,6 @@
 using DogPlatform.Genealogy.Application.Analysis;
 using DogPlatform.Genealogy.Application.Features.AssignParents;
+using DogPlatform.Genealogy.Application.Features.Relationships;
 using DogPlatform.Genealogy.Application.Options;
 using DogPlatform.Genealogy.Application.Traversal;
 using FluentValidation;
@@ -44,6 +45,12 @@ public static class DependencyInjection
         services.AddScoped<IInbreedingCalculator, WrightInbreedingCalculator>();
         services.AddScoped<IKinshipCalculator, WrightKinshipCalculator>();
         services.AddScoped<IPedigreeStatisticsCalculator, PedigreeStatisticsCalculator>();
+
+        services.AddOptions<GenealogyInvitationOptions>()
+            .Bind(configuration.GetSection(GenealogyInvitationOptions.SectionName))
+            .Validate(options => options.ExpirationHours is >= 1 and <= 720,
+                "ExpirationHours must be between 1 and 720.")
+            .ValidateOnStart();
 
         return services;
     }

@@ -1,6 +1,7 @@
 using DogPlatform.Genealogy.Application;
 using DogPlatform.Genealogy.Application.Security;
 using DogPlatform.Genealogy.Application.Services;
+using DogPlatform.Genealogy.Application.Features.Relationships;
 using DogPlatform.Genealogy.Domain.Repositories;
 using DogPlatform.Genealogy.Infrastructure.Persistence.Context;
 using DogPlatform.Genealogy.Infrastructure.Persistence.Repositories;
@@ -30,6 +31,13 @@ public static class DependencyInjection
 
         // ── Repositories ───────────────────────────────────────────────────
         services.AddScoped<IPetLineageRepository, PetLineageRepository>();
+        services.AddScoped<IPetRelationshipRepository, PetRelationshipRepository>();
+        services.AddScoped<IRelationshipInvitationRepository, RelationshipInvitationRepository>();
+        services.AddSingleton<IInvitationTokenService, InvitationTokenService>();
+        services.AddScoped<IGenealogyInvitationEmailSender,
+            DevelopmentGenealogyInvitationEmailSender>();
+        services.AddScoped<IGenealogyNotificationPublisher,
+            DevelopmentGenealogyNotificationPublisher>();
 
         // ── Pet verification HTTP client ───────────────────────────────────
         var petsBaseUrl = configuration["PetsService:BaseUrl"]
@@ -38,6 +46,14 @@ public static class DependencyInjection
         services.AddHttpClient<IPetVerificationService, PetVerificationService>(client =>
         {
             client.BaseAddress = new Uri(petsBaseUrl);
+        });
+
+        var internalKey = configuration["InternalServices:ApiKey"];
+        services.AddHttpClient<IGenealogyPetService, GenealogyPetService>(client =>
+        {
+            client.BaseAddress = new Uri(petsBaseUrl);
+            if (!string.IsNullOrWhiteSpace(internalKey))
+                client.DefaultRequestHeaders.Add("X-DogPlatform-Internal-Key", internalKey);
         });
 
         return services;

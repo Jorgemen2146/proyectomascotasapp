@@ -1,4 +1,5 @@
 using DogPlatform.Genealogy.Domain.Aggregates.PetLineage;
+using DogPlatform.Genealogy.Domain.Relationships;
 using DogPlatform.Genealogy.Domain.Repositories;
 using DogPlatform.Genealogy.Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
@@ -18,23 +19,23 @@ public sealed class PetLineageRepository : IPetLineageRepository
         Guid petId,
         CancellationToken cancellationToken = default)
     {
-        return await _context.PetLineages
-            .FirstOrDefaultAsync(l => l.PetId == petId, cancellationToken);
+        var relationships = await ActiveRelationships()
+            .Where(item => item.ChildPetId == petId).ToArrayAsync(cancellationToken);
+        return ToLineage(petId, relationships);
     }
 
     public async Task AddAsync(
         PetLineage lineage,
         CancellationToken cancellationToken = default)
     {
-        await _context.PetLineages.AddAsync(lineage, cancellationToken);
+        await SynchronizeAsync(lineage, cancellationToken);
     }
 
     public Task UpdateAsync(
         PetLineage lineage,
         CancellationToken cancellationToken = default)
     {
-        _context.PetLineages.Update(lineage);
-        return Task.CompletedTask;
+        return SynchronizeAsync(lineage, cancellationToken);
     }
 
     public async Task<IReadOnlyList<PetLineage>> GetByPetIdsAsync(
@@ -45,10 +46,11 @@ public sealed class PetLineageRepository : IPetLineageRepository
         if (ids.Count == 0)
             return Array.Empty<PetLineage>();
 
-        return await _context.PetLineages
-            .AsNoTracking()
-            .Where(l => ids.Contains(l.PetId))
-            .ToListAsync(cancellationToken);
+        var relationships = await ActiveRelationships().AsNoTracking()
+            .Where(item => ids.Contains(item.ChildPetId)).ToArrayAsync(cancellationToken);
+        return relationships.GroupBy(item => item.ChildPetId)
+            .Select(group => ToLineage(group.Key, group.ToArray())!)
+            .ToArray();
     }
 
     public async Task<IReadOnlyList<PetLineage>> GetChildrenByParentIdsAsync(
@@ -59,11 +61,47 @@ public sealed class PetLineageRepository : IPetLineageRepository
         if (ids.Count == 0)
             return Array.Empty<PetLineage>();
 
-        return await _context.PetLineages
-            .AsNoTracking()
-            .Where(l =>
-                (l.FatherId != null && ids.Contains(l.FatherId.Value)) ||
-                (l.MotherId != null && ids.Contains(l.MotherId.Value)))
-            .ToListAsync(cancellationToken);
+        var childIds = await ActiveRelationships().AsNoTracking()
+            .Where(item => ids.Contains(item.ParentPetId))
+            .Select(item => item.ChildPetId).Distinct().ToArrayAsync(cancellationToken);
+        var relationships = await ActiveRelationships().AsNoTracking()
+            .Where(item => childIds.Contains(item.ChildPetId)).ToArrayAsync(cancellationToken);
+        return relationships.GroupBy(item => item.ChildPetId)
+            .Select(group => ToLineage(group.Key, group.ToArray())!)
+            .ToArray();
+    }
+
+    private IQueryable<PetRelationship> ActiveRelationships() =>
+        _context.PetRelationships.Where(item =>
+            item.Status == PetRelationshipStatus.Active && item.DeletedAtUtc == null);
+
+    private static PetLineage? ToLineage(Guid petId,
+        IReadOnlyCollection<PetRelationship> relationships)
+    {
+        if (relationships.Count == 0) return null;
+        var first = relationships.OrderBy(item => item.CreatedAtUtc).First();
+        var father = relationships.FirstOrDefault(item => item.ParentRole == ParentRole.Father)?.ParentPetId;
+        var mother = relationships.FirstOrDefault(item => item.ParentRole == ParentRole.Mother)?.ParentPetId;
+        return PetLineage.Create(petId, first.CreatedByUserId, father, mother, first.CreatedAtUtc).Value;
+    }
+
+    private async Task SynchronizeAsync(PetLineage lineage, CancellationToken cancellationToken)
+    {
+        var current = await ActiveRelationships()
+            .Where(item => item.ChildPetId == lineage.PetId).ToArrayAsync(cancellationToken);
+        await SynchronizeRoleAsync(lineage, ParentRole.Father, lineage.FatherId, current, cancellationToken);
+        await SynchronizeRoleAsync(lineage, ParentRole.Mother, lineage.MotherId, current, cancellationToken);
+    }
+
+    private async Task SynchronizeRoleAsync(PetLineage lineage, ParentRole role, Guid? desiredParent,
+        IReadOnlyCollection<PetRelationship> current, CancellationToken cancellationToken)
+    {
+        var existing = current.FirstOrDefault(item => item.ParentRole == role);
+        if (existing?.ParentPetId == desiredParent) return;
+        if (existing is not null) existing.SoftDelete(lineage.UpdatedAt);
+        if (desiredParent.HasValue)
+            await _context.PetRelationships.AddAsync(PetRelationship.CreateActive(
+                lineage.PetId, desiredParent.Value, role, lineage.OwnerId, lineage.UpdatedAt),
+                cancellationToken);
     }
 }

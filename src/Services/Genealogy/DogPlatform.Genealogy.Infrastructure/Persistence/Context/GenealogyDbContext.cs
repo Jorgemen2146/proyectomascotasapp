@@ -1,5 +1,5 @@
-using DogPlatform.Genealogy.Domain.Aggregates.PetLineage;
 using DogPlatform.Genealogy.Domain.Repositories;
+using DogPlatform.Genealogy.Domain.Relationships;
 using DogPlatform.Genealogy.Infrastructure.Persistence.Configurations;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,16 +12,16 @@ public sealed class GenealogyDbContext : DbContext, IGenealogyUnitOfWork
     {
     }
 
-    public DbSet<PetLineage> PetLineages { get; set; } = null!;
+    public DbSet<PetRelationship> PetRelationships { get; set; } = null!;
+    public DbSet<RelationshipInvitation> RelationshipInvitations { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        modelBuilder.ApplyConfiguration(new PetLineageConfiguration());
+        modelBuilder.ApplyConfiguration(new PetRelationshipConfiguration());
+        modelBuilder.ApplyConfiguration(new RelationshipInvitationConfiguration());
     }
 
-    public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
-    {
+    async Task IGenealogyUnitOfWork.SaveChangesAsync(CancellationToken cancellationToken) =>
         await base.SaveChangesAsync(cancellationToken);
-    }
 }

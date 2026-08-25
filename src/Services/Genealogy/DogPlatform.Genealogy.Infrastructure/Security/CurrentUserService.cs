@@ -17,8 +17,27 @@ public sealed class CurrentUserService : ICurrentUser
     {
         get
         {
-            var claim = _httpContextAccessor.HttpContext?.User.FindFirst("sub");
+            var user = _httpContextAccessor.HttpContext?.User;
+            var claim = user?.FindFirst("sub") ?? user?.FindFirst(ClaimTypes.NameIdentifier);
             return Guid.TryParse(claim?.Value, out var userId) ? userId : Guid.Empty;
+        }
+    }
+
+    public string Email =>
+        _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Email)?.Value ??
+        _httpContextAccessor.HttpContext?.User.FindFirst("email")?.Value ?? string.Empty;
+
+    public string DisplayName
+    {
+        get
+        {
+            var user = _httpContextAccessor.HttpContext?.User;
+            var first = user?.FindFirst("given_name")?.Value ??
+                        user?.FindFirst(ClaimTypes.GivenName)?.Value;
+            var last = user?.FindFirst("family_name")?.Value ??
+                       user?.FindFirst(ClaimTypes.Surname)?.Value;
+            return string.Join(' ', new[] { first, last }.Where(value => !string.IsNullOrWhiteSpace(value)))
+                is { Length: > 0 } name ? name : Email;
         }
     }
 
