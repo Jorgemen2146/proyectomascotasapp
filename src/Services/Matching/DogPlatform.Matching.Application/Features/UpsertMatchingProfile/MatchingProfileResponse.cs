@@ -12,4 +12,8 @@ public sealed record MatchingProfileResponse(
     double MaximumEstimatedInbreedingCoefficient,
     int MinimumCompatibilityScore,
     DateTime CreatedAt,
-    DateTime? UpdatedAt);
+    DateTime? UpdatedAt,
+    string? LookingForSex,
+    bool AllowMixedBreed,
+    string? Description,
+    DateTime? AvailableFromUtc);

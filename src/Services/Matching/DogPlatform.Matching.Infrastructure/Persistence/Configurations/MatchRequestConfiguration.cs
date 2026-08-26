@@ -31,6 +31,7 @@ public sealed class MatchRequestConfiguration : IEntityTypeConfiguration<MatchRe
         builder.Property(r => r.CompatibilityScoreSnapshot).IsRequired();
         builder.Property(r => r.EstimatedInbreedingCoefficientSnapshot).IsRequired();
         builder.Property(r => r.RelationshipTypeSnapshot).IsRequired().HasConversion<string>().HasMaxLength(40);
+        builder.Property(r => r.RequesterSharePhoneNumber).IsRequired();
         builder.Property(r => r.CreatedAt).IsRequired();
         builder.Property(r => r.UpdatedAt);
         builder.Property(r => r.RespondedAt);

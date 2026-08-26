@@ -20,6 +20,7 @@ public sealed class SearchCandidatesQueryHandler
     private readonly CandidateEvaluationService _evaluationService;
     private readonly ICurrentUser _currentUser;
     private readonly MatchingOptions _options;
+    private readonly TimeProvider _timeProvider;
 
     public SearchCandidatesQueryHandler(
         IMatchingProfileRepository profileRepository,
@@ -27,7 +28,8 @@ public sealed class SearchCandidatesQueryHandler
         IPetsMatchingClient petsClient,
         CandidateEvaluationService evaluationService,
         ICurrentUser currentUser,
-        IOptions<MatchingOptions> options)
+        IOptions<MatchingOptions> options,
+        TimeProvider timeProvider)
     {
         _profileRepository = profileRepository;
         _favoriteRepository = favoriteRepository;
@@ -35,6 +37,7 @@ public sealed class SearchCandidatesQueryHandler
         _evaluationService = evaluationService;
         _currentUser = currentUser;
         _options = options.Value;
+        _timeProvider = timeProvider;
     }
 
     public async Task<Result<PagedResult<CandidateSummaryResponse>>> Handle(
@@ -53,7 +56,8 @@ public sealed class SearchCandidatesQueryHandler
         if (profile is null)
             return Result.Failure<PagedResult<CandidateSummaryResponse>>(MatchingErrors.ProfileNotActive);
 
-        var requiredSex = string.Equals(sourcePet.Sex, "M", StringComparison.OrdinalIgnoreCase) ? "F" : "M";
+        var requiredSex = profile.LookingForSex
+            ?? (string.Equals(sourcePet.Sex, "M", StringComparison.OrdinalIgnoreCase) ? "F" : "M");
 
         var filter = new CandidateSearchFilter(
             sourcePet.OwnerId,
@@ -68,10 +72,19 @@ public sealed class SearchCandidatesQueryHandler
         if (preliminaryPage is null)
             return Result.Failure<PagedResult<CandidateSummaryResponse>>(MatchingErrors.PetsServiceUnavailable);
 
+        var candidateProfiles = await _profileRepository.GetActiveByPetIdsAsync(
+            preliminaryPage.Items.Select(candidate => candidate.PetId), cancellationToken);
+        var availableProfiles = candidateProfiles
+            .Where(candidateProfile => candidateProfile.AvailableFromUtc is null
+                || candidateProfile.AvailableFromUtc <= _timeProvider.GetUtcNow().UtcDateTime)
+            .ToDictionary(candidateProfile => candidateProfile.PetId);
+        var candidates = preliminaryPage.Items
+            .Where(candidate => availableProfiles.ContainsKey(candidate.PetId));
+
         // Bounded concurrency when evaluating candidates against Genealogy/Health,
         // to avoid unbounded fan-out for large preliminary pages.
         using var semaphore = new SemaphoreSlim(_options.GenealogyEvaluationConcurrency);
-        var evaluationTasks = preliminaryPage.Items.Select(async candidate =>
+        var evaluationTasks = candidates.Select(async candidate =>
         {
             await semaphore.WaitAsync(cancellationToken);
             try
@@ -116,13 +129,16 @@ public sealed class SearchCandidatesQueryHandler
             favoriteLookup = favorites.Select(f => f.CandidatePetId).ToHashSet();
         }
 
-        var responseItems = pageItems.Select(e => Map(e, favoriteLookup.Contains(e.Candidate.PetId))).ToList();
+        var responseItems = pageItems.Select(e => Map(e,
+            favoriteLookup.Contains(e.Candidate.PetId),
+            availableProfiles[e.Candidate.PetId].Description)).ToList();
 
         return Result.Success(
             PagedResult<CandidateSummaryResponse>.Create(responseItems, totalItems, request.PageNumber, pageSize));
     }
 
-    private static CandidateSummaryResponse Map(CandidateEvaluation evaluation, bool isFavorite) =>
+    private static CandidateSummaryResponse Map(CandidateEvaluation evaluation, bool isFavorite,
+        string? description) =>
         new(
             evaluation.Candidate.PetId,
             evaluation.Candidate.Name,
@@ -144,5 +160,23 @@ public sealed class SearchCandidatesQueryHandler
             evaluation.GenealogyStatus,
             evaluation.Health.Status,
             isFavorite,
-            evaluation.Warnings);
+            evaluation.Warnings,
+            evaluation.Candidate.SpeciesName,
+            evaluation.Candidate.Color,
+            description,
+            RelationshipStatus(evaluation),
+            evaluation.RelationshipType?.ToString(),
+            evaluation.Candidate.PhotoUrls ?? (evaluation.Candidate.MainPhotoUrl is null
+                ? [] : [evaluation.Candidate.MainPhotoUrl]),
+            "La compatibilidad mostrada no reemplaza una evaluación veterinaria.");
+
+    private static string RelationshipStatus(CandidateEvaluation evaluation) =>
+        evaluation.GenealogyStatus is Domain.Enums.GenealogyValidationStatus.Unavailable
+            or Domain.Enums.GenealogyValidationStatus.Unknown
+            ? "Unknown"
+            : evaluation.RelationshipType == Domain.Enums.RelationshipTypeSnapshot.UnrelatedWithinKnownPedigree
+                ? "NoKnownRelation"
+                : evaluation.RelationshipType == Domain.Enums.RelationshipTypeSnapshot.UnknownDueToIncompletePedigree
+                    ? "Unknown"
+                    : "Related";
 }

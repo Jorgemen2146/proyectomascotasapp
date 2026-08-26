@@ -1,0 +1,6 @@
+﻿SUCCESS
+Site=Started
+Pool=Started
+Identity=ApplicationPoolIdentity
+Path=C:\DogPlatform\publish\Matching.API
+Binding=*:5104:

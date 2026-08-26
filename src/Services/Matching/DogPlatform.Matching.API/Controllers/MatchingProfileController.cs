@@ -1,5 +1,6 @@
 using DogPlatform.Matching.API.Requests;
 using DogPlatform.Matching.Application.Features.GetMatchingProfile;
+using DogPlatform.Matching.Application.Features.DeactivateMatchingProfile;
 using DogPlatform.Matching.Application.Features.UpsertMatchingProfile;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -21,6 +22,20 @@ public sealed class MatchingProfileController : MatchingApiControllerBase
     public MatchingProfileController(IMediator mediator)
     {
         _mediator = mediator;
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Create(
+        [FromBody] CreateMatchingProfileRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new UpsertMatchingProfileCommand(
+            request.PetId, request.IsActive, request.PreferredBreedIds,
+            request.MinimumAgeMonths, request.MaximumAgeMonths, request.RequirePedigree,
+            request.RequireGenealogyValidation, request.MaximumEstimatedInbreedingCoefficient,
+            request.MinimumCompatibilityScore, request.LookingForSex, request.AllowMixedBreed,
+            request.Description, request.AvailableFromUtc), cancellationToken);
+        return result.IsFailure ? FromError(result.Error) : StatusCode(201, result.Value);
     }
 
     /// <summary>Gets the matching profile configured for a pet.</summary>
@@ -55,10 +70,23 @@ public sealed class MatchingProfileController : MatchingApiControllerBase
             request.RequirePedigree,
             request.RequireGenealogyValidation,
             request.MaximumEstimatedInbreedingCoefficient,
-            request.MinimumCompatibilityScore);
+            request.MinimumCompatibilityScore,
+            request.LookingForSex,
+            request.AllowMixedBreed,
+            request.Description,
+            request.AvailableFromUtc);
 
         var result = await _mediator.Send(command, cancellationToken);
 
         return result.IsFailure ? FromError(result.Error) : Ok(result.Value);
+    }
+
+    [HttpDelete("{matchingProfileId:guid}")]
+    public async Task<IActionResult> Deactivate(Guid matchingProfileId,
+        CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(
+            new DeactivateMatchingProfileCommand(matchingProfileId), cancellationToken);
+        return result.IsFailure ? FromError(result.Error) : NoContent();
     }
 }

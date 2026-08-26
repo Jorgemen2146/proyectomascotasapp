@@ -29,4 +29,11 @@ public sealed record CandidateSummaryResponse(
     GenealogyValidationStatus GenealogyStatus,
     HealthCompatibilityStatus HealthCompatibilityStatus,
     bool IsFavorite,
-    IReadOnlyList<string> Warnings);
+    IReadOnlyList<string> Warnings,
+    string SpeciesName,
+    string? Color,
+    string? Description,
+    string RelationshipStatus,
+    string? RelationshipDescription,
+    IReadOnlyList<string> PhotoUrls,
+    string Disclaimer);

@@ -1,0 +1,3 @@
+﻿SUCCESS
+Matching.API|Site=Started|Pool=Started|Identity=ApplicationPoolIdentity|Path=C:\DogPlatform\publish\Matching.API|Binding=*:5104:
+ApiGateway|Site=Started|Pool=Started|Identity=ApplicationPoolIdentity|Path=C:\DogPlatform\publish\ApiGateway|Binding=*:5101:

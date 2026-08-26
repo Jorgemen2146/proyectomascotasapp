@@ -1,4 +1,5 @@
 using DogPlatform.Matching.Domain.Enums;
+using DogPlatform.Matching.Application.Features.Matches;
 
 namespace DogPlatform.Matching.Application.Features.Common;
 
@@ -15,4 +16,6 @@ public sealed record MatchRequestResponse(
     DateTime? UpdatedAt,
     DateTime? RespondedAt,
     DateTime? CancelledAt,
-    DateTime? ExpiresAt);
+    DateTime? ExpiresAt,
+    PublicMatchingPet? RequesterPet = null,
+    PublicMatchingPet? TargetPet = null);

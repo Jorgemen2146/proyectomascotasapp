@@ -8,4 +8,8 @@ public sealed record UpsertMatchingProfileRequest(
     bool RequirePedigree,
     bool RequireGenealogyValidation,
     double MaximumEstimatedInbreedingCoefficient,
-    int MinimumCompatibilityScore);
+    int MinimumCompatibilityScore,
+    string? LookingForSex = null,
+    bool AllowMixedBreed = true,
+    string? Description = null,
+    DateTime? AvailableFromUtc = null);

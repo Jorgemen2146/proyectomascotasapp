@@ -23,7 +23,11 @@ public sealed class MatchingProfile : AggregateRoot<Guid>
         bool requireGenealogyValidation,
         double maximumEstimatedInbreedingCoefficient,
         int minimumCompatibilityScore,
-        DateTime createdAt)
+        DateTime createdAt,
+        string? lookingForSex,
+        bool allowMixedBreed,
+        string? description,
+        DateTime? availableFromUtc)
         : base(id)
     {
         PetId = petId;
@@ -36,6 +40,10 @@ public sealed class MatchingProfile : AggregateRoot<Guid>
         MaximumEstimatedInbreedingCoefficient = maximumEstimatedInbreedingCoefficient;
         MinimumCompatibilityScore = minimumCompatibilityScore;
         CreatedAt = createdAt;
+        LookingForSex = lookingForSex;
+        AllowMixedBreed = allowMixedBreed;
+        Description = description;
+        AvailableFromUtc = availableFromUtc;
     }
 
     private MatchingProfile() { }
@@ -51,6 +59,10 @@ public sealed class MatchingProfile : AggregateRoot<Guid>
     public int MinimumCompatibilityScore { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime? UpdatedAt { get; private set; }
+    public string? LookingForSex { get; private set; }
+    public bool AllowMixedBreed { get; private set; }
+    public string? Description { get; private set; }
+    public DateTime? AvailableFromUtc { get; private set; }
 
     public IReadOnlyCollection<MatchingProfileBreedPreference> BreedPreferences =>
         _breedPreferences.AsReadOnly();
@@ -66,7 +78,11 @@ public sealed class MatchingProfile : AggregateRoot<Guid>
         bool requireGenealogyValidation,
         double maximumEstimatedInbreedingCoefficient,
         int minimumCompatibilityScore,
-        DateTime utcNow)
+        DateTime utcNow,
+        string? lookingForSex = null,
+        bool allowMixedBreed = true,
+        string? description = null,
+        DateTime? availableFromUtc = null)
     {
         var validation = Validate(
             minimumAgeMonths,
@@ -76,6 +92,12 @@ public sealed class MatchingProfile : AggregateRoot<Guid>
 
         if (validation.IsFailure)
             return Result.Failure<MatchingProfile>(validation.Error);
+
+        if (lookingForSex is not null && !lookingForSex.Equals("M", StringComparison.OrdinalIgnoreCase)
+            && !lookingForSex.Equals("F", StringComparison.OrdinalIgnoreCase))
+            return Result.Failure<MatchingProfile>(MatchingErrors.InvalidLookingForSex);
+        if (description is { Length: > 1000 })
+            return Result.Failure<MatchingProfile>(MatchingErrors.ProfileDescriptionTooLong);
 
         var profile = new MatchingProfile(
             Guid.NewGuid(),
@@ -88,7 +110,11 @@ public sealed class MatchingProfile : AggregateRoot<Guid>
             requireGenealogyValidation,
             maximumEstimatedInbreedingCoefficient,
             minimumCompatibilityScore,
-            utcNow);
+            utcNow,
+            lookingForSex?.ToUpperInvariant(),
+            allowMixedBreed,
+            description?.Trim(),
+            availableFromUtc);
 
         foreach (var breedId in preferredBreedIds.Distinct())
             profile._breedPreferences.Add(
@@ -106,7 +132,11 @@ public sealed class MatchingProfile : AggregateRoot<Guid>
         bool requireGenealogyValidation,
         double maximumEstimatedInbreedingCoefficient,
         int minimumCompatibilityScore,
-        DateTime utcNow)
+        DateTime utcNow,
+        string? lookingForSex = null,
+        bool allowMixedBreed = true,
+        string? description = null,
+        DateTime? availableFromUtc = null)
     {
         var validation = Validate(
             minimumAgeMonths,
@@ -117,6 +147,12 @@ public sealed class MatchingProfile : AggregateRoot<Guid>
         if (validation.IsFailure)
             return validation;
 
+        if (lookingForSex is not null && !lookingForSex.Equals("M", StringComparison.OrdinalIgnoreCase)
+            && !lookingForSex.Equals("F", StringComparison.OrdinalIgnoreCase))
+            return Result.Failure(MatchingErrors.InvalidLookingForSex);
+        if (description is { Length: > 1000 })
+            return Result.Failure(MatchingErrors.ProfileDescriptionTooLong);
+
         IsActive = isActive;
         MinimumAgeMonths = minimumAgeMonths;
         MaximumAgeMonths = maximumAgeMonths;
@@ -125,11 +161,24 @@ public sealed class MatchingProfile : AggregateRoot<Guid>
         MaximumEstimatedInbreedingCoefficient = maximumEstimatedInbreedingCoefficient;
         MinimumCompatibilityScore = minimumCompatibilityScore;
         UpdatedAt = utcNow;
+        LookingForSex = lookingForSex?.ToUpperInvariant();
+        AllowMixedBreed = allowMixedBreed;
+        Description = description?.Trim();
+        AvailableFromUtc = availableFromUtc;
 
         _breedPreferences.Clear();
         foreach (var breedId in preferredBreedIds.Distinct())
             _breedPreferences.Add(MatchingProfileBreedPreference.Create(Id, breedId));
 
+        return Result.Success();
+    }
+
+    public Result Deactivate(Guid ownerId, DateTime utcNow)
+    {
+        if (ownerId != OwnerId)
+            return Result.Failure(MatchingErrors.Forbidden);
+        IsActive = false;
+        UpdatedAt = utcNow;
         return Result.Success();
     }
 

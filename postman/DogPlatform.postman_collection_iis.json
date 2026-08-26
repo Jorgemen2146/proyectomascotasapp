@@ -896,9 +896,9 @@
           "response": []
         },
         {
-          "name": "Upsert Matching Profile",
+          "name": "Create Profile",
           "request": {
-            "method": "PUT",
+            "method": "POST",
             "header": [
               {
                 "key": "Content-Type",
@@ -916,11 +916,11 @@
                 }
               ]
             },
-            "url": "{{gatewayUrl}}/api/v1/matching/profiles/{{petId}}",
+            "url": "{{gatewayUrl}}/api/v1/matching/profiles",
             "description": "JWT requerido. Respuestas esperadas: 200, 400, 401 o 404.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"isActive\": true,\n  \"preferredBreedIds\": [\n    1\n  ],\n  \"minimumAgeMonths\": 12,\n  \"maximumAgeMonths\": 84,\n  \"requirePedigree\": false,\n  \"requireGenealogyValidation\": true,\n  \"maximumEstimatedInbreedingCoefficient\": 0.125,\n  \"minimumCompatibilityScore\": 60\n}",
+              "raw": "{\n  \"petId\": \"{{petId}}\",\n  \"isActive\": true,\n  \"preferredBreedIds\": [1],\n  \"minimumAgeMonths\": 12,\n  \"maximumAgeMonths\": 84,\n  \"requirePedigree\": false,\n  \"requireGenealogyValidation\": true,\n  \"maximumEstimatedInbreedingCoefficient\": 0.125,\n  \"minimumCompatibilityScore\": 60,\n  \"lookingForSex\": \"F\",\n  \"allowMixedBreed\": true,\n  \"description\": \"Disponible para conocer una pareja compatible\",\n  \"availableFromUtc\": null\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -931,7 +931,7 @@
           "response": []
         },
         {
-          "name": "Search Candidates",
+          "name": "Search",
           "request": {
             "method": "GET",
             "header": [],
@@ -945,13 +945,13 @@
                 }
               ]
             },
-            "url": "{{gatewayUrl}}/api/v1/matching/pets/{{petId}}/candidates?pageNumber=1&pageSize=10&sortBy=CompatibilityScore&sortDirection=DESC&favoritesOnly=false",
+            "url": "{{gatewayUrl}}/api/v1/matching/search?petId={{petId}}&pageNumber=1&pageSize=10",
             "description": "JWT requerido. Query opcional: breedId, minimumAgeMonths, maximumAgeMonths, minimumScore. Respuestas esperadas: 200, 400, 401 o 404."
           },
           "response": []
         },
         {
-          "name": "Get Candidate Detail",
+          "name": "Pet Public Detail",
           "request": {
             "method": "GET",
             "header": [],
@@ -965,7 +965,7 @@
                 }
               ]
             },
-            "url": "{{gatewayUrl}}/api/v1/matching/pets/{{petId}}/candidates/{{candidatePetId}}",
+            "url": "{{gatewayUrl}}/api/v1/matching/pets/{{candidatePetId}}?sourcePetId={{petId}}",
             "description": "JWT requerido. Respuestas esperadas: 200, 400, 401 o 404."
           },
           "response": []
@@ -1031,7 +1031,7 @@
           "response": []
         },
         {
-          "name": "Create Match Request",
+          "name": "Send Request",
           "request": {
             "method": "POST",
             "header": [
@@ -1055,7 +1055,7 @@
             "description": "JWT requerido. Respuestas esperadas: 201, 400, 401, 404 o 409.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"petId\": \"{{petId}}\",\n  \"candidatePetId\": \"{{candidatePetId}}\",\n  \"message\": \"Solicitud de encuentro entre mascotas\"\n}",
+              "raw": "{\n  \"petId\": \"{{petId}}\",\n  \"candidatePetId\": \"{{candidatePetId}}\",\n  \"message\": \"Solicitud de encuentro entre mascotas\",\n  \"sharePhoneNumber\": false\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1066,7 +1066,7 @@
           "response": []
         },
         {
-          "name": "Get Incoming Match Requests",
+          "name": "Incoming",
           "request": {
             "method": "GET",
             "header": [],
@@ -1086,7 +1086,7 @@
           "response": []
         },
         {
-          "name": "Get Outgoing Match Requests",
+          "name": "Outgoing",
           "request": {
             "method": "GET",
             "header": [],
@@ -1106,10 +1106,10 @@
           "response": []
         },
         {
-          "name": "Accept Match Request",
+          "name": "Accept",
           "request": {
             "method": "POST",
-            "header": [],
+            "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }],
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -1121,12 +1121,17 @@
               ]
             },
             "url": "{{gatewayUrl}}/api/v1/matching/requests/{{matchRequestId}}/accept",
-            "description": "JWT requerido. Sin body. Respuestas esperadas: 200, 401, 404 o 409."
+            "description": "JWT requerido. El teléfono solo se comparte con consentimiento explícito.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sharePhoneNumber\": false\n}",
+              "options": { "raw": { "language": "json" } }
+            }
           },
           "response": []
         },
         {
-          "name": "Reject Match Request",
+          "name": "Reject",
           "request": {
             "method": "POST",
             "header": [],
@@ -1146,7 +1151,7 @@
           "response": []
         },
         {
-          "name": "Cancel Match Request",
+          "name": "Cancel",
           "request": {
             "method": "POST",
             "header": [],
@@ -1162,6 +1167,73 @@
             },
             "url": "{{gatewayUrl}}/api/v1/matching/requests/{{matchRequestId}}/cancel",
             "description": "JWT requerido. Sin body. Respuestas esperadas: 200, 401, 404 o 409."
+          },
+          "response": []
+        },
+        {
+          "name": "Matches",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "url": "{{gatewayUrl}}/api/v1/matching/matches",
+            "description": "JWT requerido. Lista únicamente matches del usuario autenticado."
+          },
+          "response": []
+        },
+        {
+          "name": "Match Detail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "url": "{{gatewayUrl}}/api/v1/matching/matches/{{matchId}}",
+            "description": "JWT requerido. Contacto solo para participantes y según consentimiento. Incluye breedingIntent con el último estado persistido y proposedByCurrentUser, o null si nunca hubo propuesta."
+          },
+          "response": []
+        },
+        {
+          "name": "Propose Breeding Intent",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }],
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "url": "{{gatewayUrl}}/api/v1/matching/matches/{{matchId}}/breeding-intents",
+            "body": { "mode": "raw", "raw": "{\n  \"notes\": \"Posible camada futura\",\n  \"expectedDateUtc\": null\n}", "options": { "raw": { "language": "json" } } },
+            "description": "JWT requerido. No representa embarazo ni crea cachorros."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Breeding Intent",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "url": "{{gatewayUrl}}/api/v1/matching/matches/{{matchId}}/breeding-intent",
+            "description": "JWT requerido. Solo participantes. Devuelve la última intención persistida, incluyendo status, timestamps y proposedByCurrentUser; 404 si no existe."
+          },
+          "response": []
+        },
+        {
+          "name": "Accept Breeding Intent",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "url": "{{gatewayUrl}}/api/v1/matching/breeding-intents/{{breedingIntentId}}/accept",
+            "description": "JWT requerido. Solo el otro propietario puede aceptar."
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel Breeding Intent",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "url": "{{gatewayUrl}}/api/v1/matching/breeding-intents/{{breedingIntentId}}/cancel",
+            "description": "JWT requerido. En Proposed solo puede cancelar quien propuso; en Agreed puede cancelar cualquiera de los participantes."
           },
           "response": []
         },
@@ -1721,6 +1793,16 @@
     {
       "key": "matchRequestId",
       "value": "66666666-6666-6666-6666-666666666666",
+      "type": "string"
+    },
+    {
+      "key": "matchId",
+      "value": "99999999-9999-4999-8999-999999999999",
+      "type": "string"
+    },
+    {
+      "key": "breedingIntentId",
+      "value": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
       "type": "string"
     },
     {

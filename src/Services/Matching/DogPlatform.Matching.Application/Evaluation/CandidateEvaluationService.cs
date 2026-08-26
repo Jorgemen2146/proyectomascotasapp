@@ -56,10 +56,22 @@ public sealed class CandidateEvaluationService
         if (candidate.PetId == sourcePet.PetId)
             return Excluded(candidate, "SamePet");
 
+        if (candidate.OwnerId == sourcePet.OwnerId)
+            return Excluded(candidate, "SameOwner");
+
         if (candidate.IsDeleted || !candidate.IsActive)
             return Excluded(candidate, "CandidateNotActiveOrDeleted");
 
-        if (string.Equals(candidate.Sex, sourcePet.Sex, StringComparison.OrdinalIgnoreCase))
+        if (candidate.IsSterilized)
+            return Excluded(candidate, "CandidateSterilized");
+
+        if (sourcePet.SpeciesId != 0 && candidate.SpeciesId != 0
+            && sourcePet.SpeciesId != candidate.SpeciesId)
+            return Excluded(candidate, "DifferentSpecies");
+
+        var requiredSex = sourceProfile.LookingForSex
+            ?? (string.Equals(sourcePet.Sex, "M", StringComparison.OrdinalIgnoreCase) ? "F" : "M");
+        if (!string.Equals(candidate.Sex, requiredSex, StringComparison.OrdinalIgnoreCase))
             return Excluded(candidate, "SameSex");
 
         if (candidate.AgeMonths < sourceProfile.MinimumAgeMonths
@@ -67,7 +79,8 @@ public sealed class CandidateEvaluationService
             return Excluded(candidate, "OutOfAgeRange");
 
         var preferredBreedIds = sourceProfile.BreedPreferences.Select(bp => bp.BreedId).ToList();
-        if (preferredBreedIds.Count > 0 && !preferredBreedIds.Contains(candidate.BreedId))
+        if (!sourceProfile.AllowMixedBreed && preferredBreedIds.Count > 0
+            && !preferredBreedIds.Contains(candidate.BreedId))
             return Excluded(candidate, "BreedNotPreferred");
 
         // ── Genealogy ────────────────────────────────────────────────────
@@ -153,6 +166,8 @@ public sealed class CandidateEvaluationService
 
         if (score.TotalScore < sourceProfile.MinimumCompatibilityScore)
             return Excluded(candidate, "BelowMinimumCompatibilityScore");
+
+        warnings.Add("La compatibilidad mostrada no reemplaza una evaluación veterinaria.");
 
         return new CandidateEvaluation(
             candidate,

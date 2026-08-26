@@ -1,4 +1,5 @@
 using DogPlatform.Matching.Application.Clients.Pets;
+using DogPlatform.Matching.Application.Clients.Notifications;
 using DogPlatform.Matching.Application.Evaluation;
 using DogPlatform.Matching.Application.Features.Common;
 using DogPlatform.Matching.Application.Security;
@@ -19,6 +20,7 @@ public sealed class CreateMatchRequestCommandHandler
     private readonly CandidateEvaluationService _evaluationService;
     private readonly ICurrentUser _currentUser;
     private readonly TimeProvider _timeProvider;
+    private readonly IMatchingNotificationClient _notificationClient;
 
     public CreateMatchRequestCommandHandler(
         IMatchingProfileRepository profileRepository,
@@ -27,7 +29,8 @@ public sealed class CreateMatchRequestCommandHandler
         IPetsMatchingClient petsClient,
         CandidateEvaluationService evaluationService,
         ICurrentUser currentUser,
-        TimeProvider timeProvider)
+        TimeProvider timeProvider,
+        IMatchingNotificationClient notificationClient)
     {
         _profileRepository = profileRepository;
         _requestRepository = requestRepository;
@@ -36,6 +39,7 @@ public sealed class CreateMatchRequestCommandHandler
         _evaluationService = evaluationService;
         _currentUser = currentUser;
         _timeProvider = timeProvider;
+        _notificationClient = notificationClient;
     }
 
     public async Task<Result<MatchRequestResponse>> Handle(
@@ -47,6 +51,9 @@ public sealed class CreateMatchRequestCommandHandler
 
         if (sourcePet.OwnerId != _currentUser.UserId)
             return Result.Failure<MatchRequestResponse>(MatchingErrors.Unauthorized);
+
+        if (sourcePet.IsSterilized)
+            return Result.Failure<MatchRequestResponse>(MatchingErrors.MatchingNotCompatible);
 
         var profile = await _profileRepository.GetActiveByPetIdAsync(request.PetId, cancellationToken);
         if (profile is null)
@@ -61,10 +68,16 @@ public sealed class CreateMatchRequestCommandHandler
         if (candidate is null || candidate.IsDeleted)
             return Result.Failure<MatchRequestResponse>(MatchingErrors.CandidateNotFound);
 
+        if (candidate.IsSterilized)
+            return Result.Failure<MatchRequestResponse>(MatchingErrors.MatchingNotCompatible);
+
+        if (candidate.OwnerId == sourcePet.OwnerId || candidate.PetId == sourcePet.PetId)
+            return Result.Failure<MatchRequestResponse>(MatchingErrors.MatchingSelfRequest);
+
         var hasActiveRequest = await _requestRepository.HasActiveRequestAsync(
             request.PetId, request.CandidatePetId, cancellationToken);
         if (hasActiveRequest)
-            return Result.Failure<MatchRequestResponse>(MatchingErrors.DuplicateActiveRequest);
+            return Result.Failure<MatchRequestResponse>(MatchingErrors.MatchingRequestExists);
 
         // Re-verify compatibility at the moment of the request; reject if the
         // candidate no longer qualifies (exclusion rules re-applied).
@@ -72,7 +85,7 @@ public sealed class CreateMatchRequestCommandHandler
             sourcePet, candidate, profile, cancellationToken);
 
         if (evaluation.IsExcluded)
-            return Result.Failure<MatchRequestResponse>(MatchingErrors.CandidateNotEligible);
+            return Result.Failure<MatchRequestResponse>(MatchingErrors.MatchingNotCompatible);
 
         var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
 
@@ -85,6 +98,7 @@ public sealed class CreateMatchRequestCommandHandler
             evaluation.Score!.TotalScore,
             evaluation.EstimatedOffspringInbreedingCoefficient ?? 0,
             evaluation.RelationshipType ?? Domain.Enums.RelationshipTypeSnapshot.UnrelatedWithinKnownPedigree,
+            request.SharePhoneNumber,
             utcNow);
 
         if (creation.IsFailure)
@@ -92,6 +106,15 @@ public sealed class CreateMatchRequestCommandHandler
 
         _requestRepository.Add(creation.Value);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await _notificationClient.SendAsync(new MatchingNotification(
+            candidate.OwnerId,
+            "MatchingRequestReceived",
+            "Nueva solicitud de matching",
+            $"Una mascota está interesada en conocer a {candidate.Name}.",
+            creation.Value.Id,
+            sourcePet.PetId,
+            sourcePet.MainPhotoUrl), cancellationToken);
 
         return Result.Success(Map(creation.Value));
     }

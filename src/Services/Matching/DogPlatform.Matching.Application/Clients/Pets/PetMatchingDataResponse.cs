@@ -14,4 +14,12 @@ public sealed record PetMatchingDataResponse(
     int AgeMonths,
     string? MainPhotoUrl,
     bool IsDeleted,
-    bool IsActive);
+    bool IsActive,
+    int SpeciesId = 0,
+    string SpeciesName = "",
+    DateTime? BirthDate = null,
+    string? Color = null,
+    bool IsSterilized = false,
+    IReadOnlyList<string>? PhotoUrls = null,
+    string? PedigreeNumber = null,
+    decimal? Weight = null);

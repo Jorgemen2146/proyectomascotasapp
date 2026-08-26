@@ -85,6 +85,19 @@ public sealed class GetCandidateDetailQueryHandler
             evaluation.GenealogyStatus,
             evaluation.Health.Status,
             isFavorite,
-            evaluation.Warnings));
+            evaluation.Warnings,
+            candidate.SpeciesName,
+            candidate.Color,
+            candidateProfile.Description,
+            evaluation.GenealogyStatus is Domain.Enums.GenealogyValidationStatus.Unavailable
+                or Domain.Enums.GenealogyValidationStatus.Unknown
+                ? "Unknown"
+                : evaluation.RelationshipType == Domain.Enums.RelationshipTypeSnapshot.UnrelatedWithinKnownPedigree
+                    ? "NoKnownRelation"
+                    : evaluation.RelationshipType == Domain.Enums.RelationshipTypeSnapshot.UnknownDueToIncompletePedigree
+                        ? "Unknown" : "Related",
+            evaluation.RelationshipType?.ToString(),
+            candidate.PhotoUrls ?? (candidate.MainPhotoUrl is null ? [] : [candidate.MainPhotoUrl]),
+            "La compatibilidad mostrada no reemplaza una evaluación veterinaria."));
     }
 }

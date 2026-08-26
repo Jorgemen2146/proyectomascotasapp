@@ -43,6 +43,10 @@ public sealed class GetMatchingProfileQueryHandler
             profile.MaximumEstimatedInbreedingCoefficient,
             profile.MinimumCompatibilityScore,
             profile.CreatedAt,
-            profile.UpdatedAt));
+            profile.UpdatedAt,
+            profile.LookingForSex,
+            profile.AllowMixedBreed,
+            profile.Description,
+            profile.AvailableFromUtc));
     }
 }

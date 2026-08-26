@@ -39,7 +39,7 @@ public sealed class MatchRequestsController : MatchingApiControllerBase
         [FromBody] CreateMatchRequestRequest request, CancellationToken cancellationToken)
     {
         var command = new CreateMatchRequestCommand(
-            request.PetId, request.CandidatePetId, request.Message);
+            request.PetId, request.CandidatePetId, request.Message, request.SharePhoneNumber);
 
         var result = await _mediator.Send(command, cancellationToken);
 
@@ -88,10 +88,12 @@ public sealed class MatchRequestsController : MatchingApiControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> Accept(Guid matchRequestId, CancellationToken cancellationToken)
+    public async Task<IActionResult> Accept(Guid matchRequestId,
+        [FromBody] AcceptMatchRequestRequest? request,
+        CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(
-            new AcceptMatchRequestCommand(matchRequestId), cancellationToken);
+            new AcceptMatchRequestCommand(matchRequestId, request?.SharePhoneNumber ?? false), cancellationToken);
 
         return result.IsFailure ? FromError(result.Error) : Ok(result.Value);
     }

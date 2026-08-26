@@ -16,4 +16,8 @@ public sealed record UpsertMatchingProfileCommand(
     bool RequirePedigree,
     bool RequireGenealogyValidation,
     double MaximumEstimatedInbreedingCoefficient,
-    int MinimumCompatibilityScore) : IRequest<Result<MatchingProfileResponse>>;
+    int MinimumCompatibilityScore,
+    string? LookingForSex = null,
+    bool AllowMixedBreed = true,
+    string? Description = null,
+    DateTime? AvailableFromUtc = null) : IRequest<Result<MatchingProfileResponse>>;

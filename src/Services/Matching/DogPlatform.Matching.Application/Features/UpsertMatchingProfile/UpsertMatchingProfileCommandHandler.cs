@@ -41,6 +41,9 @@ public sealed class UpsertMatchingProfileCommandHandler
         if (pet.OwnerId != _currentUser.UserId)
             return Result.Failure<MatchingProfileResponse>(MatchingErrors.Unauthorized);
 
+        if (pet.IsSterilized)
+            return Result.Failure<MatchingProfileResponse>(MatchingErrors.MatchingNotCompatible);
+
         var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
         var existingProfile = await _profileRepository.GetByPetIdAsync(request.PetId, cancellationToken);
 
@@ -57,7 +60,11 @@ public sealed class UpsertMatchingProfileCommandHandler
                 request.RequireGenealogyValidation,
                 request.MaximumEstimatedInbreedingCoefficient,
                 request.MinimumCompatibilityScore,
-                utcNow);
+                utcNow,
+                request.LookingForSex,
+                request.AllowMixedBreed,
+                request.Description,
+                request.AvailableFromUtc);
 
             if (creation.IsFailure)
                 return Result.Failure<MatchingProfileResponse>(creation.Error);
@@ -77,7 +84,11 @@ public sealed class UpsertMatchingProfileCommandHandler
             request.RequireGenealogyValidation,
             request.MaximumEstimatedInbreedingCoefficient,
             request.MinimumCompatibilityScore,
-            utcNow);
+            utcNow,
+            request.LookingForSex,
+            request.AllowMixedBreed,
+            request.Description,
+            request.AvailableFromUtc);
 
         if (update.IsFailure)
             return Result.Failure<MatchingProfileResponse>(update.Error);
@@ -101,5 +112,9 @@ public sealed class UpsertMatchingProfileCommandHandler
             profile.MaximumEstimatedInbreedingCoefficient,
             profile.MinimumCompatibilityScore,
             profile.CreatedAt,
-            profile.UpdatedAt);
+            profile.UpdatedAt,
+            profile.LookingForSex,
+            profile.AllowMixedBreed,
+            profile.Description,
+            profile.AvailableFromUtc);
 }

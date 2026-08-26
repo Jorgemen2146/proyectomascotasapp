@@ -1,4 +1,5 @@
 using DogPlatform.Matching.Application.Features.Common;
+using DogPlatform.Matching.Application.Clients.Notifications;
 using DogPlatform.Matching.Application.Security;
 using DogPlatform.Matching.Domain.Errors;
 using DogPlatform.Matching.Domain.Repositories;
@@ -14,17 +15,20 @@ public sealed class RejectMatchRequestCommandHandler
     private readonly IMatchingUnitOfWork _unitOfWork;
     private readonly ICurrentUser _currentUser;
     private readonly TimeProvider _timeProvider;
+    private readonly IMatchingNotificationClient _notificationClient;
 
     public RejectMatchRequestCommandHandler(
         IMatchRequestRepository requestRepository,
         IMatchingUnitOfWork unitOfWork,
         ICurrentUser currentUser,
-        TimeProvider timeProvider)
+        TimeProvider timeProvider,
+        IMatchingNotificationClient notificationClient)
     {
         _requestRepository = requestRepository;
         _unitOfWork = unitOfWork;
         _currentUser = currentUser;
         _timeProvider = timeProvider;
+        _notificationClient = notificationClient;
     }
 
     public async Task<Result<MatchRequestResponse>> Handle(
@@ -40,6 +44,15 @@ public sealed class RejectMatchRequestCommandHandler
 
         _requestRepository.Update(matchRequest);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await _notificationClient.SendAsync(new MatchingNotification(
+            matchRequest.RequesterOwnerId,
+            "MatchingRequestRejected",
+            "Solicitud de matching rechazada",
+            "La otra mascota rechazó tu solicitud de matching.",
+            matchRequest.Id,
+            matchRequest.CandidatePetId,
+            null), cancellationToken);
 
         return Result.Success(Map(matchRequest));
     }

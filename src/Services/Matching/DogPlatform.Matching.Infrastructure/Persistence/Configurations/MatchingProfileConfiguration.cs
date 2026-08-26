@@ -36,6 +36,10 @@ public sealed class MatchingProfileConfiguration : IEntityTypeConfiguration<Matc
         builder.Property(p => p.MinimumCompatibilityScore).IsRequired();
         builder.Property(p => p.CreatedAt).IsRequired();
         builder.Property(p => p.UpdatedAt);
+        builder.Property(p => p.LookingForSex).HasMaxLength(1);
+        builder.Property(p => p.AllowMixedBreed).IsRequired();
+        builder.Property(p => p.Description).HasMaxLength(1000);
+        builder.Property(p => p.AvailableFromUtc);
 
         builder.HasIndex(p => p.PetId).IsUnique();
         builder.HasIndex(p => new { p.OwnerId, p.IsActive });

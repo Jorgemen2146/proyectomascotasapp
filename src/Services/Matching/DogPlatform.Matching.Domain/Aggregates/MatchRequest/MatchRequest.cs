@@ -22,6 +22,7 @@ public sealed class MatchRequest : AggregateRoot<Guid>
         int compatibilityScoreSnapshot,
         double estimatedInbreedingCoefficientSnapshot,
         RelationshipTypeSnapshot relationshipTypeSnapshot,
+        bool requesterSharePhoneNumber,
         DateTime createdAt,
         DateTime? expiresAt)
         : base(id)
@@ -35,6 +36,7 @@ public sealed class MatchRequest : AggregateRoot<Guid>
         CompatibilityScoreSnapshot = compatibilityScoreSnapshot;
         EstimatedInbreedingCoefficientSnapshot = estimatedInbreedingCoefficientSnapshot;
         RelationshipTypeSnapshot = relationshipTypeSnapshot;
+        RequesterSharePhoneNumber = requesterSharePhoneNumber;
         CreatedAt = createdAt;
         ExpiresAt = expiresAt;
 
@@ -53,6 +55,7 @@ public sealed class MatchRequest : AggregateRoot<Guid>
     public int CompatibilityScoreSnapshot { get; private set; }
     public double EstimatedInbreedingCoefficientSnapshot { get; private set; }
     public RelationshipTypeSnapshot RelationshipTypeSnapshot { get; private set; }
+    public bool RequesterSharePhoneNumber { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime? UpdatedAt { get; private set; }
     public DateTime? RespondedAt { get; private set; }
@@ -71,6 +74,7 @@ public sealed class MatchRequest : AggregateRoot<Guid>
         int compatibilityScoreSnapshot,
         double estimatedInbreedingCoefficientSnapshot,
         RelationshipTypeSnapshot relationshipTypeSnapshot,
+        bool requesterSharePhoneNumber,
         DateTime utcNow,
         DateTime? expiresAt = null)
     {
@@ -90,6 +94,7 @@ public sealed class MatchRequest : AggregateRoot<Guid>
             compatibilityScoreSnapshot,
             estimatedInbreedingCoefficientSnapshot,
             relationshipTypeSnapshot,
+            requesterSharePhoneNumber,
             utcNow,
             expiresAt);
 

@@ -4,4 +4,5 @@ using MediatR;
 
 namespace DogPlatform.Matching.Application.Features.AcceptMatchRequest;
 
-public sealed record AcceptMatchRequestCommand(Guid MatchRequestId) : IRequest<Result<MatchRequestResponse>>;
+public sealed record AcceptMatchRequestCommand(Guid MatchRequestId, bool SharePhoneNumber = false)
+    : IRequest<Result<MatchRequestResponse>>;
