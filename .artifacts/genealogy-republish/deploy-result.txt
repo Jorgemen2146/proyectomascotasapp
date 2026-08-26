@@ -1,0 +1,5 @@
+﻿SUCCESS
+Pool=Started
+Site=Started
+AppsettingsPreserved=True
+DevelopmentSettingsPreserved=True

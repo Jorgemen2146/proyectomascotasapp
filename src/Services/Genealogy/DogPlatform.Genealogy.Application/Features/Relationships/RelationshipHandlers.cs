@@ -343,12 +343,23 @@ public sealed class GetRelationshipTreeQueryHandler(
     {
         if (request.Generations is < 1 or > 5)
             return Result.Failure<RelationshipTreeResponse>(GenealogyErrors.InvalidGenerations);
-        var root = await pets.GetOwnedPetAsync(request.PetId, currentUser.UserId, cancellationToken);
-        if (root is null) return Result.Failure<RelationshipTreeResponse>(GenealogyErrors.Forbidden);
         var graph = await relationships.GetActiveGraphAsync(cancellationToken);
-        var relevantIds = CollectRelevantIds(root.PetId, request.Generations, graph);
-        var contexts = new Dictionary<Guid, GenealogyPetContext>(
-            await pets.GetPetContextsAsync(relevantIds, cancellationToken));
+        GenealogyPetContext? root;
+        IReadOnlyDictionary<Guid, GenealogyPetContext> petContexts;
+        try
+        {
+            root = await pets.GetOwnedPetAsync(request.PetId, currentUser.UserId, cancellationToken);
+            if (root is null)
+                return Result.Failure<RelationshipTreeResponse>(GenealogyErrors.Forbidden);
+            var relevantIds = CollectRelevantIds(root.PetId, request.Generations, graph);
+            petContexts = await pets.GetPetContextsAsync(relevantIds, cancellationToken);
+        }
+        catch (HttpRequestException)
+        {
+            return Result.Failure<RelationshipTreeResponse>(GenealogyErrors.PetsServiceUnavailable);
+        }
+
+        var contexts = new Dictionary<Guid, GenealogyPetContext>(petContexts);
         contexts[root.PetId] = root;
         var parents = BuildParents(root.PetId, 1, request.Generations, graph, contexts);
         var children = graph.Where(item => item.IsActive && item.ParentPetId == root.PetId)

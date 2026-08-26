@@ -134,6 +134,114 @@ public sealed class RelationshipFeatureTests
     }
 
     [Fact]
+    public async Task Tree_without_relationships_returns_root_with_empty_collections()
+    {
+        var fixture = Fixture.ForRequester();
+
+        var result = await fixture.TreeHandler().Handle(new(Child, 3), default);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(Child, result.Value.Pet.PetId);
+        Assert.Empty(result.Value.Parents);
+        Assert.Empty(result.Value.Children);
+    }
+
+    [Fact]
+    public async Task Tree_with_mother_returns_mother_node()
+    {
+        var fixture = Fixture.ForRequester();
+        fixture.Relationships.Items.Add(PetRelationship.CreateActive(
+            Child, Mother, ParentRole.Mother, Requester, Now));
+
+        var result = await fixture.TreeHandler().Handle(new(Child, 1), default);
+
+        var parent = Assert.Single(result.Value.Parents);
+        Assert.Equal("Mother", parent.Role);
+        Assert.Equal(Mother, parent.Pet.PetId);
+    }
+
+    [Fact]
+    public async Task Tree_with_both_parents_returns_father_and_mother()
+    {
+        var fixture = Fixture.ForRequester();
+        fixture.Relationships.Items.Add(PetRelationship.CreateActive(
+            Child, Father, ParentRole.Father, Requester, Now));
+        fixture.Relationships.Items.Add(PetRelationship.CreateActive(
+            Child, Mother, ParentRole.Mother, Requester, Now));
+
+        var result = await fixture.TreeHandler().Handle(new(Child, 1), default);
+
+        Assert.Equal(2, result.Value.Parents.Count);
+        Assert.Contains(result.Value.Parents, parent => parent.Pet.PetId == Father);
+        Assert.Contains(result.Value.Parents, parent => parent.Pet.PetId == Mother);
+    }
+
+    [Fact]
+    public async Task Tree_supports_null_optional_pet_fields()
+    {
+        var fixture = Fixture.ForRequester();
+        fixture.Pets.Items[Father] = fixture.Pets.Items[Father] with
+        {
+            BreedName = null,
+            BirthDate = null,
+            MainPhotoUrl = null
+        };
+        fixture.Relationships.Items.Add(PetRelationship.CreateActive(
+            Child, Father, ParentRole.Father, Requester, Now));
+
+        var result = await fixture.TreeHandler().Handle(new(Child, 1), default);
+
+        var pet = Assert.Single(result.Value.Parents).Pet;
+        Assert.Null(pet.BreedName);
+        Assert.Null(pet.BirthDate);
+        Assert.Null(pet.MainPhotoUrl);
+    }
+
+    [Fact]
+    public async Task Cyclic_data_is_bounded_by_requested_generations()
+    {
+        var fixture = Fixture.ForRequester();
+        fixture.Relationships.Items.Add(PetRelationship.CreateActive(
+            Child, Father, ParentRole.Father, Requester, Now));
+        fixture.Relationships.Items.Add(PetRelationship.CreateActive(
+            Father, Child, ParentRole.Father, Requester, Now));
+
+        var result = await fixture.TreeHandler().Handle(new(Child, 3), default);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(3, CountParentLevels(result.Value.Parents));
+    }
+
+    [Fact]
+    public async Task Missing_pet_returns_controlled_forbidden_response()
+    {
+        var fixture = Fixture.ForRequester();
+        var result = await fixture.TreeHandler().Handle(new(Guid.NewGuid(), 3), default);
+        Assert.Equal("GENEALOGY_FORBIDDEN", result.Error.Code);
+    }
+
+    [Fact]
+    public async Task Pet_owned_by_another_user_returns_forbidden()
+    {
+        var fixture = Fixture.ForRequester();
+        fixture.User.UserIdValue = Stranger;
+        var result = await fixture.TreeHandler().Handle(new(Child, 3), default);
+        Assert.Equal("GENEALOGY_FORBIDDEN", result.Error.Code);
+    }
+
+    [Fact]
+    public async Task Pets_api_unauthorized_is_returned_as_controlled_service_error()
+    {
+        var fixture = Fixture.ForRequester();
+        fixture.Pets.Failure = new HttpRequestException(
+            "Response status code does not indicate success: 401 (Unauthorized).");
+
+        var result = await fixture.TreeHandler().Handle(new(Child, 3), default);
+
+        Assert.Equal("GENEALOGY_PETS_SERVICE_UNAVAILABLE", result.Error.Code);
+    }
+
+    [Fact]
     public async Task Deleted_and_pending_relationships_do_not_appear_in_tree()
     {
         var fixture = Fixture.ForRequester();
@@ -314,15 +422,22 @@ public sealed class RelationshipFeatureTests
     private sealed class FakePetService : IGenealogyPetService
     {
         public Dictionary<Guid, GenealogyPetContext> Items { get; } = [];
+        public Exception? Failure { get; set; }
         public void Add(GenealogyPetContext pet) => Items[pet.PetId] = pet;
         public Task<GenealogyPetContext?> GetOwnedPetAsync(Guid petId, Guid ownerUserId,
-            CancellationToken cancellationToken = default) => Task.FromResult(
-            Items.TryGetValue(petId, out var pet) && pet.OwnerUserId == ownerUserId ? pet : null);
+            CancellationToken cancellationToken = default) => Failure is null
+            ? Task.FromResult(Items.TryGetValue(petId, out var pet) && pet.OwnerUserId == ownerUserId
+                ? pet : null)
+            : Task.FromException<GenealogyPetContext?>(Failure);
         public Task<IReadOnlyDictionary<Guid, GenealogyPetContext>> GetPetContextsAsync(
-            IReadOnlyCollection<Guid> petIds, CancellationToken cancellationToken = default) =>
-            Task.FromResult<IReadOnlyDictionary<Guid, GenealogyPetContext>>(
-                Items.Where(pair => petIds.Contains(pair.Key)).ToDictionary());
+            IReadOnlyCollection<Guid> petIds, CancellationToken cancellationToken = default) => Failure is null
+            ? Task.FromResult<IReadOnlyDictionary<Guid, GenealogyPetContext>>(
+                Items.Where(pair => petIds.Contains(pair.Key)).ToDictionary())
+            : Task.FromException<IReadOnlyDictionary<Guid, GenealogyPetContext>>(Failure);
     }
+
+    private static int CountParentLevels(IReadOnlyList<GenealogyParentNode> parents) =>
+        parents.Count == 0 ? 0 : 1 + parents.Max(parent => CountParentLevels(parent.Parents));
 
     private sealed class FakeRelationshipRepository : IPetRelationshipRepository
     {

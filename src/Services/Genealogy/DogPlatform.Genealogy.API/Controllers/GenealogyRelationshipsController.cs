@@ -84,7 +84,14 @@ public sealed class GenealogyRelationshipsController(IMediator mediator) : Contr
         return result.IsFailure ? MapError(result.Error) : Ok(result.Value);
     }
 
-    private IActionResult MapError(Error error) => error.Type switch
+    private IActionResult MapError(Error error) => error.Code switch
+    {
+        "GENEALOGY_PETS_SERVICE_UNAVAILABLE" =>
+            StatusCode(StatusCodes.Status503ServiceUnavailable, error),
+        _ => MapByType(error)
+    };
+
+    private IActionResult MapByType(Error error) => error.Type switch
     {
         ErrorType.NotFound => NotFound(error),
         ErrorType.Unauthorized => StatusCode(StatusCodes.Status403Forbidden, error),

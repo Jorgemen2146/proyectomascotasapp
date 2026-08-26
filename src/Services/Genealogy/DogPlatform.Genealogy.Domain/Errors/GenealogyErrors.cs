@@ -30,6 +30,9 @@ public static class GenealogyErrors
         "GENEALOGY_INVITATION_EMAIL_INVALID", "A valid owner email is required.");
     public static readonly Error InvalidGenerations = Error.Validation(
         "GENEALOGY_GENERATIONS_INVALID", "Generations must be between 1 and 5.");
+    public static readonly Error PetsServiceUnavailable = Error.Failure(
+        "GENEALOGY_PETS_SERVICE_UNAVAILABLE",
+        "Pet information is temporarily unavailable.");
     public static readonly Error PetCannotBeItsOwnFather =
         Error.Validation(
             "Genealogy.PetCannotBeItsOwnFather",

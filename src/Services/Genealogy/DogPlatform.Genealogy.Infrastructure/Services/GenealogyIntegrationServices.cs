@@ -22,7 +22,7 @@ public sealed class GenealogyPetService(HttpClient httpClient,
             AuthenticationHeaderValue.TryParse(authorization, out var header))
             request.Headers.Authorization = header;
         using var response = await httpClient.SendAsync(request, cancellationToken);
-        if (!response.IsSuccessStatusCode) return null;
+        response.EnsureSuccessStatusCode();
         var page = await response.Content.ReadFromJsonAsync<PetsPage>(cancellationToken);
         var pet = page?.Items.FirstOrDefault(item => item.Id == petId);
         return pet is null ? null : new GenealogyPetContext(pet.Id, ownerUserId, pet.Name,

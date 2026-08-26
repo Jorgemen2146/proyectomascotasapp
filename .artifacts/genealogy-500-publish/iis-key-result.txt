@@ -1,0 +1,6 @@
+﻿SUCCESS
+KeysConfigured=True
+KeysMatch=True
+KeyLengthValid=True
+GenealogyPool=Started
+PetsPool=Started
