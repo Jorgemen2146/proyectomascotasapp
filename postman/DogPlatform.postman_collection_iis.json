@@ -931,7 +931,7 @@
           "response": []
         },
         {
-          "name": "Search",
+          "name": "Search - Pedigree Any",
           "request": {
             "method": "GET",
             "header": [],
@@ -945,8 +945,48 @@
                 }
               ]
             },
-            "url": "{{gatewayUrl}}/api/v1/matching/search?petId={{petId}}&pageNumber=1&pageSize=10",
-            "description": "JWT requerido. Query opcional: breedId, minimumAgeMonths, maximumAgeMonths, minimumScore. Respuestas esperadas: 200, 400, 401 o 404."
+            "url": "{{gatewayUrl}}/api/v1/matching/search?petId={{petId}}&pedigree=Any&pageNumber=1&pageSize=10",
+            "description": "JWT requerido. pedigree es opcional y acepta Any (default), WithPedigree o WithoutPedigree. Query opcional: breedId, minAgeMonths, maxAgeMonths. Respuestas esperadas: 200, 400, 401 o 404."
+          },
+          "response": []
+        },
+        {
+          "name": "Search - With Pedigree",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{gatewayUrl}}/api/v1/matching/search?petId={{petId}}&pedigree=WithPedigree&pageNumber=1&pageSize=10",
+            "description": "JWT requerido. Devuelve únicamente candidatos cuyo PedigreeNumber no sea null, vacío ni whitespace. pedigree es opcional."
+          },
+          "response": []
+        },
+        {
+          "name": "Search - Without Pedigree",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{gatewayUrl}}/api/v1/matching/search?petId={{petId}}&pedigree=WithoutPedigree&pageNumber=1&pageSize=10",
+            "description": "JWT requerido. Devuelve únicamente candidatos cuyo PedigreeNumber sea null, vacío o whitespace. pedigree es opcional."
           },
           "response": []
         },

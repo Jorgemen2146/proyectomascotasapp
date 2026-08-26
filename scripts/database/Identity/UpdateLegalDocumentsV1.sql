@@ -1,77 +1,14 @@
 /*
-  DogPlatform.Identity - versioned legal documents and user consent evidence.
-  Idempotent DDL/seed only. This script is not executed automatically.
-  Includes the approved V1 legal content dated 2026-08-25.
+  DogPlatform.Identity - replace the existing V1 legal document contents.
+  Idempotent data update: never inserts documents or creates a new version.
 */
 USE [DogPlatform_IdentityDb];
 GO
 
 SET XACT_ABORT ON;
-SET ANSI_NULLS ON;
-SET QUOTED_IDENTIFIER ON;
 GO
 
-BEGIN TRY
-    BEGIN TRANSACTION;
-
-    IF OBJECT_ID(N'auth.LegalDocuments', N'U') IS NULL
-    BEGIN
-        CREATE TABLE auth.LegalDocuments
-        (
-            LegalDocumentId uniqueidentifier NOT NULL CONSTRAINT PK_LegalDocuments PRIMARY KEY,
-            Type nvarchar(40) NOT NULL,
-            Version nvarchar(30) NOT NULL,
-            Title nvarchar(200) NOT NULL,
-            Content nvarchar(max) NOT NULL,
-            PublishedAtUtc datetime2 NOT NULL,
-            EffectiveAtUtc datetime2 NOT NULL,
-            IsActive bit NOT NULL,
-            RequiresAcceptance bit NOT NULL,
-            CreatedAtUtc datetime2 NOT NULL,
-            UpdatedAtUtc datetime2 NULL,
-            CONSTRAINT CK_LegalDocuments_Type
-                CHECK (Type IN (N'TermsAndConditions', N'PrivacyPolicy'))
-        );
-    END;
-
-    IF OBJECT_ID(N'auth.UserLegalConsents', N'U') IS NULL
-    BEGIN
-        CREATE TABLE auth.UserLegalConsents
-        (
-            UserLegalConsentId uniqueidentifier NOT NULL CONSTRAINT PK_UserLegalConsents PRIMARY KEY,
-            UserId uniqueidentifier NOT NULL,
-            LegalDocumentId uniqueidentifier NOT NULL,
-            AcceptedAtUtc datetime2 NOT NULL,
-            RevokedAtUtc datetime2 NULL,
-            CONSTRAINT FK_UserLegalConsents_Users FOREIGN KEY (UserId)
-                REFERENCES auth.Users(UserId),
-            CONSTRAINT FK_UserLegalConsents_LegalDocuments FOREIGN KEY (LegalDocumentId)
-                REFERENCES auth.LegalDocuments(LegalDocumentId)
-        );
-    END;
-
-    IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'auth.LegalDocuments') AND name=N'UX_LegalDocuments_Type_Version')
-        CREATE UNIQUE INDEX UX_LegalDocuments_Type_Version ON auth.LegalDocuments(Type, Version);
-    IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'auth.LegalDocuments') AND name=N'IX_LegalDocuments_IsActive')
-        CREATE INDEX IX_LegalDocuments_IsActive ON auth.LegalDocuments(IsActive);
-    IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'auth.LegalDocuments') AND name=N'IX_LegalDocuments_Type')
-        CREATE INDEX IX_LegalDocuments_Type ON auth.LegalDocuments(Type);
-    IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'auth.UserLegalConsents') AND name=N'UX_UserLegalConsents_UserId_LegalDocumentId')
-        CREATE UNIQUE INDEX UX_UserLegalConsents_UserId_LegalDocumentId ON auth.UserLegalConsents(UserId, LegalDocumentId);
-    IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'auth.UserLegalConsents') AND name=N'IX_UserLegalConsents_UserId')
-        CREATE INDEX IX_UserLegalConsents_UserId ON auth.UserLegalConsents(UserId);
-    IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'auth.UserLegalConsents') AND name=N'IX_UserLegalConsents_AcceptedAtUtc')
-        CREATE INDEX IX_UserLegalConsents_AcceptedAtUtc ON auth.UserLegalConsents(AcceptedAtUtc);
-
-    IF NOT EXISTS (SELECT 1 FROM auth.LegalDocuments WHERE Type=N'TermsAndConditions' AND Version=N'1.0')
-    BEGIN
-        INSERT auth.LegalDocuments
-            (LegalDocumentId, Type, Version, Title, Content, PublishedAtUtc,
-             EffectiveAtUtc, IsActive, RequiresAcceptance, CreatedAtUtc)
-        VALUES
-            ('11111111-1111-4111-8111-111111111111', N'TermsAndConditions', N'1.0',
-             N'Términos y Condiciones',
-             N'TÉRMINOS Y CONDICIONES DE DOGPLATFORM
+DECLARE @TermsContent nvarchar(max) = N'TÉRMINOS Y CONDICIONES DE DOGPLATFORM
 
 Versión 1.0
 Última actualización: 25/08/2026
@@ -246,19 +183,8 @@ DogPlatform conserva un registro de las versiones aceptadas por cada usuario.
 
 17. LEGISLACIÓN APLICABLE
 
-Estos Términos y Condiciones se interpretarán conforme a la legislación vigente de la República del Perú, sin perjuicio de los derechos reconocidos a consumidores, usuarios y titulares de datos personales.',
-             '2026-08-25T00:00:00', '2026-08-25T00:00:00', 1, 1, SYSUTCDATETIME());
-    END;
-
-    IF NOT EXISTS (SELECT 1 FROM auth.LegalDocuments WHERE Type=N'PrivacyPolicy' AND Version=N'1.0')
-    BEGIN
-        INSERT auth.LegalDocuments
-            (LegalDocumentId, Type, Version, Title, Content, PublishedAtUtc,
-             EffectiveAtUtc, IsActive, RequiresAcceptance, CreatedAtUtc)
-        VALUES
-            ('22222222-2222-4222-8222-222222222222', N'PrivacyPolicy', N'1.0',
-             N'Política de Privacidad',
-             N'POLÍTICA DE PRIVACIDAD DE DOGPLATFORM
+Estos Términos y Condiciones se interpretarán conforme a la legislación vigente de la República del Perú, sin perjuicio de los derechos reconocidos a consumidores, usuarios y titulares de datos personales.';
+DECLARE @PrivacyContent nvarchar(max) = N'POLÍTICA DE PRIVACIDAD DE DOGPLATFORM
 
 Versión 1.0
 Última actualización: 25/08/2026
@@ -461,9 +387,26 @@ Cuando exista una modificación sustancial, DogPlatform podrá requerir la acept
 
 En Perú, la autoridad competente en materia de protección de datos personales es la Autoridad Nacional de Protección de Datos Personales.
 
-Los usuarios podrán acudir a los mecanismos establecidos legalmente cuando consideren afectados sus derechos.',
-             '2026-08-25T00:00:00', '2026-08-25T00:00:00', 1, 1, SYSUTCDATETIME());
-    END;
+Los usuarios podrán acudir a los mecanismos establecidos legalmente cuando consideren afectados sus derechos.';
+
+BEGIN TRY
+    BEGIN TRANSACTION;
+
+    UPDATE auth.LegalDocuments
+    SET Content = @TermsContent
+    WHERE Type = N'TermsAndConditions'
+      AND Version = N'1.0';
+
+    IF @@ROWCOUNT <> 1
+        THROW 51000, 'Expected exactly one TermsAndConditions 1.0 document.', 1;
+
+    UPDATE auth.LegalDocuments
+    SET Content = @PrivacyContent
+    WHERE Type = N'PrivacyPolicy'
+      AND Version = N'1.0';
+
+    IF @@ROWCOUNT <> 1
+        THROW 51001, 'Expected exactly one PrivacyPolicy 1.0 document.', 1;
 
     COMMIT TRANSACTION;
 END TRY
@@ -472,3 +415,4 @@ BEGIN CATCH
     THROW;
 END CATCH;
 GO
+

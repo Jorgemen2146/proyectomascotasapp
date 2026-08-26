@@ -14,4 +14,5 @@ public sealed record SearchCandidatesQuery(
     int? MinimumScore,
     string SortBy,
     string SortDirection,
-    bool FavoritesOnly) : IRequest<Result<PagedResult<CandidateSummaryResponse>>>;
+    bool FavoritesOnly,
+    PedigreeFilter Pedigree = PedigreeFilter.Any) : IRequest<Result<PagedResult<CandidateSummaryResponse>>>;

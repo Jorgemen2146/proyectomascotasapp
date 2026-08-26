@@ -35,6 +35,7 @@ public sealed class CandidatesController : MatchingApiControllerBase
         [FromQuery] int? breedId = null,
         [FromQuery] int? minimumAgeMonths = null,
         [FromQuery] int? maximumAgeMonths = null,
+        [FromQuery] PedigreeFilter pedigree = PedigreeFilter.Any,
         [FromQuery] int? minimumScore = null,
         [FromQuery] string sortBy = "CompatibilityScore",
         [FromQuery] string sortDirection = "DESC",
@@ -51,7 +52,8 @@ public sealed class CandidatesController : MatchingApiControllerBase
             minimumScore,
             sortBy,
             sortDirection,
-            favoritesOnly);
+            favoritesOnly,
+            pedigree);
 
         var result = await _mediator.Send(query, cancellationToken);
 

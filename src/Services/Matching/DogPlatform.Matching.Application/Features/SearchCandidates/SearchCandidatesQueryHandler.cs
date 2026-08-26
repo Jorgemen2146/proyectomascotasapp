@@ -81,6 +81,13 @@ public sealed class SearchCandidatesQueryHandler
         var candidates = preliminaryPage.Items
             .Where(candidate => availableProfiles.ContainsKey(candidate.PetId));
 
+        candidates = request.Pedigree switch
+        {
+            PedigreeFilter.WithPedigree => candidates.Where(HasPedigree),
+            PedigreeFilter.WithoutPedigree => candidates.Where(candidate => !HasPedigree(candidate)),
+            _ => candidates
+        };
+
         // Bounded concurrency when evaluating candidates against Genealogy/Health,
         // to avoid unbounded fan-out for large preliminary pages.
         using var semaphore = new SemaphoreSlim(_options.GenealogyEvaluationConcurrency);
@@ -154,6 +161,7 @@ public sealed class SearchCandidatesQueryHandler
                 evaluation.Score.PedigreeScore,
                 evaluation.Score.GenealogyScore,
                 evaluation.Score.HealthScore),
+            HasPedigree(evaluation.Candidate),
             evaluation.PedigreeCompletenessPercentage,
             evaluation.RelationshipType,
             evaluation.EstimatedOffspringInbreedingCoefficient,
@@ -169,6 +177,9 @@ public sealed class SearchCandidatesQueryHandler
             evaluation.Candidate.PhotoUrls ?? (evaluation.Candidate.MainPhotoUrl is null
                 ? [] : [evaluation.Candidate.MainPhotoUrl]),
             "La compatibilidad mostrada no reemplaza una evaluación veterinaria.");
+
+    private static bool HasPedigree(PetMatchingDataResponse candidate) =>
+        !string.IsNullOrWhiteSpace(candidate.PedigreeNumber);
 
     private static string RelationshipStatus(CandidateEvaluation evaluation) =>
         evaluation.GenealogyStatus is Domain.Enums.GenealogyValidationStatus.Unavailable

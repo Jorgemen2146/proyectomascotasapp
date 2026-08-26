@@ -17,13 +17,14 @@ public sealed class MatchingSearchController(IMediator mediator) : MatchingApiCo
         [FromQuery] int? breedId = null,
         [FromQuery] int? minAgeMonths = null,
         [FromQuery] int? maxAgeMonths = null,
+        [FromQuery] PedigreeFilter pedigree = PedigreeFilter.Any,
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 10,
         CancellationToken cancellationToken = default)
     {
         var result = await mediator.Send(new SearchCandidatesQuery(
             petId, pageNumber, pageSize, breedId, minAgeMonths, maxAgeMonths,
-            null, "CompatibilityScore", "DESC", false), cancellationToken);
+            null, "CompatibilityScore", "DESC", false, pedigree), cancellationToken);
         return result.IsFailure ? FromError(result.Error) : Ok(result.Value);
     }
 

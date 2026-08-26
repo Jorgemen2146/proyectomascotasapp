@@ -23,6 +23,7 @@ public sealed record CandidateSummaryResponse(
     string? MainPhotoUrl,
     int CompatibilityScore,
     CompatibilityBreakdownResponse CompatibilityBreakdown,
+    bool HasPedigree,
     decimal? PedigreeCompletenessPercentage,
     RelationshipTypeSnapshot? RelationshipType,
     double? EstimatedOffspringInbreedingCoefficient,

@@ -79,6 +79,7 @@ public sealed class GetCandidateDetailQueryHandler
                 evaluation.Score.PedigreeScore,
                 evaluation.Score.GenealogyScore,
                 evaluation.Score.HealthScore),
+            !string.IsNullOrWhiteSpace(candidate.PedigreeNumber),
             evaluation.PedigreeCompletenessPercentage,
             evaluation.RelationshipType,
             evaluation.EstimatedOffspringInbreedingCoefficient,
