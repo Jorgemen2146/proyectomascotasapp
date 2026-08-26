@@ -272,6 +272,9 @@ public sealed class LegalConsentTests
     {
         public Task SendVerificationCodeAsync(string email, string code,
             CancellationToken cancellationToken) => Task.CompletedTask;
+
+        public Task SendPasswordResetCodeAsync(string email, string code,
+            int expirationMinutes, CancellationToken cancellationToken) => Task.CompletedTask;
     }
 
     private sealed class TestTimeProvider(DateTime utcNow) : TimeProvider

@@ -94,6 +94,59 @@
           "response": []
         },
         {
+          "name": "Password Recovery",
+          "item": [
+            {
+              "name": "Forgot Password",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }],
+                "auth": { "type": "noauth" },
+                "url": "{{gatewayUrl}}/api/v1/auth/forgot-password",
+                "description": "Anónimo. Responde de forma genérica para correos válidos, exista o no la cuenta. Aplica cooldown configurable.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"jorge@test.com\"\n}",
+                  "options": { "raw": { "language": "json" } }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Verify Reset Code",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }],
+                "auth": { "type": "noauth" },
+                "url": "{{gatewayUrl}}/api/v1/auth/verify-reset-code",
+                "description": "Anónimo. Verifica el código sin consumirlo. Configura resetCode con el valor recibido por correo.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"jorge@test.com\",\n  \"code\": \"{{resetCode}}\"\n}",
+                  "options": { "raw": { "language": "json" } }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Reset Password",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }],
+                "auth": { "type": "noauth" },
+                "url": "{{gatewayUrl}}/api/v1/auth/reset-password",
+                "description": "Anónimo. Revalida y consume el código, cambia la contraseña e invalida refresh tokens activos.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"jorge@test.com\",\n  \"code\": \"{{resetCode}}\",\n  \"newPassword\": \"Testing456\",\n  \"confirmPassword\": \"Testing456\"\n}",
+                  "options": { "raw": { "language": "json" } }
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
           "name": "Login",
           "request": {
             "method": "POST",
@@ -1714,6 +1767,12 @@
       "value": "",
       "type": "string",
       "description": "Código de 6 dígitos recibido por correo."
+    },
+    {
+      "key": "resetCode",
+      "value": "",
+      "type": "string",
+      "description": "Código de recuperación recibido por correo; no guardar valores reales en la colección."
     },
     {
       "key": "gatewayUrl",

@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using DogPlatform.Identity.API.Requests.Authentication;
 using DogPlatform.Identity.Application.Features.Authentication.Login;
+using DogPlatform.Identity.Application.Features.Authentication.PasswordReset;
 using DogPlatform.Identity.Application.Features.Authentication.Logout;
 using DogPlatform.Identity.Application.Features.Authentication.RefreshToken;
 using DogPlatform.Identity.Application.Features.Authentication.Register;
@@ -145,6 +146,58 @@ public sealed class AuthController : ControllerBase
         }
 
         return Ok(result.Value);
+    }
+
+    [HttpPost("forgot-password")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(ForgotPasswordResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ForgotPassword(
+        [FromBody] ForgotPasswordRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new ForgotPasswordCommand(
+            request.Email,
+            HttpContext.Connection.RemoteIpAddress?.ToString()), cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : BadRequest(new { error = result.Error.Code, description = result.Error.Description });
+    }
+
+    [HttpPost("verify-reset-code")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(VerifyResetCodeResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> VerifyResetCode(
+        [FromBody] VerifyResetCodeRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(
+            new VerifyResetCodeCommand(request.Email, request.Code), cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : BadRequest(new { error = result.Error.Code, description = result.Error.Description });
+    }
+
+    [HttpPost("reset-password")]
+    [AllowAnonymous]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ResetPassword(
+        [FromBody] ResetPasswordRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new ResetPasswordCommand(
+            request.Email,
+            request.Code,
+            request.NewPassword,
+            request.ConfirmPassword), cancellationToken);
+
+        return result.IsSuccess
+            ? NoContent()
+            : BadRequest(new { error = result.Error.Code, description = result.Error.Description });
     }
 
     [HttpPost("refresh")]

@@ -3,6 +3,7 @@ using DogPlatform.Identity.Application;
 using DogPlatform.Identity.Application.Communication;
 using DogPlatform.Identity.Application.Security;
 using DogPlatform.Identity.Application.ProfilePhotos;
+using DogPlatform.Identity.Application.Features.Authentication.PasswordReset;
 using DogPlatform.Identity.Domain.Repositories;
 using DogPlatform.Identity.Infrastructure.Messaging;
 using DogPlatform.Identity.Infrastructure.Authentication;
@@ -35,6 +36,7 @@ public static class DependencyInjection
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        services.AddScoped<IPasswordResetCodeRepository, PasswordResetCodeRepository>();
         services.AddScoped<ILegalDocumentRepository, LegalDocumentRepository>();
         services.AddScoped<IUserLegalConsentRepository, UserLegalConsentRepository>();
 
@@ -47,11 +49,16 @@ public static class DependencyInjection
 
         services.AddScoped<IPasswordHasher, Pbkdf2PasswordHasher>();
         services.AddSingleton<IEmailVerificationCodeService, HmacEmailVerificationCodeService>();
+        services.AddSingleton<IPasswordResetCodeService, HmacPasswordResetCodeService>();
         services.AddSingleton<IRefreshTokenGenerator, SecureRefreshTokenGenerator>();
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 
         services.Configure<EmailOptions>(
             configuration.GetSection(EmailOptions.SectionName));
+        services.AddOptions<PasswordResetOptions>()
+            .Bind(configuration.GetSection(PasswordResetOptions.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
 
         services.AddHttpClient<ResendEmailSender>(client =>
         {

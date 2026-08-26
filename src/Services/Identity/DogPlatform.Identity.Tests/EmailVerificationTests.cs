@@ -273,6 +273,9 @@ public sealed class EmailVerificationTests
             Messages.Add((email, code));
             return Task.CompletedTask;
         }
+
+        public Task SendPasswordResetCodeAsync(string email, string code,
+            int expirationMinutes, CancellationToken cancellationToken) => Task.CompletedTask;
     }
 
     private sealed class FakeUserRepository(User? user) : IUserRepository

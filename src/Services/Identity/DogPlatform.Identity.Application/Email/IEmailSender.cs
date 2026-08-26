@@ -6,4 +6,10 @@ public interface IEmailSender
         string email,
         string code,
         CancellationToken cancellationToken);
+
+    Task SendPasswordResetCodeAsync(
+        string email,
+        string code,
+        int expirationMinutes,
+        CancellationToken cancellationToken);
 }

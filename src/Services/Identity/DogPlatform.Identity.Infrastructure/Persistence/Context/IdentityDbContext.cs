@@ -1,5 +1,6 @@
 using DogPlatform.Identity.Application;
 using DogPlatform.Identity.Domain.Aggregates.RefreshToken;
+using DogPlatform.Identity.Domain.Aggregates.PasswordResetCode;
 using DogPlatform.Identity.Domain.Aggregates.Role;
 using DogPlatform.Identity.Domain.Aggregates.User;
 using DogPlatform.Identity.Domain.Legal;
@@ -16,6 +17,7 @@ public sealed class IdentityDbContext : DbContext, IIdentityUnitOfWork
     public DbSet<Role> Roles => Set<Role>();
     public DbSet<UserRole> UserRoles => Set<UserRole>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<PasswordResetCode> PasswordResetCodes => Set<PasswordResetCode>();
     public DbSet<LegalDocument> LegalDocuments => Set<LegalDocument>();
     public DbSet<UserLegalConsent> UserLegalConsents => Set<UserLegalConsent>();
 
