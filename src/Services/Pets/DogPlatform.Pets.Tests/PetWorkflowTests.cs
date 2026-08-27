@@ -45,6 +45,37 @@ public sealed class PetWorkflowTests
     }
 
     [Fact]
+    public async Task CreatePet_InvalidCurrentUser_IsRejectedWithoutPersistence()
+    {
+        var pets = new FakePetRepository();
+        var handler = new CreatePetCommandHandler(
+            pets,
+            new FakeBreedRepository(),
+            new FakeUnitOfWork(),
+            new FakeCurrentUser(Guid.Empty),
+            new TestTimeProvider(UtcNow));
+
+        var result = await handler.Handle(new CreatePetCommand(
+            1, "Luna", UtcNow.AddYears(-2), "F", null, null, null, false, null),
+            CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+        Assert.Equal("Auth.UserIdInvalid", result.Error.Code);
+        Assert.Empty(pets.Pets);
+    }
+
+    [Fact]
+    public void Pet_DomainRejectsEmptyOwnerId()
+    {
+        var result = Pet.Create(
+            Guid.NewGuid(), Guid.Empty, 1, "Luna", null, Gender.Create("F").Value,
+            null, null, null, false, null, UtcNow);
+
+        Assert.True(result.IsFailure);
+        Assert.Equal("Pet.InvalidOwnerId", result.Error.Code);
+    }
+
+    [Fact]
     public async Task UpdatePet_ChangesEditableFields()
     {
         var ownerId = Guid.NewGuid();

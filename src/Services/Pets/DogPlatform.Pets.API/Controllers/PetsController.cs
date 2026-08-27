@@ -48,7 +48,11 @@ public sealed class PetsController : ControllerBase
         var result = await _mediator.Send(command, cancellationToken);
 
         if (result.IsFailure)
+        {
+            if (result.Error.Code == "Auth.UserIdInvalid")
+                return Unauthorized(result.Error);
             return BadRequest(result.Error);
+        }
 
         return CreatedAtAction(nameof(GetPetById), new { id = result.Value.PetId }, result.Value);
     }

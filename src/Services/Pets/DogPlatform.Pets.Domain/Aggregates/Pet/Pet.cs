@@ -71,6 +71,9 @@ public sealed class Pet : AggregateRoot<Guid>
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
+        if (ownerId == Guid.Empty)
+            return Result.Failure<Pet>(PetErrors.InvalidOwnerId);
+
         return Result.Success(new Pet(
             id,
             ownerId,

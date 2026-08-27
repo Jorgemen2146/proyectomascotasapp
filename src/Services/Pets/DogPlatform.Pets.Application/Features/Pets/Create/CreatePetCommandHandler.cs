@@ -34,6 +34,9 @@ public sealed class CreatePetCommandHandler : IRequestHandler<CreatePetCommand, 
         CreatePetCommand request,
         CancellationToken cancellationToken)
     {
+        if (!_currentUser.IsAuthenticated || _currentUser.UserId == Guid.Empty)
+            return Result.Failure<CreatePetResponse>(PetErrors.InvalidAuthenticatedUser);
+
         var breed = await _breedRepository.GetByIdAsync(request.BreedId, cancellationToken);
         if (breed is null)
             return Result.Failure<CreatePetResponse>(PetErrors.BreedNotFound);

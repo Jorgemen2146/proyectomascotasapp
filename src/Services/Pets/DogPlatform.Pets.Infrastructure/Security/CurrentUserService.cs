@@ -17,8 +17,12 @@ public sealed class CurrentUserService : ICurrentUser
     {
         get
         {
-            var claim = _httpContextAccessor.HttpContext?.User.FindFirst("sub");
-            return Guid.TryParse(claim?.Value, out var userId) ? userId : Guid.Empty;
+            var user = _httpContextAccessor.HttpContext?.User;
+            if (Guid.TryParse(user?.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
+                return userId;
+            return Guid.TryParse(user?.FindFirstValue("sub"), out userId)
+                ? userId
+                : Guid.Empty;
         }
     }
 

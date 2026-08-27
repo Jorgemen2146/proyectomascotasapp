@@ -10,6 +10,12 @@ public static class PetErrors
     public static readonly Error Unauthorized =
         Error.Unauthorized("Pet.Unauthorized", "You do not have permission to access this pet.");
 
+    public static readonly Error InvalidAuthenticatedUser =
+        Error.Unauthorized("Auth.UserIdInvalid", "The authenticated user identifier is missing or invalid.");
+
+    public static readonly Error InvalidOwnerId =
+        Error.Validation("Pet.InvalidOwnerId", "A pet must have a valid owner identifier.");
+
     public static readonly Error AlreadyDeleted =
         Error.NotFound("Pet.AlreadyDeleted", "The pet has already been deleted.");
 
