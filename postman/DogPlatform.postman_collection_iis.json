@@ -190,6 +190,143 @@
           ]
         },
         {
+          "name": "External Authentication",
+          "item": [
+            {
+              "name": "Google Login or Register",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }],
+                "auth": { "type": "noauth" },
+                "url": "{{gatewayUrl}}/api/v1/auth/external/google",
+                "description": "Valida un ID token de Google. Devuelve 200 con sesión o 422 con registrationToken si faltan datos para completar el registro.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"idToken\": \"{{googleIdToken}}\",\n  \"legalConsents\": [\n    {\n      \"type\": \"TermsAndConditions\",\n      \"version\": \"1.0\"\n    },\n    {\n      \"type\": \"PrivacyPolicy\",\n      \"version\": \"1.0\"\n    }\n  ]\n}",
+                  "options": { "raw": { "language": "json" } }
+                }
+              },
+              "response": [],
+              "event": [{
+                "listen": "test",
+                "script": {
+                  "type": "text/javascript",
+                  "exec": [
+                    "const json = pm.response.json();",
+                    "if (json.accessToken) pm.collectionVariables.set('accessToken', json.accessToken);",
+                    "if (json.refreshToken) pm.collectionVariables.set('refreshToken', json.refreshToken);",
+                    "if (json.registrationToken) pm.collectionVariables.set('externalRegistrationToken', json.registrationToken);"
+                  ]
+                }
+              }]
+            },
+            {
+              "name": "Facebook Login or Register",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }],
+                "auth": { "type": "noauth" },
+                "url": "{{gatewayUrl}}/api/v1/auth/external/facebook",
+                "description": "Valida un access token de Facebook. Devuelve 200 con sesión o 422 con registrationToken si faltan datos.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"accessToken\": \"{{facebookAccessToken}}\",\n  \"legalConsents\": [\n    {\n      \"type\": \"TermsAndConditions\",\n      \"version\": \"1.0\"\n    },\n    {\n      \"type\": \"PrivacyPolicy\",\n      \"version\": \"1.0\"\n    }\n  ]\n}",
+                  "options": { "raw": { "language": "json" } }
+                }
+              },
+              "response": [],
+              "event": [{
+                "listen": "test",
+                "script": {
+                  "type": "text/javascript",
+                  "exec": [
+                    "const json = pm.response.json();",
+                    "if (json.accessToken) pm.collectionVariables.set('accessToken', json.accessToken);",
+                    "if (json.refreshToken) pm.collectionVariables.set('refreshToken', json.refreshToken);",
+                    "if (json.registrationToken) pm.collectionVariables.set('externalRegistrationToken', json.registrationToken);"
+                  ]
+                }
+              }]
+            },
+            {
+              "name": "Apple Login or Register",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }],
+                "auth": { "type": "noauth" },
+                "url": "{{gatewayUrl}}/api/v1/auth/external/apple",
+                "description": "Valida un ID token de Apple y su nonce original. Devuelve 200 con sesión o 422 con registrationToken si faltan datos.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"idToken\": \"{{appleIdToken}}\",\n  \"nonce\": \"{{appleNonce}}\",\n  \"legalConsents\": [\n    {\n      \"type\": \"TermsAndConditions\",\n      \"version\": \"1.0\"\n    },\n    {\n      \"type\": \"PrivacyPolicy\",\n      \"version\": \"1.0\"\n    }\n  ]\n}",
+                  "options": { "raw": { "language": "json" } }
+                }
+              },
+              "response": [],
+              "event": [{
+                "listen": "test",
+                "script": {
+                  "type": "text/javascript",
+                  "exec": [
+                    "const json = pm.response.json();",
+                    "if (json.accessToken) pm.collectionVariables.set('accessToken', json.accessToken);",
+                    "if (json.refreshToken) pm.collectionVariables.set('refreshToken', json.refreshToken);",
+                    "if (json.registrationToken) pm.collectionVariables.set('externalRegistrationToken', json.registrationToken);"
+                  ]
+                }
+              }]
+            },
+            {
+              "name": "Complete External Registration",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }],
+                "auth": { "type": "noauth" },
+                "url": "{{gatewayUrl}}/api/v1/auth/external/complete-registration",
+                "description": "Completa los datos faltantes usando el registrationToken retornado por Google, Facebook o Apple. Si tiene éxito guarda la sesión.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"registrationToken\": \"{{externalRegistrationToken}}\",\n  \"email\": \"jorge@test.com\",\n  \"firstName\": \"Jorge\",\n  \"lastName\": \"Test\",\n  \"legalConsents\": [\n    {\n      \"type\": \"TermsAndConditions\",\n      \"version\": \"1.0\"\n    },\n    {\n      \"type\": \"PrivacyPolicy\",\n      \"version\": \"1.0\"\n    }\n  ]\n}",
+                  "options": { "raw": { "language": "json" } }
+                }
+              },
+              "response": [],
+              "event": [{
+                "listen": "test",
+                "script": {
+                  "type": "text/javascript",
+                  "exec": [
+                    "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                    "  const json = pm.response.json();",
+                    "  if (json.accessToken) pm.collectionVariables.set('accessToken', json.accessToken);",
+                    "  if (json.refreshToken) pm.collectionVariables.set('refreshToken', json.refreshToken);",
+                    "}"
+                  ]
+                }
+              }]
+            },
+            {
+              "name": "Link External Provider",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }],
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+                },
+                "url": "{{gatewayUrl}}/api/v1/auth/external/{{externalProvider}}/link",
+                "description": "Vincula Google, Facebook o Apple al usuario autenticado. Usa el ID token para Google/Apple o access token para Facebook; Apple también requiere nonce.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"credential\": \"{{externalCredential}}\",\n  \"nonce\": \"{{appleNonce}}\"\n}",
+                  "options": { "raw": { "language": "json" } }
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
           "name": "Refresh Token",
           "request": {
             "method": "POST",
@@ -1837,6 +1974,48 @@
       "key": "refreshToken",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "googleIdToken",
+      "value": "",
+      "type": "string",
+      "description": "ID token real emitido por Google; no guardar credenciales en el repositorio."
+    },
+    {
+      "key": "facebookAccessToken",
+      "value": "",
+      "type": "string",
+      "description": "Access token real emitido por Facebook; no guardar credenciales en el repositorio."
+    },
+    {
+      "key": "appleIdToken",
+      "value": "",
+      "type": "string",
+      "description": "ID token real emitido por Apple; no guardar credenciales en el repositorio."
+    },
+    {
+      "key": "appleNonce",
+      "value": "",
+      "type": "string",
+      "description": "Nonce original usado al solicitar el ID token de Apple."
+    },
+    {
+      "key": "externalRegistrationToken",
+      "value": "",
+      "type": "string",
+      "description": "Se guarda automáticamente cuando el proveedor responde que faltan datos."
+    },
+    {
+      "key": "externalProvider",
+      "value": "google",
+      "type": "string",
+      "description": "Proveedor a vincular: google, facebook o apple."
+    },
+    {
+      "key": "externalCredential",
+      "value": "",
+      "type": "string",
+      "description": "ID token o access token del proveedor usado en Link External Provider."
     },
     {
       "key": "petId",

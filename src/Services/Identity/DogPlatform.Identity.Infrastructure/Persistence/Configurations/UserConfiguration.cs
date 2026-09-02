@@ -43,12 +43,12 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(u => u.PasswordHash)
             .HasColumnName("PasswordHash")
-            .IsRequired();
+            .IsRequired(false);
 
         builder.Property(u => u.PasswordSalt)
             .HasColumnName("PasswordSalt")
             .HasMaxLength(500)
-            .IsRequired();
+            .IsRequired(false);
 
         builder.Property(u => u.PhoneNumber)
             .HasColumnName("PhoneNumber")

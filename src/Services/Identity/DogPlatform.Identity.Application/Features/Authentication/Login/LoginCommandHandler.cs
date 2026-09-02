@@ -56,10 +56,13 @@ internal sealed class LoginCommandHandler : IRequestHandler<LoginCommand, Result
         if (!user.IsActive)
             return Result.Failure<LoginResponse>(InvalidCredentials);
 
+        if (!user.HasPassword)
+            return Result.Failure<LoginResponse>(InvalidCredentials);
+
         var passwordValid = _passwordHasher.Verify(
             command.Password,
-            user.PasswordHash,
-            user.PasswordSalt);
+            user.PasswordHash!,
+            user.PasswordSalt!);
 
         if (!passwordValid)
             return Result.Failure<LoginResponse>(InvalidCredentials);

@@ -3,6 +3,7 @@ using DogPlatform.Identity.Domain.Aggregates.RefreshToken;
 using DogPlatform.Identity.Domain.Aggregates.PasswordResetCode;
 using DogPlatform.Identity.Domain.Aggregates.Role;
 using DogPlatform.Identity.Domain.Aggregates.User;
+using DogPlatform.Identity.Domain.Aggregates.ExternalLogin;
 using DogPlatform.Identity.Domain.Legal;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,6 +21,7 @@ public sealed class IdentityDbContext : DbContext, IIdentityUnitOfWork
     public DbSet<PasswordResetCode> PasswordResetCodes => Set<PasswordResetCode>();
     public DbSet<LegalDocument> LegalDocuments => Set<LegalDocument>();
     public DbSet<UserLegalConsent> UserLegalConsents => Set<UserLegalConsent>();
+    public DbSet<ExternalLogin> ExternalLogins => Set<ExternalLogin>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

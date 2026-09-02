@@ -4,9 +4,11 @@ using DogPlatform.Identity.Application.Communication;
 using DogPlatform.Identity.Application.Security;
 using DogPlatform.Identity.Application.ProfilePhotos;
 using DogPlatform.Identity.Application.Features.Authentication.PasswordReset;
+using DogPlatform.Identity.Application.Features.Authentication.External;
 using DogPlatform.Identity.Domain.Repositories;
 using DogPlatform.Identity.Infrastructure.Messaging;
 using DogPlatform.Identity.Infrastructure.Authentication;
+using DogPlatform.Identity.Infrastructure.Authentication.External;
 using DogPlatform.Identity.Infrastructure.Persistence.Context;
 using DogPlatform.Identity.Infrastructure.Persistence.Repositories;
 using DogPlatform.Identity.Infrastructure.Security;
@@ -34,6 +36,7 @@ public static class DependencyInjection
             provider.GetRequiredService<IdentityDbContext>());
 
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IExternalLoginRepository, ExternalLoginRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IPasswordResetCodeRepository, PasswordResetCodeRepository>();
@@ -52,6 +55,26 @@ public static class DependencyInjection
         services.AddSingleton<IPasswordResetCodeService, HmacPasswordResetCodeService>();
         services.AddSingleton<IRefreshTokenGenerator, SecureRefreshTokenGenerator>();
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+
+        services.Configure<GoogleExternalAuthOptions>(
+            configuration.GetSection(GoogleExternalAuthOptions.SectionName));
+        services.Configure<AppleExternalAuthOptions>(
+            configuration.GetSection(AppleExternalAuthOptions.SectionName));
+        services.Configure<FacebookExternalAuthOptions>(
+            configuration.GetSection(FacebookExternalAuthOptions.SectionName));
+        services.Configure<ExternalRegistrationOptions>(
+            configuration.GetSection(ExternalRegistrationOptions.SectionName));
+        services.AddSingleton<IExternalRegistrationTicketService, ExternalRegistrationTicketService>();
+        services.AddTransient<IProviderIdentityValidator, GoogleIdentityValidator>();
+        services.AddTransient<IProviderIdentityValidator, AppleIdentityValidator>();
+        services.AddHttpClient<FacebookIdentityValidator>(client =>
+        {
+            client.BaseAddress = new Uri("https://graph.facebook.com/");
+            client.Timeout = TimeSpan.FromSeconds(10);
+        });
+        services.AddTransient<IProviderIdentityValidator>(provider =>
+            provider.GetRequiredService<FacebookIdentityValidator>());
+        services.AddScoped<IExternalIdentityValidator, ExternalIdentityValidator>();
 
         services.Configure<EmailOptions>(
             configuration.GetSection(EmailOptions.SectionName));

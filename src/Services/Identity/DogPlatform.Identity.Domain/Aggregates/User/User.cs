@@ -15,8 +15,8 @@ public sealed class User : AggregateRoot<Guid>
         Guid id,
         FullName fullName,
         Email email,
-        string passwordHash,
-        string passwordSalt,
+        string? passwordHash,
+        string? passwordSalt,
         DateTime createdAt)
         : base(id)
     {
@@ -35,8 +35,9 @@ public sealed class User : AggregateRoot<Guid>
 
     public FullName FullName { get; private set; } = null!;
     public Email Email { get; private set; } = null!;
-    public string PasswordHash { get; private set; } = string.Empty;
-    public string PasswordSalt { get; private set; } = string.Empty;
+    public string? PasswordHash { get; private set; }
+    public string? PasswordSalt { get; private set; }
+    public bool HasPassword => PasswordHash is not null && PasswordSalt is not null;
     public string? PhoneNumber { get; private set; }
     public string? ProfilePhotoUrl { get; private set; }
     public bool IsEmailConfirmed { get; private set; }
@@ -79,6 +80,25 @@ public sealed class User : AggregateRoot<Guid>
             email.Value,
             fullName.Display));
 
+        return user;
+    }
+
+    public static User RegisterExternal(
+        Guid id,
+        FullName fullName,
+        Email email,
+        bool emailVerified,
+        DateTime utcNow)
+    {
+        var user = new User(id, fullName, email, null, null, utcNow);
+        if (emailVerified)
+        {
+            user.IsEmailConfirmed = true;
+            user.EmailConfirmedAt = utcNow;
+        }
+
+        user.Raise(new UserRegisteredDomainEvent(
+            Guid.NewGuid(), utcNow, id, email.Value, fullName.Display));
         return user;
     }
 

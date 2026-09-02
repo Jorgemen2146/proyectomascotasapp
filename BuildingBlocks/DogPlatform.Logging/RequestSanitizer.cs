@@ -11,7 +11,7 @@ public sealed class RequestSanitizer : IRequestSanitizer
     private const string Base64ImageRedactedValue = "[BASE64_IMAGE_REMOVED]";
 
     private static readonly Regex SensitiveAssignment = new(
-        "(?<key>password|currentPassword|newPassword|confirmPassword|accessToken|refreshToken|authorization|apiKey|secret|verificationCode|code|token|imageBase64|base64|imageData|fileContent)\\s*[:=]\\s*(?<value>\\\"[^\\\"]*\\\"|'[^']*'|[^&,\\s}]+)",
+        "(?<key>password|currentPassword|newPassword|confirmPassword|accessToken|refreshToken|idToken|credential|registrationToken|authorization|apiKey|secret|verificationCode|code|token|imageBase64|base64|imageData|fileContent)\\s*[:=]\\s*(?<value>\\\"[^\\\"]*\\\"|'[^']*'|[^&,\\s}]+)",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant,
         TimeSpan.FromMilliseconds(100));
 
@@ -23,7 +23,8 @@ public sealed class RequestSanitizer : IRequestSanitizer
     private static readonly HashSet<string> SensitiveNames = new(StringComparer.OrdinalIgnoreCase)
     {
         "password", "currentPassword", "newPassword", "confirmPassword",
-        "accessToken", "access_token", "refreshToken", "authorization", "apiKey", "secret",
+        "accessToken", "access_token", "refreshToken", "idToken", "credential",
+        "registrationToken", "authorization", "apiKey", "secret",
         "verificationCode", "code", "token", "cookie", "set-cookie"
     };
 
