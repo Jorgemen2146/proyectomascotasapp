@@ -90,7 +90,7 @@ public static class ExternalAuthErrors
     public static readonly Error ProviderUnavailable = Error.Failure(
         "EXTERNAL_LOGIN_FAILED", "The external provider could not be reached.");
     public static readonly Error AccountLinkRequired = Error.Conflict(
-        "EXTERNAL_ACCOUNT_LINK_REQUIRED", "Authenticate with the existing DogPlatform account before linking this provider.");
+        "EXTERNAL_ACCOUNT_LINK_REQUIRED", "Authenticate with the existing PetLife account before linking this provider.");
     public static readonly Error EmailRequired = Error.Validation(
         "EXTERNAL_EMAIL_REQUIRED", "An email address is required to complete registration.");
     public static readonly Error RegistrationRequired = Error.Validation(

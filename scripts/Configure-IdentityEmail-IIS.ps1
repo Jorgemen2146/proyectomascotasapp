@@ -73,7 +73,7 @@ function Set-ApplicationPoolEnvironmentVariable
 $variables = [ordered]@{
     'Email__Provider'                = 'Resend'
     'Email__FromEmail'               = 'onboarding@resend.dev'
-    'Email__FromName'                = 'DogPlatform'
+    'Email__FromName'                = 'PetLife'
     'Email__Resend__ApiKey'          = $ResendApiKey.Trim()
     'Email__VerificationCodeHashKey' = $VerificationCodeHashKey.Trim()
 }

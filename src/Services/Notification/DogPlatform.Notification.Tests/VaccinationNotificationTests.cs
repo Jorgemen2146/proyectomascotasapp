@@ -36,6 +36,8 @@ public sealed class VaccinationNotificationTests
         var notification = Assert.Single(fixture.Repository.Items);
         Assert.Equal(expectedType, notification.Type.ToString());
         Assert.Equal(UserId, notification.UserId);
+        Assert.DoesNotContain("DogPlatform", notification.Title, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("DogPlatform", notification.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Single(fixture.Publisher.Published);
     }
 

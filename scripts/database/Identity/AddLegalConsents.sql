@@ -71,28 +71,28 @@ BEGIN TRY
         VALUES
             ('11111111-1111-4111-8111-111111111111', N'TermsAndConditions', N'1.0',
              N'Términos y Condiciones',
-             N'TÉRMINOS Y CONDICIONES DE DOGPLATFORM
+             N'TÉRMINOS Y CONDICIONES DE PETLIFE
 
 Versión 1.0
 Última actualización: 25/08/2026
 
 1. INFORMACIÓN GENERAL
 
-DogPlatform es una plataforma digital destinada a facilitar la gestión, cuidado y organización de información relacionada con mascotas.
+PetLife es una plataforma digital destinada a facilitar la gestión, cuidado y organización de información relacionada con mascotas.
 
 La aplicación permite a sus usuarios registrar mascotas y utilizar funcionalidades relacionadas, entre otras, con perfiles, fotografías, salud, vacunación, genealogía, búsqueda de pareja, notificaciones y otros servicios que puedan incorporarse posteriormente.
 
-Al crear una cuenta y utilizar DogPlatform, el usuario declara haber leído y aceptado estos Términos y Condiciones.
+Al crear una cuenta y utilizar PetLife, el usuario declara haber leído y aceptado estos Términos y Condiciones.
 
 2. REGISTRO Y CUENTA
 
-Para utilizar determinadas funcionalidades de DogPlatform es necesario crear una cuenta.
+Para utilizar determinadas funcionalidades de PetLife es necesario crear una cuenta.
 
 El usuario se compromete a proporcionar información veraz, actualizada y completa.
 
 El usuario es responsable de mantener la confidencialidad de sus credenciales de acceso y de evitar su utilización por terceros no autorizados.
 
-DogPlatform podrá implementar mecanismos de verificación de correo electrónico, recuperación de contraseña, autenticación y otras medidas orientadas a proteger las cuentas.
+PetLife podrá implementar mecanismos de verificación de correo electrónico, recuperación de contraseña, autenticación y otras medidas orientadas a proteger las cuentas.
 
 3. INFORMACIÓN SOBRE MASCOTAS
 
@@ -112,15 +112,15 @@ El usuario podrá registrar información relacionada con sus mascotas, incluyend
 - información relacionada con reproducción o búsqueda de pareja;
 - otros datos relacionados con su cuidado.
 
-El usuario declara que cuenta con autorización suficiente para registrar y administrar la información que incorpora a DogPlatform.
+El usuario declara que cuenta con autorización suficiente para registrar y administrar la información que incorpora a PetLife.
 
 4. SALUD Y VACUNACIÓN
 
-DogPlatform permite registrar información relacionada con vacunas y otros antecedentes de salud de las mascotas, así como generar recordatorios y estimaciones basadas en la información registrada.
+PetLife permite registrar información relacionada con vacunas y otros antecedentes de salud de las mascotas, así como generar recordatorios y estimaciones basadas en la información registrada.
 
-La información proporcionada por DogPlatform tiene carácter informativo y de apoyo.
+La información proporcionada por PetLife tiene carácter informativo y de apoyo.
 
-DogPlatform no sustituye la evaluación, diagnóstico, tratamiento ni recomendación de un médico veterinario.
+PetLife no sustituye la evaluación, diagnóstico, tratamiento ni recomendación de un médico veterinario.
 
 Los calendarios de vacunación pueden variar dependiendo, entre otros factores, de la especie, edad, ubicación geográfica, condición del animal, fabricante de la vacuna y criterio veterinario.
 
@@ -128,33 +128,33 @@ Ante cualquier duda relacionada con la salud de una mascota, el usuario deberá 
 
 5. RECORDATORIOS Y NOTIFICACIONES
 
-DogPlatform podrá enviar recordatorios y notificaciones relacionados con vacunas, solicitudes, relaciones entre mascotas y otras funcionalidades de la plataforma.
+PetLife podrá enviar recordatorios y notificaciones relacionados con vacunas, solicitudes, relaciones entre mascotas y otras funcionalidades de la plataforma.
 
 Estos avisos constituyen herramientas auxiliares.
 
-DogPlatform no garantiza que una determinada vacuna, tratamiento o procedimiento deba realizarse exactamente en la fecha indicada por la aplicación.
+PetLife no garantiza que una determinada vacuna, tratamiento o procedimiento deba realizarse exactamente en la fecha indicada por la aplicación.
 
 6. GENEALOGÍA
 
-DogPlatform permite registrar y consultar relaciones genealógicas entre mascotas.
+PetLife permite registrar y consultar relaciones genealógicas entre mascotas.
 
-Cuando una relación involucre una mascota perteneciente a otro usuario, DogPlatform podrá requerir la aceptación de dicho usuario antes de activar la relación.
+Cuando una relación involucre una mascota perteneciente a otro usuario, PetLife podrá requerir la aceptación de dicho usuario antes de activar la relación.
 
 Los usuarios son responsables de la veracidad de la información genealógica proporcionada.
 
-Los árboles genealógicos, estadísticas, relaciones de parentesco y demás cálculos realizados por DogPlatform dependen de la información disponible en la plataforma.
+Los árboles genealógicos, estadísticas, relaciones de parentesco y demás cálculos realizados por PetLife dependen de la información disponible en la plataforma.
 
 Estos resultados no constituyen una certificación oficial de pedigree.
 
 7. BÚSQUEDA DE PAREJA Y REPRODUCCIÓN
 
-DogPlatform puede permitir que los usuarios publiquen determinados datos de sus mascotas con la finalidad de encontrar posibles parejas reproductivas.
+PetLife puede permitir que los usuarios publiquen determinados datos de sus mascotas con la finalidad de encontrar posibles parejas reproductivas.
 
 La información de contacto de los propietarios no deberá mostrarse inicialmente a otros usuarios, salvo aquella información que el usuario haya autorizado expresamente a compartir después de aceptar una solicitud.
 
-Las recomendaciones, filtros, compatibilidades o advertencias proporcionadas por DogPlatform tienen carácter informativo.
+Las recomendaciones, filtros, compatibilidades o advertencias proporcionadas por PetLife tienen carácter informativo.
 
-DogPlatform no certifica que una mascota sea médica o genéticamente apta para reproducción.
+PetLife no certifica que una mascota sea médica o genéticamente apta para reproducción.
 
 Los usuarios deberán acudir a profesionales veterinarios y realizar las evaluaciones correspondientes antes de cualquier reproducción.
 
@@ -164,7 +164,7 @@ Las funciones relacionadas con posibles camadas representan únicamente intencio
 
 El usuario conserva los derechos que le correspondan sobre las fotografías y demás contenido que publique.
 
-Al cargar contenido en DogPlatform, el usuario concede a la plataforma la autorización necesaria para almacenarlo, procesarlo y mostrarlo en la medida necesaria para prestar las funcionalidades solicitadas.
+Al cargar contenido en PetLife, el usuario concede a la plataforma la autorización necesaria para almacenarlo, procesarlo y mostrarlo en la medida necesaria para prestar las funcionalidades solicitadas.
 
 El usuario declara contar con los derechos o autorizaciones necesarias respecto del contenido que publique.
 
@@ -172,7 +172,7 @@ No deberá cargarse contenido ilegal, fraudulento, ofensivo o que vulnere derech
 
 9. PRIVACIDAD ENTRE USUARIOS
 
-DogPlatform procura limitar la exposición de información personal entre usuarios.
+PetLife procura limitar la exposición de información personal entre usuarios.
 
 Determinadas funcionalidades, como genealogía o búsqueda de pareja, podrán permitir interacciones entre propietarios diferentes.
 
@@ -180,7 +180,7 @@ Los datos personales o de contacto de otro usuario solo deberán mostrarse cuand
 
 10. FUNCIONALIDADES FUTURAS
 
-DogPlatform podrá incorporar nuevas funcionalidades, incluyendo:
+PetLife podrá incorporar nuevas funcionalidades, incluyendo:
 
 - servicios relacionados con veterinarios;
 - paseos y actividades;
@@ -195,7 +195,7 @@ Estas funcionalidades podrán contar con condiciones adicionales.
 
 11. USO ADECUADO
 
-El usuario se compromete a no utilizar DogPlatform para:
+El usuario se compromete a no utilizar PetLife para:
 
 - actividades ilegales;
 - fraude;
@@ -206,11 +206,11 @@ El usuario se compromete a no utilizar DogPlatform para:
 - manipulación de la plataforma;
 - actividades que puedan perjudicar a personas, animales u otros usuarios.
 
-DogPlatform podrá restringir o suspender cuentas cuando existan indicios razonables de abuso, fraude, incumplimiento de estas condiciones o riesgo para otros usuarios.
+PetLife podrá restringir o suspender cuentas cuando existan indicios razonables de abuso, fraude, incumplimiento de estas condiciones o riesgo para otros usuarios.
 
 12. DISPONIBILIDAD DEL SERVICIO
 
-DogPlatform procurará mantener sus servicios disponibles y operativos.
+PetLife procurará mantener sus servicios disponibles y operativos.
 
 Sin embargo, no garantiza funcionamiento ininterrumpido.
 
@@ -218,7 +218,7 @@ Podrán existir interrupciones debido a mantenimiento, actualizaciones, fallas t
 
 13. PROPIEDAD INTELECTUAL
 
-El software, diseño, identidad visual, interfaces, logotipos, marca y demás elementos propios de DogPlatform se encuentran protegidos por las normas de propiedad intelectual que resulten aplicables.
+El software, diseño, identidad visual, interfaces, logotipos, marca y demás elementos propios de PetLife se encuentran protegidos por las normas de propiedad intelectual que resulten aplicables.
 
 El contenido perteneciente a los usuarios continuará perteneciendo a sus respectivos titulares.
 
@@ -226,11 +226,11 @@ El contenido perteneciente a los usuarios continuará perteneciendo a sus respec
 
 El usuario podrá solicitar la eliminación de su cuenta.
 
-DogPlatform eliminará o anonimizará los datos asociados cuando legal y técnicamente corresponda, excepto aquellos que deban conservarse temporalmente por obligaciones legales, seguridad, prevención de fraude, resolución de controversias u otras causas legítimas.
+PetLife eliminará o anonimizará los datos asociados cuando legal y técnicamente corresponda, excepto aquellos que deban conservarse temporalmente por obligaciones legales, seguridad, prevención de fraude, resolución de controversias u otras causas legítimas.
 
 15. LIMITACIÓN DE RESPONSABILIDAD
 
-DogPlatform proporciona herramientas tecnológicas de apoyo.
+PetLife proporciona herramientas tecnológicas de apoyo.
 
 La plataforma no será responsable por decisiones veterinarias, reproductivas, comerciales o personales tomadas exclusivamente sobre la base de información mostrada por la aplicación.
 
@@ -238,11 +238,11 @@ Los usuarios son responsables de verificar la información relevante y consultar
 
 16. MODIFICACIONES
 
-DogPlatform podrá actualizar estos Términos y Condiciones.
+PetLife podrá actualizar estos Términos y Condiciones.
 
 Cuando se produzcan modificaciones sustanciales se informará al usuario y, cuando corresponda, se solicitará la aceptación de una nueva versión.
 
-DogPlatform conserva un registro de las versiones aceptadas por cada usuario.
+PetLife conserva un registro de las versiones aceptadas por cada usuario.
 
 17. LEGISLACIÓN APLICABLE
 
@@ -258,16 +258,16 @@ Estos Términos y Condiciones se interpretarán conforme a la legislación vigen
         VALUES
             ('22222222-2222-4222-8222-222222222222', N'PrivacyPolicy', N'1.0',
              N'Política de Privacidad',
-             N'POLÍTICA DE PRIVACIDAD DE DOGPLATFORM
+             N'POLÍTICA DE PRIVACIDAD DE PETLIFE
 
 Versión 1.0
 Última actualización: 25/08/2026
 
 1. FINALIDAD DE ESTA POLÍTICA
 
-Esta Política de Privacidad explica cómo DogPlatform recopila, utiliza, almacena y protege información relacionada con sus usuarios y las funcionalidades disponibles en la plataforma.
+Esta Política de Privacidad explica cómo PetLife recopila, utiliza, almacena y protege información relacionada con sus usuarios y las funcionalidades disponibles en la plataforma.
 
-DogPlatform procura tratar únicamente la información necesaria para proporcionar sus servicios.
+PetLife procura tratar únicamente la información necesaria para proporcionar sus servicios.
 
 2. RESPONSABLE DEL TRATAMIENTO
 
@@ -292,7 +292,7 @@ NO inventar datos personales ni societarios.
 
 3. INFORMACIÓN QUE PODEMOS RECOPILAR
 
-DogPlatform puede tratar información proporcionada directamente por el usuario, incluyendo:
+PetLife puede tratar información proporcionada directamente por el usuario, incluyendo:
 
 - nombre;
 - apellidos;
@@ -343,9 +343,9 @@ La información puede utilizarse para:
 
 5. CONSENTIMIENTO
 
-Cuando el tratamiento requiera consentimiento, DogPlatform solicitará una manifestación previa y expresa del usuario.
+Cuando el tratamiento requiera consentimiento, PetLife solicitará una manifestación previa y expresa del usuario.
 
-DogPlatform mantiene información sobre:
+PetLife mantiene información sobre:
 
 - documento aceptado;
 - versión;
@@ -355,23 +355,23 @@ Una nueva versión podrá requerir aceptación adicional cuando corresponda.
 
 6. INFORMACIÓN DE CONTACTO ENTRE USUARIOS
 
-DogPlatform aplica restricciones destinadas a proteger la información personal entre usuarios.
+PetLife aplica restricciones destinadas a proteger la información personal entre usuarios.
 
 Por ejemplo, en funcionalidades de búsqueda de pareja, la información de contacto del propietario de una mascota no se muestra inicialmente.
 
 Cuando dos usuarios aceptan una solicitud, podrán compartirse únicamente los datos que cada usuario haya autorizado.
 
-DogPlatform no deberá utilizar identificadores internos para permitir acceso arbitrario a información privada de otros usuarios.
+PetLife no deberá utilizar identificadores internos para permitir acceso arbitrario a información privada de otros usuarios.
 
 7. GENEALOGÍA
 
-Cuando una relación genealógica involucre mascotas pertenecientes a diferentes usuarios, DogPlatform podrá utilizar mecanismos de solicitud y aceptación.
+Cuando una relación genealógica involucre mascotas pertenecientes a diferentes usuarios, PetLife podrá utilizar mecanismos de solicitud y aceptación.
 
 La existencia de una mascota registrada por otra persona no debe permitir consultar libremente la información personal de su propietario.
 
 8. SERVICIOS Y PROVEEDORES
 
-DogPlatform podrá utilizar proveedores tecnológicos para operar la plataforma.
+PetLife podrá utilizar proveedores tecnológicos para operar la plataforma.
 
 Estos proveedores pueden incluir servicios de:
 
@@ -387,11 +387,11 @@ Estos proveedores pueden incluir servicios de:
 
 Antes del lanzamiento de producción deberán documentarse los proveedores efectivamente utilizados.
 
-Cuando corresponda, DogPlatform informará sobre transferencias nacionales o internacionales de información conforme a la normativa aplicable.
+Cuando corresponda, PetLife informará sobre transferencias nacionales o internacionales de información conforme a la normativa aplicable.
 
 9. SEGURIDAD
 
-DogPlatform implementa medidas técnicas y organizativas destinadas a reducir riesgos de:
+PetLife implementa medidas técnicas y organizativas destinadas a reducir riesgos de:
 
 - acceso no autorizado;
 - alteración;
@@ -435,27 +435,27 @@ solicitar la cancelación del tratamiento cuando corresponda.
 Oposición:
 oponerse a determinados tratamientos cuando legalmente proceda.
 
-Las solicitudes podrán dirigirse al canal de privacidad indicado por DogPlatform.
+Las solicitudes podrán dirigirse al canal de privacidad indicado por PetLife.
 
 El correo definitivo deberá configurarse antes del lanzamiento de producción.
 
 12. ELIMINACIÓN DE CUENTA
 
-DogPlatform permitirá solicitar la eliminación de una cuenta.
+PetLife permitirá solicitar la eliminación de una cuenta.
 
 Cuando corresponda, los datos personales serán eliminados o anonimizados, excepto aquellos que deban mantenerse temporalmente por obligaciones legales, seguridad, prevención de fraude u otras razones legítimas.
 
 13. INFORMACIÓN DE MENORES
 
-DogPlatform no está diseñada para que menores que no puedan proporcionar válidamente los consentimientos correspondientes administren cuentas de forma independiente.
+PetLife no está diseñada para que menores que no puedan proporcionar válidamente los consentimientos correspondientes administren cuentas de forma independiente.
 
 Antes del lanzamiento de producción deberá definirse formalmente la edad mínima de uso de la plataforma.
 
 14. CAMBIOS EN ESTA POLÍTICA
 
-DogPlatform podrá actualizar esta Política de Privacidad debido a cambios funcionales, tecnológicos o regulatorios.
+PetLife podrá actualizar esta Política de Privacidad debido a cambios funcionales, tecnológicos o regulatorios.
 
-Cuando exista una modificación sustancial, DogPlatform podrá requerir la aceptación de una nueva versión.
+Cuando exista una modificación sustancial, PetLife podrá requerir la aceptación de una nueva versión.
 
 15. AUTORIDAD DE PROTECCIÓN DE DATOS
 

@@ -6,7 +6,7 @@ internal sealed class EmailOptions
 
     public string Provider { get; init; } = "Resend";
     public string FromEmail { get; init; } = string.Empty;
-    public string FromName { get; init; } = "DogPlatform";
+    public string FromName { get; init; } = "PetLife";
     public string VerificationCodeHashKey { get; init; } = string.Empty;
     public ResendOptions Resend { get; init; } = new();
 }

@@ -7,7 +7,7 @@ namespace DogPlatform.Identity.Infrastructure.Messaging;
 
 internal sealed class ResendEmailSender : IEmailSender
 {
-    private const string Subject = "Verifica tu cuenta de DogPlatform";
+    private const string Subject = "Verifica tu cuenta de PetLife";
     private const string PasswordResetSubject = "Tu código para restablecer tu contraseña";
 
     private readonly HttpClient _httpClient;
@@ -82,7 +82,7 @@ internal sealed class ResendEmailSender : IEmailSender
         <html lang="es">
           <body style="font-family:Arial,sans-serif;color:#1f2937;line-height:1.5">
             <p>Hola,</p>
-            <p>Se solicitó crear una cuenta en DogPlatform.</p>
+            <p>Se solicitó crear una cuenta en PetLife.</p>
             <p>Tu código de verificación es:</p>
             <p style="font-size:32px;font-weight:700;letter-spacing:8px;margin:24px 0">{{code}}</p>
             <p>El código expira en 10 minutos.</p>
@@ -96,7 +96,7 @@ internal sealed class ResendEmailSender : IEmailSender
         <html lang="es">
           <body style="font-family:Arial,sans-serif;color:#1f2937;line-height:1.5">
             <p>Hola,</p>
-            <p>Tu código de recuperación de DogPlatform es:</p>
+            <p>Tu código de recuperación de PetLife es:</p>
             <p style="font-size:32px;font-weight:700;letter-spacing:8px;margin:24px 0">{{code}}</p>
             <p>Este código vence en {{expirationMinutes}} minutos.</p>
             <p>Si no solicitaste este cambio, puedes ignorar este correo.</p>
