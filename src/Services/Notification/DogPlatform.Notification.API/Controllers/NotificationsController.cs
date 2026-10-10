@@ -8,7 +8,8 @@ namespace DogPlatform.Notification.API.Controllers;
 [ApiController]
 [Authorize]
 [Route("api/v1/notifications")]
-public sealed class NotificationsController(IMediator mediator, ICurrentUser currentUser) : ControllerBase
+public sealed class NotificationsController(IMediator mediator, ICurrentUser currentUser,
+    IConfiguration configuration) : ControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> List(
@@ -43,5 +44,20 @@ public sealed class NotificationsController(IMediator mediator, ICurrentUser cur
     {
         await mediator.Send(new MarkAllNotificationsReadCommand(currentUser.UserId), cancellationToken);
         return NoContent();
+    }
+
+    [AllowAnonymous]
+    [HttpPost("/api/v1/internal/notifications")]
+    public async Task<IActionResult> CreateInternal(
+        [FromBody] CreateInternalNotificationCommand command,
+        CancellationToken cancellationToken)
+    {
+        if (!Request.Headers.TryGetValue("X-DogPlatform-Internal-Key", out var key) ||
+            string.IsNullOrWhiteSpace(configuration["InternalServices:ApiKey"]) ||
+            key != configuration["InternalServices:ApiKey"])
+            return Unauthorized();
+
+        var result = await mediator.Send(command, cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error);
     }
 }

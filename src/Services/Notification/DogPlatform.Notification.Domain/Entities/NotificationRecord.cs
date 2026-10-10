@@ -51,6 +51,13 @@ public sealed class NotificationRecord
             "Vaccination", $"{petId:D}:{vaccineId}", createdAtUtc,
             notificationDateUtc, deduplicationKey, metadataJson);
 
+    public static NotificationRecord CreateSocial(Guid userId, NotificationType type,
+        string title, string message, string referenceType, string referenceId,
+        DateTime createdAtUtc, string deduplicationKey, string metadataJson) =>
+        new(Guid.NewGuid(), userId, null, null, type, title, message,
+            referenceType, referenceId, createdAtUtc,
+            DateOnly.FromDateTime(createdAtUtc), deduplicationKey, metadataJson);
+
     public void MarkAsRead(DateTime utcNow)
     {
         if (IsRead)

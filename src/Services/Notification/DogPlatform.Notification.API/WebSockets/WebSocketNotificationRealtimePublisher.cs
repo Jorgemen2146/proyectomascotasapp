@@ -18,5 +18,15 @@ public sealed class WebSocketNotificationRealtimePublisher(
         return connectionManager.SendToUserAsync(userId, payload, cancellationToken);
     }
 
+    public Task PublishEventAsync(Guid userId, string eventName, object data,
+        CancellationToken cancellationToken = default)
+    {
+        var envelope = new GenericWebSocketEnvelope(eventName, data);
+        var payload = JsonSerializer.SerializeToUtf8Bytes(
+            envelope, jsonOptions.Value.JsonSerializerOptions);
+        return connectionManager.SendToUserAsync(userId, payload, cancellationToken);
+    }
+
     private sealed record NotificationWebSocketEnvelope(string Event, NotificationResponse Data);
+    private sealed record GenericWebSocketEnvelope(string Event, object Data);
 }

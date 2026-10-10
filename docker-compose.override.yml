@@ -1,0 +1,27 @@
+services:
+  identity-api:
+    environment:
+      InternalServices__ApiKey: "${INTERNAL_SERVICES_API_KEY:?set INTERNAL_SERVICES_API_KEY in your .env}"
+  notification-api:
+    environment:
+      InternalServices__ApiKey: "${INTERNAL_SERVICES_API_KEY:?set INTERNAL_SERVICES_API_KEY in your .env}"
+  social-api:
+    build:
+      context: .
+      dockerfile: src/Services/Social/DogPlatform.Social.API/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__SocialDb: "Server=sqlserver,1433;Database=DogPlatform_SocialDb;User Id=sa;Password=${SQL_SA_PASSWORD};TrustServerCertificate=True;"
+      IdentityService__BaseUrl: "http://identity-api:8080"
+      NotificationsService__BaseUrl: "http://notification-api:8080"
+      InternalServices__ApiKey: "${INTERNAL_SERVICES_API_KEY:?set INTERNAL_SERVICES_API_KEY in your .env}"
+      Jwt__Secret: "${JWT_SECRET:?set JWT_SECRET in your .env}"
+    depends_on:
+      - sqlserver
+      - identity-api
+      - notification-api
+    networks:
+      - dogplatform
+  apigateway:
+    depends_on:
+      - social-api

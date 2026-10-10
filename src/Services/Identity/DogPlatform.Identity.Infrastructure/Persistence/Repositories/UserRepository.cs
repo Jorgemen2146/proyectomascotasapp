@@ -35,4 +35,15 @@ internal sealed class UserRepository : IUserRepository
         await _context.Users
             .AsNoTracking()
             .AnyAsync(u => u.Email.Value == email.Value, cancellationToken);
+
+    public async Task<IReadOnlyCollection<User>> SearchActiveAsync(string query, int limit,
+        CancellationToken cancellationToken = default)
+    {
+        var term = query.Trim();
+        return await _context.Users.AsNoTracking()
+            .Where(u => u.IsActive &&
+                (u.FullName.FirstName.Contains(term) || u.FullName.LastName.Contains(term)))
+            .OrderBy(u => u.FullName.FirstName).ThenBy(u => u.FullName.LastName)
+            .Take(limit).ToListAsync(cancellationToken);
+    }
 }

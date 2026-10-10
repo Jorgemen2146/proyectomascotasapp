@@ -52,6 +52,8 @@ public interface INotificationRealtimePublisher
 {
     Task PublishAsync(NotificationResponse notification, Guid userId,
         CancellationToken cancellationToken = default);
+    Task PublishEventAsync(Guid userId, string eventName, object data,
+        CancellationToken cancellationToken = default) => Task.CompletedTask;
 }
 
 public interface ICurrentUser
@@ -75,6 +77,75 @@ public interface IVaccinationNotificationGenerator
 public interface IVaccinationReminderRunner
 {
     Task<VaccinationReminderRunResult> RunAsync(CancellationToken cancellationToken = default);
+}
+
+public sealed record CreateInternalNotificationCommand(
+    Guid UserId,
+    string EventName,
+    string Title,
+    string Message,
+    string ReferenceType,
+    string ReferenceId,
+    JsonElement Data,
+    string DeduplicationKey,
+    bool Persist) : IRequest<Result<InternalNotificationResponse>>;
+
+public sealed record InternalNotificationResponse(Guid NotificationId, bool Created);
+
+public sealed class CreateInternalNotificationHandler(
+    INotificationRepository repository,
+    INotificationRealtimePublisher realtimePublisher,
+    TimeProvider timeProvider,
+    ILogger<CreateInternalNotificationHandler> logger)
+    : IRequestHandler<CreateInternalNotificationCommand, Result<InternalNotificationResponse>>
+{
+    public async Task<Result<InternalNotificationResponse>> Handle(
+        CreateInternalNotificationCommand request, CancellationToken cancellationToken)
+    {
+        if (!request.Persist)
+        {
+            if (request.EventName is not "chat.message.read")
+                return Result.Failure<InternalNotificationResponse>(Error.Validation(
+                    "Notification.UnsupportedEvent", "The realtime event is not supported."));
+
+            await realtimePublisher.PublishEventAsync(request.UserId,
+                request.EventName, request.Data, cancellationToken);
+            return Result.Success(new InternalNotificationResponse(Guid.Empty, false));
+        }
+
+        var type = request.EventName switch
+        {
+            "social.friend_request.received" => NotificationType.FriendRequestReceived,
+            "social.friend_request.accepted" => NotificationType.FriendRequestAccepted,
+            "chat.message.received" => NotificationType.ChatMessageReceived,
+            _ => (NotificationType?)null
+        };
+        if (type is null)
+            return Result.Failure<InternalNotificationResponse>(Error.Validation(
+                "Notification.UnsupportedEvent", "The realtime event is not supported."));
+
+        var record = NotificationRecord.CreateSocial(request.UserId, type.Value,
+            request.Title, request.Message, request.ReferenceType, request.ReferenceId,
+            timeProvider.GetUtcNow().UtcDateTime, request.DeduplicationKey,
+            request.Data.GetRawText());
+        var insert = await repository.TryAddAsync(record, cancellationToken);
+        if (insert == NotificationInsertResult.Duplicate)
+            return Result.Success(new InternalNotificationResponse(record.NotificationId, false));
+
+        try
+        {
+            await realtimePublisher.PublishEventAsync(request.UserId,
+                request.EventName, request.Data, cancellationToken);
+        }
+        catch (Exception exception)
+        {
+            logger.LogWarning(exception,
+                "Realtime delivery failed after social notification {NotificationId} was persisted.",
+                record.NotificationId);
+        }
+
+        return Result.Success(new InternalNotificationResponse(record.NotificationId, true));
+    }
 }
 
 public sealed class VaccinationReminderRunner(

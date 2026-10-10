@@ -5,5 +5,8 @@ public enum NotificationType
     VaccinationDueSoon,
     VaccinationDueToday,
     VaccinationOverdue,
-    VaccinationNotStarted
+    VaccinationNotStarted,
+    FriendRequestReceived,
+    FriendRequestAccepted,
+    ChatMessageReceived
 }

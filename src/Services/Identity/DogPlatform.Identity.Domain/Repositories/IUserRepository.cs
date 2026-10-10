@@ -14,4 +14,8 @@ public interface IUserRepository
     Task UpdateAsync(User user, CancellationToken cancellationToken = default);
 
     Task<bool> ExistsWithEmailAsync(Email email, CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<User>> SearchActiveAsync(string query, int limit,
+        CancellationToken cancellationToken = default) =>
+        Task.FromResult<IReadOnlyCollection<User>>(Array.Empty<User>());
 }
