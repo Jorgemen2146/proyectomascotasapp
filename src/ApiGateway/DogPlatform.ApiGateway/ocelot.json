@@ -383,6 +383,16 @@
       "DownstreamHostAndPorts": [
         { "Host": "localhost", "Port": 5109 }
       ]
+    },
+    // Social and one-to-one messaging
+    {
+      "UpstreamPathTemplate": "/api/v1/social/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "DownstreamPathTemplate": "/api/v1/social/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 5110 }
+      ]
     }
   ],
   "GlobalConfiguration": {
@@ -423,6 +433,12 @@
       "Key": "notification",
       "Config": [
         { "Name": "Notification API", "Version": "v1", "Url": "http://localhost:5109/swagger/v1/swagger.json" }
+      ]
+    },
+    {
+      "Key": "social",
+      "Config": [
+        { "Name": "Social API", "Version": "v1", "Url": "http://localhost:5110/swagger/v1/swagger.json" }
       ]
     }
   ]

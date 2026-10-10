@@ -84,7 +84,7 @@ services:
       dockerfile: src/Services/Notification/DogPlatform.Notification.API/Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Production
-      ConnectionStrings__NotificationDb: "Server=sqlserver,1433;Database=DogPlatform_NotificationDb;User Id=sa;Password=${SQL_SA_PASSWORD};TrustServerCertificate=True;"
+      ConnectionStrings__NotificationsDb: "Server=sqlserver,1433;Database=DogPlatform_NotificationsDb;User Id=sa;Password=${SQL_SA_PASSWORD};TrustServerCertificate=True;"
     depends_on:
       - sqlserver
     networks:

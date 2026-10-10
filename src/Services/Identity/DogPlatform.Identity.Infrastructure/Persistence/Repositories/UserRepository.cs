@@ -17,6 +17,17 @@ internal sealed class UserRepository : IUserRepository
             .Include(u => u.UserRoles)
             .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
 
+    public async Task<IReadOnlyCollection<User>> GetByIdsAsync(IReadOnlyCollection<Guid> ids,
+        CancellationToken cancellationToken = default)
+    {
+        if (ids.Count == 0)
+            return Array.Empty<User>();
+
+        return await _context.Users.AsNoTracking()
+            .Where(user => ids.Contains(user.Id) && user.IsActive)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<User?> GetByEmailAsync(Email email, CancellationToken cancellationToken = default) =>
         await _context.Users
             .Include(u => u.UserRoles)

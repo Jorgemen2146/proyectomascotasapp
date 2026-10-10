@@ -59,12 +59,31 @@ BEGIN TRY
                     N'VaccinationDueSoon',
                     N'VaccinationDueToday',
                     N'VaccinationOverdue',
-                    N'VaccinationNotStarted'
+                    N'VaccinationNotStarted',
+                    N'FriendRequestReceived',
+                    N'FriendRequestAccepted',
+                    N'ChatMessageReceived'
                 )),
             CONSTRAINT [CK_Notifications_ReadAtUtc]
                 CHECK (([IsRead] = 0 AND [ReadAtUtc] IS NULL) OR [IsRead] = 1)
         );
     END;
+
+    /* Keep existing databases aligned when new notification types are introduced. */
+    IF OBJECT_ID(N'[notifications].[CK_Notifications_Type]', N'C') IS NOT NULL
+        ALTER TABLE [notifications].[Notifications] DROP CONSTRAINT [CK_Notifications_Type];
+
+    ALTER TABLE [notifications].[Notifications] WITH CHECK
+        ADD CONSTRAINT [CK_Notifications_Type] CHECK ([Type] IN
+        (
+            N'VaccinationDueSoon',
+            N'VaccinationDueToday',
+            N'VaccinationOverdue',
+            N'VaccinationNotStarted',
+            N'FriendRequestReceived',
+            N'FriendRequestAccepted',
+            N'ChatMessageReceived'
+        ));
 
     IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE [object_id] = OBJECT_ID(N'[notifications].[Notifications]') AND [name] = N'IX_Notifications_UserId_CreatedAtUtc')
         CREATE INDEX [IX_Notifications_UserId_CreatedAtUtc]
